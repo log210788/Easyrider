@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Thử Thách Bộ Phận Cơ Thể Tiếng Việt</title>
+    <style>
+        :root {
+            --red: #FF0000;    /* Tết red */
+            --gold: #FFD700;   /* Tết gold/yellow */
+            --green: #008000;  /* Tết green */
+            --dark: #0a0a0a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'SF Pro Display', system-ui, sans-serif;
+            background: var(--dark);
+            color: white;
+            height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Background Bubbles */
+        #bg-fx { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            bottom: -50px;
+            animation: rise linear forwards;
+            opacity: 0.6;
+        }
+        @keyframes rise {
+            to { transform: translateY(-120vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Money FX */
+        #money-fx { position: fixed; inset: 0; pointer-events: none; z-index: 2; }
+        .money {
+            position: absolute;
+            top: -50px;
+            font-size: 28px;
+            animation: fall linear forwards;
+            opacity: 0.8;
+        }
+        @keyframes fall {
+            to { transform: translateY(120vh) rotate(360deg); opacity: 0; }
+        }
+
+        #camera-zone {
+            flex: 1;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        #progress-counter, #streak-counter {
+            background: rgba(0,0,0,0.65);
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold);
+        }
+
+        #streak-counter {
+            border-color: var(--green);
+            transition: all 0.3s;
+        }
+        #streak-counter.fire { 
+            background: var(--red);
+            border-color: var(--gold);
+            transform: scale(1.15);
+        }
+
+        /* Trophy Collection */
+        #lion-collection {
+            position: absolute;
+            top: 70px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            z-index: 90;
+        }
+
+        .mini-lion-wrap {
+            width: 42px;
+            height: 42px;
+            position: relative;
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .mini-lion-img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+            80% { transform: scale(1.15); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        /* Lion Stage */
+        #lion-stage {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .lion-wrap {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            width: 180px;
+            height: 180px;
+            transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .lion-up {
+            transform: translate(-50%, -30vh) scale(1.4) !important;
+        }
+
+        .lion-img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Mouth Animation */
+        .img-open { animation: mouthOpen 0.25s infinite alternate; }
+        .img-closed { animation: mouthClosed 0.25s infinite alternate; }
+
+        @keyframes mouthOpen { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes mouthClosed { from { opacity: 1; } to { opacity: 0; } }
+
+        /* Floating Text */
+        .float-text {
+            position: absolute;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 20px var(--red), 0 0 40px var(--gold);
+            pointer-events: none;
+            animation: floatUp 1.8s forwards;
+            z-index: 200;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-180px); opacity: 0; }
+        }
+
+        /* UI Panel */
+        .ui-panel {
+            height: 32%;
+            background: linear-gradient(#1a1a1a, #000);
+            border-radius: 32px 32px 0 0;
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 100;
+        }
+
+        #word-display {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--red);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #answer-input {
+            width: 92%;
+            font-size: 26px;
+            padding: 16px;
+            border: 3px solid #444;
+            border-radius: 20px;
+            background: #111;
+            color: white;
+            text-align: center;
+            outline: none;
+        }
+
+        #answer-input:focus {
+            border-color: var(--gold);
+        }
+
+        #start-btn {
+            padding: 16px 50px;
+            font-size: 22px;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--red), var(--gold));
+            border: none;
+            border-radius: 50px;
+            color: white;
+            box-shadow: 0 8px 0 #b30038;
+        }
+
+        .win-screen h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        @keyframes flashGreen {
+            0%, 100% { background: #111; border-color: #444; }
+            50% { background: var(--green); border-color: var(--gold); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bg-fx"></div>
+    <div id="money-fx"></div>
+
+    <div id="camera-zone">
+        <div class="top-bar">
+            <div id="progress-counter">1 / 26</div>
+            <div id="streak-counter">Chuỗi: 0 🔥</div>
+        </div>
+        <div id="lion-collection"></div>
+        <video id="v" autoplay playsinline muted></video>
+    </div>
+
+    <div class="ui-panel">
+        <div id="start-screen">
+            <h2 style="margin-bottom:20px; font-size:28px;">Thử Thách Bộ Phận Cơ Thể Tiếng Việt</h2>
+            <button id="start-btn" onclick="init()">BẮT ĐẦU THỬ THÁCH</button>
+        </div>
+
+        <div id="game-area" style="display:none; width:100%;">
+            <div id="word-display">HEAD</div>
+            <input type="text" id="answer-input" placeholder="Gõ tiếng Việt" autocomplete="off">
+        </div>
+    </div>
+
+    <div id="lion-stage"></div>
+
+    <!-- Audio elements for sound effects -->
+    <audio id="correctSound" src="https://orangefreesounds.com/wp-content/uploads/2024/03/Coins-moving-sound-effect.mp3"></audio> <!-- Coins jingling/moving for correct answer -->
+    <audio id="lionRoar" src="https://orangefreesounds.com/wp-content/uploads/2024/03/Coins-moving-sound-effect.mp3"></audio> <!-- Coins for celebration -->
+    <audio id="victorySound" src="https://orangefreesounds.com/wp-content/uploads/2023/06/Victory-fanfare-sound-effect.mp3"></audio> <!-- Victory fanfare -->
+    <audio id="confettiSound" src="https://orangefreesounds.com/wp-content/uploads/2024/03/Coins-moving-sound-effect.mp3"></audio> <!-- Coins for confetti -->
+
+<script>
+    const vocabList = [
+        {en:"Head", vi:"Đầu"}, {en:"Face", vi:"Mặt"}, {en:"Eyes", vi:"Mắt"},
+        {en:"Hair", vi:"Tóc"}, {en:"Nose", vi:"Mũi"}, {en:"Mouth", vi:"Miệng"},
+        {en:"Ears", vi:"Tai"}, {en:"Teeth", vi:"Răng"}, {en:"Neck", vi:"Cổ"},
+        {en:"Shoulders", vi:"Vai"}, {en:"Chest", vi:"Ngực"}, {en:"Back", vi:"Lưng"},
+        {en:"Stomach", vi:"Bụng"}, {en:"Arm", vi:"Tay"}, {en:"Hand", vi:"Bàn tay"},
+        {en:"Finger", vi:"Ngón tay"}, {en:"Bottom", vi:"Mông"}, {en:"Leg", vi:"Chân"},
+        {en:"Thigh", vi:"Đùi"}, {en:"Knee", vi:"Đầu gối"}, {en:"Foot", vi:"Bàn chân"},
+        {en:"Toe", vi:"Ngón chân"}, {en:"Heart", vi:"Tim"}, {en:"Bone", vi:"Xương"},
+        {en:"Skin", vi:"Da"}, {en:"Blood", vi:"Máu"}
+    ];
+
+    let currentIdx = 0;
+    let streak = 0;
+    let lionCount = 0;
+    let moneyDensity = 0;
+    const input = document.getElementById('answer-input');
+    const correctSound = document.getElementById('correctSound');
+    const lionRoar = document.getElementById('lionRoar');
+    const victorySound = document.getElementById('victorySound');
+    const confettiSound = document.getElementById('confettiSound');
+
+    async function init() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-area').style.display = 'block';
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            document.getElementById('v').srcObject = stream;
+        } catch(e) {}
+
+        setTimeout(() => input.focus(), 0);
+        loadNext();
+    }
+
+    function loadNext() {
+        if (currentIdx >= vocabList.length) {
+            finishGame();
+            return;
+        }
+        document.getElementById('word-display').innerText = vocabList[currentIdx].en;
+        document.getElementById('progress-counter').innerText = `${currentIdx + 1} / ${vocabList.length}`;
+        input.value = "";
+    }
+
+    input.addEventListener('input', () => {
+        const userVal = input.value.trim().toLowerCase();
+        const correctVal = vocabList[currentIdx].vi.toLowerCase();
+
+        if (userVal === correctVal) {
+            streak++;
+            const duration = Math.max(0.25, 1 - (streak - 1) * 0.03);
+            input.style.animation = `flashGreen ${duration}s ease-in-out`;
+            correctSound.play(); // Play coin sound
+            celebrate();
+            setTimeout(() => {
+                input.style.animation = '';
+                currentIdx++;
+                loadNext();
+                setTimeout(() => input.focus(), 0);
+            }, 1200);
+        }
+    });
+
+    function celebrate() {
+        // Big Lion Animation
+        const stage = document.getElementById('lion-stage');
+        const lion = document.createElement('div');
+        lion.className = 'lion-wrap';
+        lion.innerHTML = `
+            <img src="lion-1.png" class="lion-img img-closed">
+            <img src="lion-2.png" class="lion-img img-open">
+        `;
+        stage.appendChild(lion);
+        
+        setTimeout(() => lion.classList.add('lion-up'), 100);
+        setTimeout(() => lion.remove(), 2000);
+
+        lionRoar.play(); // Play coin sound for lion
+
+        // Mini Lion Trophy
+        const collection = document.getElementById('lion-collection');
+        const wrap = document.createElement('div');
+        wrap.className = 'mini-lion-wrap';
+        wrap.innerHTML = `<img src="lion-1.png" class="mini-lion-img img-closed"><img src="lion-2.png" class="mini-lion-img img-open">`;
+        collection.appendChild(wrap);
+
+        // Update lion count and money density
+        lionCount++;
+        moneyDensity = Math.floor(lionCount / 3) + 1;  // Increases every 3 lions
+
+        // Streak Update
+        const streakEl = document.getElementById('streak-counter');
+        streakEl.innerText = `Chuỗi: ${streak} 🔥`;
+        if (streak >= 3) streakEl.classList.add('fire');
+
+        // Floating Text
+        const texts = ["Tuyệt!", "Hay!", "Hoàn Hảo!", "Giỏi!", "Đúng!"];
+        const floatText = document.createElement('div');
+        floatText.className = 'float-text';
+        floatText.style.left = Math.random() * 60 + 20 + "%";
+        floatText.style.top = "45%";
+        floatText.innerText = texts[Math.floor(Math.random()*texts.length)];
+        floatText.style.color = Math.random() > 0.5 ? "var(--gold)" : "var(--red)";
+        document.body.appendChild(floatText);
+        setTimeout(() => floatText.remove(), 2000);
+
+        // Confetti Burst
+        confettiBurst();
+    }
+
+    function confettiBurst() {
+        confettiSound.play(); // Play coin sound for confetti
+        for (let i = 0; i < 35; i++) {
+            setTimeout(() => {
+                const conf = document.createElement('div');
+                conf.style.position = 'fixed';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.top = '-20px';
+                conf.style.fontSize = Math.random() * 20 + 20 + 'px';
+                conf.style.opacity = Math.random() * 0.7 + 0.6;
+                conf.style.zIndex = '300';
+                conf.innerText = ['🎉','✨','⭐','🔥','🦁'][Math.floor(Math.random()*5)];
+                document.body.appendChild(conf);
+
+                setTimeout(() => {
+                    conf.style.transition = 'all 2.5s';
+                    conf.style.transform = `translateY(${window.innerHeight + 100}px) rotate(${Math.random()*800 - 400}deg)`;
+                    conf.style.opacity = '0';
+                }, 50);
+
+                setTimeout(() => conf.remove(), 2800);
+            }, i * 40);
+        }
+    }
+
+    function finishGame() {
+        victorySound.play(); // Play fanfare sound
+        document.querySelector('.ui-panel').innerHTML = `
+            <div class="win-screen" style="text-align:center;">
+                <h1>🏆 HOÀN THÀNH THỬ THÁCH!</h1>
+                <p style="font-size:24px; margin:20px 0;">Bạn đã làm chủ tất cả 26 từ!</p>
+                <p>Chuỗi Cuối: <strong>${streak}</strong> 🔥</p>
+                <button id="start-btn" onclick="location.reload()" style="margin-top:30px;">CHƠI LẠI</button>
+            </div>`;
+    }
+
+    // Background Bubbles
+    setInterval(() => {
+        const b = document.createElement('div');
+        b.className = 'bubble';
+        const size = Math.random() * 18 + 12;
+        b.style.width = b.style.height = size + 'px';
+        b.style.left = Math.random() * 100 + 'vw';
+        b.style.background = ['#FF0000', '#FFD700', '#ffffff', '#008000'][Math.floor(Math.random()*4)];
+        b.style.animationDuration = Math.random() * 2 + 3.5 + 's';
+        document.getElementById('bg-fx').appendChild(b);
+        setTimeout(() => b.remove(), 6000);
+    }, 350);
+
+    // Constant Money Flying Effect (increases with lion count)
+    setInterval(() => {
+        for (let i = 0; i < moneyDensity; i++) {
+            const m = document.createElement('div');
+            m.className = 'money';
+            m.innerText = '💰';
+            m.style.left = Math.random() * 100 + 'vw';
+            m.style.animationDuration = Math.random() * 3 + 4 + 's';
+            m.style.transform = `rotate(${Math.random() * 360}deg)`;
+            document.getElementById('money-fx').appendChild(m);
+            setTimeout(() => m.remove(), 8000);
+        }
+    }, 600);  // Every 0.6 seconds, create moneyDensity number of money particles
+
+</script>
+</body>
+</html>
