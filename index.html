@@ -2,213 +2,513 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Agent Partnership - Central Vietnam</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Trò Chơi Học Tiếng Anh Vui Nhộn Cho Bé</title>
+    <link rel="manifest" href="/manifest.json"> <!-- Add manifest.json to your repo root -->
     <style>
-        :root { --primary: #00ff88; --bg: #0f0f0f; --card: #1a1a1a; --text: #e0e0e0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 20px; }
-        .container { max-width: 750px; margin: auto; }
-        .header { text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 20px; margin-bottom: 30px; }
-        h1 { color: var(--primary); letter-spacing: 1px; font-size: 1.8rem; }
-        .section { background: var(--card); padding: 25px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #333; }
-        h2 { color: var(--primary); font-size: 1.3rem; margin-top: 0; display: flex; align-items: center; }
-        .lang-en { color: #aaa; font-style: italic; font-size: 0.9rem; margin-bottom: 15px; display: block; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .highlight { background: #222; border-left: 4px solid var(--primary); padding: 15px; margin: 15px 0; border-radius: 0 10px 10px 0; }
-        strong { color: var(--primary); }
-        ul { padding-left: 20px; }
-        li { margin-bottom: 8px; }
-.poster-mockup {
-    text-align: center;
-    margin-top: 30px;
-    padding: 30px;
-    background: #000;
-    border: 2px dashed var(--primary);
-    border-radius: 20px;
-    box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
-}
+        :root {
+            --red: #FF0000;    /* Tết red */
+            --gold: #FFD700;   /* Tết gold/yellow */
+            --green: #008000;  /* Tết green */
+            --dark: #0a0a0a;
+        }
 
-.poster-mockup h2 {
-    justify-content: center;
-    border: none;
-    padding: 0;
-    margin-bottom: 5px;
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'SF Pro Display', system-ui, sans-serif;
+            background: var(--dark);
+            color: white;
+            height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
 
-.poster-mockup img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 12px;
-    margin: 20px 0;
-    border: 1px solid #333;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
+        /* Background Bubbles */
+        #bg-fx { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            bottom: -50px;
+            animation: rise linear forwards;
+            opacity: 0.6;
+        }
+        @keyframes rise {
+            to { transform: translateY(-120vh) rotate(720deg); opacity: 0; }
+        }
 
-.poster-mockup p {
-    font-weight: bold;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-}
+        /* Money FX */
+        #money-fx { position: fixed; inset: 0; pointer-events: none; z-index: 2; }
+        .money {
+            position: absolute;
+            top: -50px;
+            font-size: 28px;
+            animation: fall linear forwards;
+            opacity: 0.8;
+        }
+        @keyframes fall {
+            to { transform: translateY(120vh) rotate(360deg); opacity: 0; }
+        }
 
+        #camera-zone {
+            flex: 1;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        #progress-counter, #streak-counter {
+            background: rgba(0,0,0,0.65);
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold);
+        }
+
+        #streak-counter {
+            border-color: var(--green);
+            transition: all 0.3s;
+        }
+        #streak-counter.fire { 
+            background: var(--red);
+            border-color: var(--gold);
+            transform: scale(1.15);
+        }
+
+        /* Trophy Collection */
+        #lion-collection {
+            position: absolute;
+            top: 70px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            z-index: 90;
+        }
+
+        .mini-lion-wrap {
+            width: 42px;
+            height: 42px;
+            position: relative;
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .mini-lion-img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+            80% { transform: scale(1.15); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        /* Lion Stage */
+        #lion-stage {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .lion-wrap {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            width: 180px;
+            height: 180px;
+            transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .lion-up {
+            transform: translate(-50%, -20vh) scale(1.4) !important;
+        }
+
+        .lion-img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Mouth Animation */
+        .img-open { animation: mouthOpen 0.25s infinite alternate; }
+        .img-closed { animation: mouthClosed 0.25s infinite alternate; }
+
+        @keyframes mouthOpen { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes mouthClosed { from { opacity: 1; } to { opacity: 0; } }
+
+        /* Floating Text */
+        .float-text {
+            position: absolute;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 20px var(--red), 0 0 40px var(--gold);
+            pointer-events: none;
+            animation: floatUp 1.8s forwards;
+            z-index: 200;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-180px); opacity: 0; }
+        }
+
+        /* UI Panel */
+        .ui-panel {
+            height: 32%;
+            background: linear-gradient(#1a1a1a, #000);
+            border-radius: 32px 32px 0 0;
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 100;
+        }
+
+        #word-display {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--red);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #options {
+            width: 92%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #options button {
+            padding: 16px;
+            font-size: 26px;
+            border: 3px solid #444;
+            border-radius: 20px;
+            background: #111;
+            color: white;
+            cursor: pointer;
+        }
+
+        #options button:hover {
+            background: #222;
+        }
+
+        #result {
+            margin-top: 10px;
+            font-size: 20px;
+            color: var(--gold);
+        }
+
+        #start-btn {
+            padding: 16px 50px;
+            font-size: 22px;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--red), var(--gold));
+            border: none;
+            border-radius: 50px;
+            color: white;
+            box-shadow: 0 8px 0 #b30038;
+        }
+
+        .win-screen h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        @keyframes flashGreen {
+            0%, 100% { background: #111; border-color: #444; }
+            50% { background: var(--green); border-color: var(--gold); }
+        }
+
+        /* Contact Form Styles */
+        #contact-form {
+            display: none;
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            color: black;
+            z-index: 1000;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+        }
+        #contact-form input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+        }
+        #contact-form button {
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
-<body>
+<body onload="console.log('Page loaded');">
 
-<div class="container">
-    <div class="header">
-        <h1>THE AI AGENT: BEYOND BOOKING</h1>
-        <p>Hệ Thống Đại Lý Ảo Thông Minh 2026</p>
-    </div>
+    <div id="bg-fx"></div>
+    <div id="money-fx"></div>
 
-    <div class="section">
-        <h2>1. Tại sao Website là lỗi thời? (Why Websites are Obsolete)</h2>
-        <span class="lang-en">Foreigners book through Hostels, Hotels, and Agencies. These middlemen use the same Zalo/WhatsApp groups. We don't need a website; we need to control the groups.</span>
-        <p>Khách du lịch đặt tour qua Hostel, Hotel và Agency. Toàn bộ các bên này đều dùng chung các <strong>Group Zalo/WhatsApp ngầm</strong>. AI của chúng ta không chỉ theo dõi mà còn <strong>chiếm quyền ưu tiên</strong> trong các nhóm này.</p>
-    </div>
-
-    <div class="section">
-        <h2>2. Trợ lý chạy tour 24/7 (The "Hands-Free" Agent)</h2>
-        <span class="lang-en">The AI knows your schedule. It reacts to jobs while you are driving. If you are busy, it "snipes" the lead and pushes it to a friend, earning you a commission automatically.</span>
-        <div class="highlight">
-            <strong>Không bao giờ bỏ lỡ lead:</strong> Khi anh đang lái xe hoặc đã kín lịch, AI vẫn sẽ cướp đơn (snipe) và <strong>bắn đơn đó cho anh em bạn hữu</strong> để anh thu tiền "phế" (commission) ngay lập tức.
+    <div id="camera-zone">
+        <div class="top-bar">
+            <div id="progress-counter">1 / 10</div>
+            <div id="streak-counter">Chuỗi: 0 🔥</div>
         </div>
-        <ul>
-            <li><strong>Chốt khách quay đầu:</strong> Tự động tìm khách lượt về (Return Trip) khi anh chưa kịp kết thúc lượt đi.</li>
-            <li><strong>Tốc độ phản xạ:</strong> Nhanh hơn bất kỳ tài xế nào khác nhưng vẫn giữ giọng văn cực kỳ tự nhiên.</li>
-        </ul>
+        <div id="lion-collection"></div>
+        <video id="v" autoplay playsinline muted></video>
     </div>
 
-    <div class="section">
-        <h2>3. Hệ thống Poster & QR Code (AI-Powered Marketing)</h2>
-        <span class="lang-en">When a tourist scans your QR code at a hostel, they talk to the AI in perfect English. It answers questions, checks your schedule, and books them. If you are full, it sells the job to your network.</span>
-        <p>Thay vì đưa Namecard truyền thống, chúng ta đặt Poster có <strong>QR Code thông minh</strong> tại các điểm nóng:</p>
-        <ul>
-            <li><strong>Tư vấn tiếng Anh 24/7:</strong> AI trả lời mọi câu hỏi về lịch trình, giá cả, thời tiết ngay lập tức.</li>
-            <li><strong>Tự động điều phối:</strong> Nếu lịch của anh đã đầy, AI sẽ tự giới thiệu khách cho "đàn em" và <strong>đảm bảo tiền hoa hồng</strong> chảy về túi anh mà anh không cần nhấc máy.</li>
-        </ul>
+    <div class="ui-panel">
+        <div id="start-screen">
+            <h2 style="margin-bottom:20px; font-size:28px;">Trò Chơi Học Tiếng Anh Vui Nhộn Cho Bé</h2>
+            <button id="start-btn" onclick="init()">BẮT ĐẦU CHƠI</button>
+        </div>
+
+        <div id="game-area" style="display:none; width:100%;">
+            <div id="word-display">ĐẦU</div>
+            <div id="options" class="options"></div>
+            <div id="result"></div>
+        </div>
     </div>
 
-    <div class="section" style="border-color: var(--primary);">
-        <h2>4. Lợi ích cho Anh (Your Competitive Edge)</h2>
-        <span class="lang-en">You become a "Digital Agency" owner, not just a driver. You earn from your own rides AND from every lead the AI snipes for your friends.</span>
-        <p>Anh không còn là một tài xế đơn lẻ. Anh trở thành một <strong>Chủ Đại Lý Số</strong>:</p>
-        <ul>
-            <li>Kiếm tiền ngay cả khi đang ngủ hoặc đang chở khách trên đường.</li>
-            <li>Kiểm soát toàn bộ nguồn khách từ các Group kín mà không cần nhìn điện thoại.</li>
-            <li>Biến đối thủ thành "người làm thuê" cho hệ thống của mình thông qua việc chia đơn.</li>
-        </ul>
-    </div>
-<div class="section" style="border: 2px solid #555;">
-    <h2>5. Mạng Lưới Toàn Quốc & Nguồn Thu Thụ Động (National Scale & Passive Income)</h2>
-    <span class="lang-en">The AI isn't limited to Central Vietnam. It operates in every Easy Rider group across the country. It uses YOUR WhatsApp identity—it looks, talks, and acts exactly like you.</span>
-    
-    <div class="highlight">
-        <strong>"Tầm nhìn không giới hạn":</strong> Hệ thống không chỉ quét ở Đà Nẵng mà phủ sóng <strong>toàn bộ các group Easy Rider từ Bắc chí Nam</strong>.
+    <div id="lion-stage"></div>
+
+    <!-- Contact Form -->
+    <div id="contact-form">
+        <h2>Chúc mừng bé! Bé đã hoàn thành trò chơi.</h2>
+        <p>Nhập tên và email để nhận buổi học tiếng Anh miễn phí nhé!</p>
+        <form action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
+            <input type="text" name="name" placeholder="Tên của bé" required>
+            <input type="email" name="email" placeholder="Email của phụ huynh" required>
+            <button type="submit">Gửi</button>
+        </form>
     </div>
 
-    <ul>
-        <li><strong>Định danh cá nhân:</strong> AI sử dụng chính tài khoản WhatsApp của anh. Nó phản hồi bằng phong cách của anh, khiến mọi đại lý và khách hàng đều tin rằng họ đang làm việc với "Chính chủ".</li>
-        <li><strong>Mô hình "Thuê bao tháng" (SaaS):</strong> Chúng ta có thể bán quyền truy cập hệ thống này cho các anh em Easy Rider khác. 
-            <br><em>The AI knows where everyone is and where they will be. It matches jobs to the right rider at the right time.</em></li>
-        <li><strong>Thu nhập kép:</strong> Anh vừa thu được <strong>phí thuê bao hàng tháng</strong>, vừa cắt được <strong>phần trăm hoa hồng (commission)</strong> trên mỗi cuốc xe mà AI bắn cho họ.</li>
-    </ul>
-    
-    <p style="background: #222; padding: 10px; border-radius: 5px;">
-        <span class="highlight">Kết quả:</span> Anh trở thành "Tổng đại lý" điều phối vận tải du lịch toàn quốc ngay trên chiếc điện thoại của mình.
-    </p>
-</div>
-<div class="section" style="border: 2px solid var(--primary); background: #1a2a1a;">
-    <h2>6. Hệ Thống Điều Hành & Kinh Doanh Tự Động (The Ops & Upsell Engine)</h2>
-    <span class="lang-en">The AI is your Manager. It organizes your team, tracks every lead, and creates "Memory Upsells" automatically. It handles the back-and-forth so you can focus on the road.</span>
+    <!-- Audio elements for sound effects -->
+    <audio id="correctSound" src="https://www.myinstants.com/media/sounds/ding-sound-effect_1.mp3"></audio>
+    <audio id="lionRoar" src="https://www.myinstants.com/media/sounds/ding-sound-effect_1.mp3"></audio>
+    <audio id="victorySound" src="https://orangefreesounds.com/wp-content/uploads/2023/06/Victory-fanfare-sound-effect.mp3"></audio>
+    <audio id="confettiSound" src="https://www.myinstants.com/media/sounds/ding-sound-effect_1.mp3"></audio>
 
-    <ul>
-        <li><strong>Quản lý đội ngũ (Team Ops):</strong> AI tự động gửi lời nhắc lịch cho tài xế, kiểm tra lịch trình hằng ngày và báo cáo: <em>"Hôm nay có bao nhiêu khách, bao nhiêu đơn bị hụt và tại sao?"</em></li>
-        <li><strong>Kinh doanh quà tặng tự động (The Memory Upsell):</strong> Đây là mỏ vàng thực sự. Khi anh chụp ảnh cho khách, anh chỉ cần gửi vào chat riêng với AI:
-            <ul>
-                <li>AI tự động thiết kế <strong>T-shirts, Album ảnh, Kỷ niệm chương</strong> từ ảnh của khách.</li>
-                <li>AI gửi link mua hàng cho khách ngay trong WhatsApp.</li>
-                <li>Sản phẩm được in và <strong>giao trực tiếp tận nhà khách tại nước họ</strong> (không cần khách phải mang theo khi đi du lịch).</li>
-            </ul>
-        </li>
-        <li><strong>Cung cấp cho mạng lưới:</strong> Anh có thể cung cấp dịch vụ "In ấn & Quà tặng" này cho toàn bộ anh em Easy Rider khác và thu phí trên mỗi sản phẩm bán được.</li>
-    </ul>
-    
-    <div class="highlight">
-        "Biến mỗi chuyến đi thành một cửa hàng quà tặng toàn cầu - Tiền về túi ngay cả khi khách đã bay về nước."
-    </div>
-</div>
-<div class="section" style="border: 3px solid var(--primary); background: #111;">
-    <h2>7. Poster Thông Minh: "Máy In Tiền" Tại Hostel/Hotel</h2>
-    <span class="lang-en">When a guest scans your poster, the AI doesn't just show a price—it starts a live sales conversation. It manages the booking, the drivers, and the commissions for the hotel while you are on the road.</span>
+<script>
+    console.log('JS script started');
+    const questions = [
+        {vi: "Xin chào", options: ["Goodbye", "Hello"], correct: 1},
+        {vi: "Cảm ơn", options: ["Sorry", "Thank you"], correct: 1},
+        {vi: "Gia đình", options: ["School", "Family"], correct: 1},
+        {vi: "Màu đỏ", options: ["Blue", "Red"], correct: 1},
+        {vi: "Con mèo", options: ["Dog", "Cat"], correct: 1},
+        {vi: "Số một", options: ["Two", "One"], correct: 1},
+        {vi: "Quả táo", options: ["Banana", "Apple"], correct: 1},
+        {vi: "Trường học", options: ["House", "School"], correct: 1},
+        {vi: "Ăn sáng", options: ["Dinner", "Breakfast"], correct: 1},
+        {vi: "Bạn bè", options: ["Family", "Friends"], correct: 1}
+    ];
 
-    <div class="highlight">
-        <strong>Biến Poster thành Nhân viên Sale 24/7:</strong> 
-        Khách quét mã QR tại Hostel -> AI tự động chào hỏi, tư vấn lộ trình và chốt đơn bằng tiếng Anh chuyên nghiệp.
-    </div>
+    let currentIdx = 0;
+    let streak = 0;
+    let lionCount = 0;
+    let moneyDensity = 0;
+    const correctSound = document.getElementById('correctSound');
+    const lionRoar = document.getElementById('lionRoar');
+    const victorySound = document.getElementById('victorySound');
+    const confettiSound = document.getElementById('confettiSound');
+    const resultDiv = document.getElementById('result');
 
-    <ul>
-        <li><strong>Tự động điều phối (Auto-Dispatch):</strong> Nếu anh đang bận chở khách, AI sẽ không bỏ qua đơn đó. Nó sẽ tự động liên hệ tài xế khác trong mạng lưới của anh để giao việc.</li>
-        <li><strong>Quản lý tài chính tự động (Automated Commission):</strong> 
-            AI tự tính toán và phân bổ tiền "phế":
-            <ul>
-                <li>Phần của <strong>Hostel/Hotel</strong> (Tiền hoa hồng giới thiệu).</li>
-                <li>Phần của <strong>Tài xế chạy hộ</strong>.</li>
-                <li>Phần <strong>Lợi nhuận ròng</strong> chảy về túi anh.</li>
-            </ul>
-        </li>
-        <li><strong>Hoạt động khi đang lái xe:</strong> Tất cả những việc này diễn ra hoàn toàn tự động trong khi tay anh đang giữ lái trên đường. Anh chỉ cần kiểm tra số dư tài khoản vào cuối ngày.</li>
-    </ul>
-    
-    <p style="text-align: center; font-style: italic; color: var(--primary);">
-        "Anh không cần có mặt, hệ thống vẫn vận hành và sinh lời."
-    </p>
-</div>
-    <div class="poster-mockup">
-        <h2 style="justify-content: center;">DEMO: SMART POSTER</h2>
-        <span class="lang-en" style="text-align: center;">This is what we place in every high-traffic Hostel and Hotel.</span>
-        <img src="poster.jpeg" alt="Easy Rider AI Poster Mockup">
-        <p style="margin-top: 10px; color: var(--primary);">Instant Booking | Native English | Memory Upsells</p>
-    </div>
-<div class="section" style="border: 2px solid #fff; background: linear-gradient(145deg, #1a1a1a, #000);">
-    <h2>8. Lựa Chọn Của Anh (The Decision)</h2>
-    <span class="lang-en">Bản đề xuất này chính là một trang web trực tuyến. Từ đây, chúng ta có thể đi theo ba hướng khác nhau::</span>
-    
-    <ul>
-        <li><strong>Option 1: The Standard Website.</strong> 
-            <br>Em sẽ làm cho anh một website đẹp, thu hút khách. Nhưng anh vẫn phải tự tay trả lời tin nhắn và cạnh tranh thủ công.
-            <br><em class="lang-en">A beautiful site, but you still do the manual work.</em></li>
-        <hr style="border: 0.5px solid #333;">
-        <li><strong>Option 2: The Solo Powerhouse.</strong> 
-            <br>Anh sở hữu con AI này để trở nên năng suất hơn tất cả các driver khác cộng lại. Anh tự điều hành "Công ty 1 thành viên" của mình.
-            <br><em class="lang-en">Be more productive than all human drivers combined in every chat.</em></li>
-        <hr style="border: 0.5px solid #333;">
-        <li><strong>Option 3: The Empire Partnership.</strong> 
-            <br>Anh em mình là đối tác. Chúng ta bán giải pháp này cho các Easy Rider khác. 
-            <strong>Thu phí thuê bao tháng + Hoa hồng từ đơn hàng + Doanh thu quà tặng.</strong> 
-            Anh kiếm tiền ngay cả khi không còn cầm lái.
-            <br><em class="lang-en">We partner to sell this to the market. Monthly subscriptions, lead commissions, and merchandise. <strong>You make money without riding.</strong></em></li>
-    </ul>
-    
-    <div class="highlight" style="text-align: center; border-left: none; border-top: 3px solid var(--primary);">
-        "Làm việc chăm chỉ hay làm việc thông minh?" <br>
-        <span class="lang-en">Work hard, or work smart?</span>
-    </div>
-</div>
-<div class="section" style="border: 1px solid #444; background: #151515;">
-    <h2>Tầm nhìn mở rộng (Future Growth)</h2>
-    <span class="lang-en">The technology behind this isn't limited to riding. It is designed for any business that relies on chat-based bookings.</span>
-    
-    <p>Giải pháp này có thể áp dụng linh hoạt cho nhiều mô hình khác tại Đà Nẵng như:</p>
-    <ul>
-        <li><strong>Tour du lịch & Thuê xe:</strong> Tự động hóa việc đặt chỗ và chăm sóc khách.</li>
-        <li><strong>Dịch vụ lưu trú & Spa:</strong> Quản lý lịch hẹn qua tin nhắn 24/7.</li>
-    </ul>
-    <p style="color: #bbb;">Chúng ta có thể bắt đầu nhỏ với Easy Riders và mở rộng dần khi hệ thống đã ổn định.</p>
-</div>
+    async function init() {
+        console.log('Init function called');
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-area').style.display = 'block';
+        
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(err => console.warn('Fullscreen not supported:', err));
+        } else if (document.documentElement.webkitRequestFullscreen) {
+            document.documentElement.webkitRequestFullscreen();
+        }
 
-</div>
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            document.getElementById('v').srcObject = stream;
+            console.log('Camera started');
+        } catch(e) {
+            console.error('Camera error:', e);
+        }
 
+        loadNext();
+    }
+
+    function loadNext() {
+        console.log('Loading question', currentIdx);
+        if (currentIdx >= questions.length) {
+            finishGame();
+            return;
+        }
+        document.getElementById('word-display').innerText = questions[currentIdx].vi;
+        document.getElementById('progress-counter').innerText = `${currentIdx + 1} / ${questions.length}`;
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        questions[currentIdx].options.forEach((option, index) => {
+            const btn = document.createElement('button');
+            btn.innerText = option;
+            btn.onclick = () => checkAnswer(index);
+            optionsDiv.appendChild(btn);
+        });
+        resultDiv.innerText = '';
+    }
+
+    function checkAnswer(selected) {
+        console.log('Answer selected:', selected);
+        const correct = questions[currentIdx].correct;
+        if (selected === correct) {
+            streak++;
+            correctSound.play().catch(e => console.error('Sound error:', e));
+            celebrate();
+            setTimeout(() => {
+                currentIdx++;
+                loadNext();
+            }, 1200);
+        } else {
+            resultDiv.innerText = 'Sai rồi! Thử lại nhé bé!';
+        }
+    }
+
+    function celebrate() {
+        console.log('Celebrate called');
+        const stage = document.getElementById('lion-stage');
+        const lion = document.createElement('div');
+        lion.className = 'lion-wrap';
+        lion.innerHTML = `
+            <img src="lion-1.png" class="lion-img img-closed" onerror="console.error('Lion image error')">
+            <img src="lion-2.png" class="lion-img img-open" onerror="console.error('Lion image error')">
+        `;
+        stage.appendChild(lion);
+        
+        setTimeout(() => lion.classList.add('lion-up'), 100);
+        setTimeout(() => lion.remove(), 2000);
+
+        const collection = document.getElementById('lion-collection');
+        const wrap = document.createElement('div');
+        wrap.className = 'mini-lion-wrap';
+        wrap.innerHTML = `<img src="lion-1.png" class="mini-lion-img img-closed"><img src="lion-2.png" class="mini-lion-img img-open">`;
+        collection.appendChild(wrap);
+
+        lionCount++;
+        moneyDensity = Math.floor(lionCount / 3) + 1;
+
+        const streakEl = document.getElementById('streak-counter');
+        streakEl.innerText = `Chuỗi: ${streak} 🔥`;
+        if (streak >= 3) streakEl.classList.add('fire');
+
+        const texts = ["Tuyệt vời!", "Giỏi quá!", "Hay lắm!", "Đúng rồi!", "Siêu bé!"];
+        const floatText = document.createElement('div');
+        floatText.className = 'float-text';
+        floatText.style.left = Math.random() * 60 + 20 + "%";
+        floatText.style.top = "45%";
+        floatText.innerText = texts[Math.floor(Math.random()*texts.length)];
+        floatText.style.color = Math.random() > 0.5 ? "var(--gold)" : "var(--red)";
+        document.body.appendChild(floatText);
+        setTimeout(() => floatText.remove(), 2000);
+
+        confettiBurst();
+    }
+
+    function confettiBurst() {
+        console.log('Confetti burst');
+        for (let i = 0; i < 35; i++) {
+            setTimeout(() => {
+                const conf = document.createElement('div');
+                conf.style.position = 'fixed';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.top = '-20px';
+                conf.style.fontSize = Math.random() * 20 + 20 + 'px';
+                conf.style.opacity = Math.random() * 0.7 + 0.6;
+                conf.style.zIndex = '300';
+                conf.innerText = ['🎉','✨','⭐','🔥','🦁'][Math.floor(Math.random()*5)];
+                document.body.appendChild(conf);
+
+                setTimeout(() => {
+                    conf.style.transition = 'all 2.5s';
+                    conf.style.transform = `translateY(${window.innerHeight + 100}px) rotate(${Math.random()*800 - 400}deg)`;
+                    conf.style.opacity = '0';
+                }, 50);
+
+                setTimeout(() => conf.remove(), 2800);
+            }, i * 40);
+        }
+    }
+
+    function finishGame() {
+        console.log('Game finished');
+        victorySound.play().catch(e => console.error('Sound error:', e));
+        document.getElementById('camera-zone').style.display = 'none';
+        document.querySelector('.ui-panel').style.display = 'none';
+        document.getElementById('lion-stage').style.display = 'none';
+        document.getElementById('contact-form').style.display = 'block';
+    }
+
+    // Background Bubbles
+    setInterval(() => {
+        const b = document.createElement('div');
+        b.className = 'bubble';
+        const size = Math.random() * 18 + 12;
+        b.style.width = b.style.height = size + 'px';
+        b.style.left = Math.random() * 100 + 'vw';
+        b.style.background = ['#FF0000', '#FFD700', '#ffffff', '#008000'][Math.floor(Math.random()*4)];
+        b.style.animationDuration = Math.random() * 2 + 3.5 + 's';
+        document.getElementById('bg-fx').appendChild(b);
+        setTimeout(() => b.remove(), 6000);
+    }, 350);
+
+    // Constant Money Flying Effect
+    setInterval(() => {
+        for (let i = 0; i < moneyDensity; i++) {
+            const m = document.createElement('div');
+            m.className = 'money';
+            m.innerText = '💰';
+            m.style.left = Math.random() * 100 + 'vw';
+            m.style.animationDuration = Math.random() * 3 + 4 + 's';
+            m.style.transform = `rotate(${Math.random() * 360}deg)`;
+            document.getElementById('money-fx').appendChild(m);
+            setTimeout(() => m.remove(), 8000);
+        }
+    }, 600);
+
+</script>
 </body>
 </html>
