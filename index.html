@@ -329,16 +329,16 @@
 <script>
     console.log('JS script started');
     const questions = [
-        {vi: "Xin chào", options: ["Goodbye", "Hello"], correct: 1},
+        {vi: "Xin chào", options: ["Hello", "Goodbye"], correct: 0},  // Easy
         {vi: "Cảm ơn", options: ["Sorry", "Thank you"], correct: 1},
-        {vi: "Gia đình", options: ["School", "Family"], correct: 1},
-        {vi: "Màu đỏ", options: ["Blue", "Red"], correct: 1},
+        {vi: "Số một", options: ["One", "Two"], correct: 0},
+        {vi: "Màu đỏ", options: ["Red", "Blue"], correct: 0},
         {vi: "Con mèo", options: ["Dog", "Cat"], correct: 1},
-        {vi: "Số một", options: ["Two", "One"], correct: 1},
         {vi: "Quả táo", options: ["Banana", "Apple"], correct: 1},
+        {vi: "Gia đình", options: ["Family", "School"], correct: 0},
         {vi: "Trường học", options: ["House", "School"], correct: 1},
-        {vi: "Ăn sáng", options: ["Dinner", "Breakfast"], correct: 1},
-        {vi: "Bạn bè", options: ["Family", "Friends"], correct: 1}
+        {vi: "Bạn bè", options: ["Friends", "Teachers"], correct: 0},
+        {vi: "Ăn sáng", options: ["Breakfast", "Dinner"], correct: 0}  // Harder
     ];
 
     let currentIdx = 0;
@@ -404,7 +404,17 @@
                 loadNext();
             }, 1200);
         } else {
-            resultDiv.innerText = 'Sai rồi! Thử lại nhé bé!';
+            resultDiv.innerText = 'Sai rồi! Bắt đầu lại từ đầu nhé bé!';
+            setTimeout(() => {
+                currentIdx = 0;
+                streak = 0;
+                document.getElementById('streak-counter').innerText = `Chuỗi: ${streak} 🔥`;
+                document.getElementById('streak-counter').classList.remove('fire');
+                document.getElementById('lion-collection').innerHTML = ''; // Reset trophies
+                lionCount = 0;
+                moneyDensity = 0;
+                loadNext();
+            }, 1500);
         }
     }
 
