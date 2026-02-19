@@ -1,0 +1,372 @@
+[
+  {
+    "vi": "Xin chào",
+    "options": ["Hello", "Goodbye"],
+    "correct": 0
+  },
+  {
+    "vi": "Cảm ơn",
+    "options": ["Sorry", "Thank you"],
+    "correct": 1
+  },
+  {
+    "vi": "Gia đình",
+    "options": ["Family", "School"],
+    "correct": 0
+  },
+  {
+    "vi": "Màu đỏ",
+    "options": ["Red", "Blue"],
+    "correct": 0
+  },
+  {
+    "vi": "Con mèo",
+    "options": ["Dog", "Cat"],
+    "correct": 1
+  },
+  {
+    "vi": "Số một",
+    "options": ["Two", "One"],
+    "correct": 1
+  },
+  {
+    "vi": "Quả táo",
+    "options": ["Banana", "Apple"],
+    "correct": 1
+  },
+  {
+    "vi": "Trường học",
+    "options": ["House", "School"],
+    "correct": 1
+  },
+  {
+    "vi": "Ăn sáng",
+    "options": ["Dinner", "Breakfast"],
+    "correct": 1
+  },
+  {
+    "vi": "Bạn bè",
+    "options": ["Family", "Friends"],
+    "correct": 1
+  },
+  {
+    "vi": "Tạm biệt",
+    "options": ["Hello", "Goodbye"],
+    "correct": 1
+  },
+  {
+    "vi": "Xin lỗi",
+    "options": ["Sorry", "Thank you"],
+    "correct": 0
+  },
+  {
+    "vi": "Màu xanh",
+    "options": ["Blue", "Red"],
+    "correct": 0
+  },
+  {
+    "vi": "Con chó",
+    "options": ["Cat", "Dog"],
+    "correct": 1
+  },
+  {
+    "vi": "Số hai",
+    "options": ["One", "Two"],
+    "correct": 1
+  },
+  {
+    "vi": "Quả chuối",
+    "options": ["Apple", "Banana"],
+    "correct": 1
+  },
+  {
+    "vi": "Nhà",
+    "options": ["School", "House"],
+    "correct": 1
+  },
+  {
+    "vi": "Ăn tối",
+    "options": ["Breakfast", "Dinner"],
+    "correct": 1
+  },
+  {
+    "vi": "Giáo viên",
+    "options": ["Friends", "Teachers"],
+    "correct": 1
+  },
+  {
+    "vi": "Công viên",
+    "options": ["Park", "House"],
+    "correct": 0
+  },
+  {
+    "vi": "Chim",
+    "options": ["Bird", "Cat"],
+    "correct": 0
+  },
+  {
+    "vi": "Số ba",
+    "options": ["Three", "One"],
+    "correct": 0
+  },
+  {
+    "vi": "Quả cam",
+    "options": ["Apple", "Orange"],
+    "correct": 1
+  },
+  {
+    "vi": "Ăn trưa",
+    "options": ["Lunch", "Dinner"],
+    "correct": 0
+  },
+  {
+    "vi": "Màu vàng",
+    "options": ["Yellow", "Green"],
+    "correct": 0
+  },
+  {
+    "vi": "Con cá",
+    "options": ["Bird", "Fish"],
+    "correct": 1
+  },
+  {
+    "vi": "Số bốn",
+    "options": ["Three", "Four"],
+    "correct": 1
+  },
+  {
+    "vi": "Quả lê",
+    "options": ["Pear", "Banana"],
+    "correct": 0
+  },
+  {
+    "vi": "Bút chì",
+    "options": ["Pen", "Pencil"],
+    "correct": 1
+  },
+  {
+    "vi": "Sách",
+    "options": ["Book", "Notebook"],
+    "correct": 0
+  },
+  {
+    "vi": "Bàn",
+    "options": ["Chair", "Table"],
+    "correct": 1
+  },
+  {
+    "vi": "Ghế",
+    "options": ["Chair", "Desk"],
+    "correct": 0
+  },
+  {
+    "vi": "Cửa sổ",
+    "options": ["Door", "Window"],
+    "correct": 1
+  },
+  {
+    "vi": "Cửa",
+    "options": ["Window", "Door"],
+    "correct": 1
+  },
+  {
+    "vi": "Máy tính",
+    "options": ["Computer", "Phone"],
+    "correct": 0
+  },
+  {
+    "vi": "Điện thoại",
+    "options": ["Computer", "Phone"],
+    "correct": 1
+  },
+  {
+    "vi": "Màu tím",
+    "options": ["Purple", "Pink"],
+    "correct": 0
+  },
+  {
+    "vi": "Màu hồng",
+    "options": ["Purple", "Pink"],
+    "correct": 1
+  },
+  {
+    "vi": "Con voi",
+    "options": ["Elephant", "Lion"],
+    "correct": 0
+  },
+  {
+    "vi": "Con sư tử",
+    "options": ["Elephant", "Lion"],
+    "correct": 1
+  },
+  {
+    "vi": "Số năm",
+    "options": ["Four", "Five"],
+    "correct": 1
+  },
+  {
+    "vi": "Quả dưa hấu",
+    "options": ["Watermelon", "Melon"],
+    "correct": 0
+  },
+  {
+    "vi": "Ăn tối",
+    "options": ["Lunch", "Dinner"],
+    "correct": 1
+  },
+  {
+    "vi": "Bữa tối",
+    "options": ["Breakfast", "Dinner"],
+    "correct": 1
+  },
+  {
+    "vi": "Anh trai",
+    "options": ["Sister", "Brother"],
+    "correct": 1
+  },
+  {
+    "vi": "Chị gái",
+    "options": ["Sister", "Brother"],
+    "correct": 0
+  },
+  {
+    "vi": "Bố",
+    "options": ["Mother", "Father"],
+    "correct": 1
+  },
+  {
+    "vi": "Mẹ",
+    "options": ["Mother", "Father"],
+    "correct": 0
+  },
+  {
+    "vi": "Ông",
+    "options": ["Grandmother", "Grandfather"],
+    "correct": 1
+  },
+  {
+    "vi": "Bà",
+    "options": ["Grandmother", "Grandfather"],
+    "correct": 0
+  },
+  {
+    "vi": "Màu nâu",
+    "options": ["Brown", "Black"],
+    "correct": 0
+  },
+  {
+    "vi": "Màu đen",
+    "options": ["Brown", "Black"],
+    "correct": 1
+  },
+  {
+    "vi": "Con gà",
+    "options": ["Chicken", "Duck"],
+    "correct": 0
+  },
+  {
+    "vi": "Con vịt",
+    "options": ["Chicken", "Duck"],
+    "correct": 1
+  },
+  {
+    "vi": "Số sáu",
+    "options": ["Six", "Seven"],
+    "correct": 0
+  },
+  {
+    "vi": "Số bảy",
+    "options": ["Six", "Seven"],
+    "correct": 1
+  },
+  {
+    "vi": "Quả dâu",
+    "options": ["Strawberry", "Cherry"],
+    "correct": 0
+  },
+  {
+    "vi": "Quả cherry",
+    "options": ["Strawberry", "Cherry"],
+    "correct": 1
+  },
+  {
+    "vi": "Bút mực",
+    "options": ["Pencil", "Pen"],
+    "correct": 1
+  },
+  {
+    "vi": "Vở",
+    "options": ["Book", "Notebook"],
+    "correct": 1
+  },
+  {
+    "vi": "Cặp sách",
+    "options": ["Backpack", "Bag"],
+    "correct": 0
+  },
+  {
+    "vi": "Thước kẻ",
+    "options": ["Eraser", "Ruler"],
+    "correct": 1
+  },
+  {
+    "vi": "Tẩy",
+    "options": ["Ruler", "Eraser"],
+    "correct": 1
+  },
+  {
+    "vi": "Bảng",
+    "options": ["Blackboard", "Whiteboard"],
+    "correct": 1
+  },
+  {
+    "vi": "Phấn",
+    "options": ["Chalk", "Marker"],
+    "correct": 0
+  },
+  {
+    "vi": "Màu trắng",
+    "options": ["White", "Black"],
+    "correct": 0
+  },
+  {
+    "vi": "Con ngựa",
+    "options": ["Horse", "Cow"],
+    "correct": 0
+  },
+  {
+    "vi": "Con bò",
+    "options": ["Horse", "Cow"],
+    "correct": 1
+  },
+  {
+    "vi": "Số tám",
+    "options": ["Nine", "Eight"],
+    "correct": 1
+  },
+  {
+    "vi": "Số chín",
+    "options": ["Nine", "Ten"],
+    "correct": 0
+  },
+  {
+    "vi": "Quả nho",
+    "options": ["Grape", "Berry"],
+    "correct": 0
+  },
+  {
+    "vi": "Quả dừa",
+    "options": ["Coconut", "Pineapple"],
+    "correct": 0
+  },
+  {
+    "vi": "Uống nước",
+    "options": ["Eat", "Drink"],
+    "correct": 1
+  },
+  {
+    "vi": "Chạy",
+    "options": ["Run", "Walk"],
+    "correct": 0
+  }
+]
