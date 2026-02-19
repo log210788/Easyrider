@@ -287,7 +287,7 @@
 
     <div id="camera-zone">
         <div class="top-bar">
-            <div id="progress-counter">1 / 10</div>
+            <div id="progress-counter">1 / 26</div>
             <div id="streak-counter">Chuỗi: 0 🔥</div>
         </div>
         <div id="lion-collection"></div>
@@ -313,7 +313,7 @@
     <div id="contact-form">
         <h2>Chúc mừng bé! Bé đã hoàn thành trò chơi.</h2>
         <p>Nhập tên và email để nhận buổi học tiếng Anh miễn phí nhé!</p>
-        <form action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
+        <form action="https://formspree.io/f/xdaldjln" method="POST">
             <input type="text" name="name" placeholder="Tên của bé" required>
             <input type="email" name="email" placeholder="Email của phụ huynh" required>
             <button type="submit">Gửi</button>
@@ -328,19 +328,8 @@
 
 <script>
     console.log('JS script started');
-    const questions = [
-        {vi: "Xin chào", options: ["Hello", "Goodbye"], correct: 0},  // Easy
-        {vi: "Cảm ơn", options: ["Sorry", "Thank you"], correct: 1},
-        {vi: "Số một", options: ["One", "Two"], correct: 0},
-        {vi: "Màu đỏ", options: ["Red", "Blue"], correct: 0},
-        {vi: "Con mèo", options: ["Dog", "Cat"], correct: 1},
-        {vi: "Quả táo", options: ["Banana", "Apple"], correct: 1},
-        {vi: "Gia đình", options: ["Family", "School"], correct: 0},
-        {vi: "Trường học", options: ["House", "School"], correct: 1},
-        {vi: "Bạn bè", options: ["Friends", "Teachers"], correct: 0},
-        {vi: "Ăn sáng", options: ["Breakfast", "Dinner"], correct: 0}  // Harder
-    ];
-
+    let allQuestions = [];
+    let gameQuestions = [];
     let currentIdx = 0;
     let streak = 0;
     let lionCount = 0;
@@ -370,20 +359,44 @@
             console.error('Camera error:', e);
         }
 
-        loadNext();
+        // Load questions from JSON file
+        try {
+            const response = await fetch('questions.json');
+            allQuestions = await response.json();
+            gameQuestions = shuffleArray([...allQuestions]).slice(0, 26);
+            currentIdx = 0;
+            streak = 0;
+            lionCount = 0;
+            moneyDensity = 0;
+            document.getElementById('streak-counter').innerText = `Chuỗi: ${streak} 🔥`;
+            document.getElementById('streak-counter').classList.remove('fire');
+            document.getElementById('lion-collection').innerHTML = ''; // Clear trophies
+            loadNext();
+        } catch (e) {
+            console.error('Error loading questions:', e);
+            resultDiv.innerText = 'Lỗi tải câu hỏi! Vui lòng thử lại.';
+        }
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
 
     function loadNext() {
         console.log('Loading question', currentIdx);
-        if (currentIdx >= questions.length) {
+        if (currentIdx >= gameQuestions.length) {
             finishGame();
             return;
         }
-        document.getElementById('word-display').innerText = questions[currentIdx].vi;
-        document.getElementById('progress-counter').innerText = `${currentIdx + 1} / ${questions.length}`;
+        document.getElementById('word-display').innerText = gameQuestions[currentIdx].vi;
+        document.getElementById('progress-counter').innerText = `${currentIdx + 1} / ${gameQuestions.length}`;
         const optionsDiv = document.getElementById('options');
         optionsDiv.innerHTML = '';
-        questions[currentIdx].options.forEach((option, index) => {
+        gameQuestions[currentIdx].options.forEach((option, index) => {
             const btn = document.createElement('button');
             btn.innerText = option;
             btn.onclick = () => checkAnswer(index);
@@ -394,7 +407,7 @@
 
     function checkAnswer(selected) {
         console.log('Answer selected:', selected);
-        const correct = questions[currentIdx].correct;
+        const correct = gameQuestions[currentIdx].correct;
         if (selected === correct) {
             streak++;
             correctSound.play().catch(e => console.error('Sound error:', e));
