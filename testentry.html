@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classic Connect 4 Kids</title>
+    <style>
+        :root {
+            --p1: #eb4d4b; /* Classic Red */
+            --p2: #f9ca24; /* Classic Yellow */
+            --board-blue: #0984e3;
+            --board-shadow: #074b83;
+        }
+
+        body {
+            font-family: 'Arial Rounded MT Bold', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #dfe6e9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .status-bar {
+            font-size: 2rem;
+            padding: 10px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            background: white;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        }
+
+        .p1-turn { color: var(--p1); border: 5px solid var(--p1); }
+        .p2-turn { color: var(--p2); border: 5px solid var(--p2); }
+
+        /* The Stand/Legs Container */
+        .game-container {
+            position: relative;
+            padding-bottom: 40px;
+        }
+
+        /* The Main Blue Board */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: var(--board-blue);
+            padding: 15px;
+            border-radius: 15px;
+            gap: 10px;
+            box-shadow: 0 10px 0 var(--board-shadow);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* The Legs of the game */
+        .game-container::before, .game-container::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            width: 30px;
+            height: 120px;
+            background: #f0932b; /* Orange-yellow legs */
+            border-radius: 10px;
+            z-index: 1;
+        }
+        .game-container::before { left: -15px; transform: rotate(-5deg); }
+        .game-container::after { right: -15px; transform: rotate(5deg); }
+
+        .column {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        /* Column Number Labels */
+        .column::after {
+            content: attr(data-col);
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: var(--board-shadow);
+            font-weight: bold;
+        }
+
+        .slot {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: #dfe6e9; /* Light grey looks like a hole */
+            box-shadow: inset 2px 4px 8px rgba(0,0,0,0.3);
+            border: 2px solid rgba(0,0,0,0.1);
+        }
+
+        /* Playing Pieces */
+        .slot.red { 
+            background: var(--p1) !important; 
+            box-shadow: inset -4px -4px 6px rgba(0,0,0,0.2), 2px 4px 6px rgba(0,0,0,0.3);
+            animation: dropAnim 0.5s cubic-bezier(0.47, 0, 0.745, 0.715);
+        }
+        .slot.yellow { 
+            background: var(--p2) !important; 
+            box-shadow: inset -4px -4px 6px rgba(0,0,0,0.2), 2px 4px 6px rgba(0,0,0,0.3);
+            animation: dropAnim 0.5s cubic-bezier(0.47, 0, 0.745, 0.715);
+        }
+
+        @keyframes dropAnim {
+            0% { transform: translateY(-400px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* Question Popup */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            border: 8px solid var(--board-blue);
+            max-width: 400px;
+        }
+
+        .btn-win {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .qr-sidebar {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            padding: 14px;
+            border-radius: 18px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+            text-align: center;
+            z-index: 50;
+        }
+        .qr-sidebar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+        }
+        .qr-sidebar p {
+            margin: 8px 0 0;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--board-blue);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="status" class="status-bar p1-turn">Red Player's Turn ❤️</div>
+
+    <div class="game-container">
+        <div class="board" id="board">
+            </div>
+    </div>
+
+    <div class="qr-sidebar">
+        <img src="overlays/teacherlewis1-overlay/public/qrcode_preply.com.png" alt="Preply QR Code">
+        <p>Book a lesson!</p>
+    </div>
+
+    <div id="overlay">
+        <div class="card">
+            <h2 id="q-text">Question?</h2>
+            <button class="btn-win" onclick="submitMove()">I Answered! ✅</button>
+        </div>
+    </div>
+
+    <script>
+        const ROWS = 6;
+        const COLS = 7;
+        let currentPlayer = 1;
+        let boardState = Array(COLS).fill().map(() => Array(ROWS).fill(null));
+        let selectedCol = null;
+
+        const questions = [
+            "What color is an 🍎?",
+            "Count to 5! ✋",
+            "What does a 🐶 say?",
+            "Point to your 👂 ears!",
+            "What color is a 🍌?",
+            "Touch your 👃 nose!",
+            "Point to something 🔵 blue!",
+            "Can you 👏 clap?"
+        ];
+
+        function createBoard() {
+            const board = document.getElementById('board');
+            for (let c = 0; c < COLS; c++) {
+                const colDiv = document.createElement('div');
+                colDiv.className = 'column';
+                colDiv.setAttribute('data-col', c + 1);
+                colDiv.onclick = () => openQuestion(c);
+
+                for (let r = 0; r < ROWS; r++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'slot';
+                    slot.id = `slot-${c}-${r}`;
+                    colDiv.appendChild(slot);
+                }
+                board.appendChild(colDiv);
+            }
+        }
+
+        function openQuestion(c) {
+            if (boardState[c].indexOf(null) === -1) return;
+            selectedCol = c;
+            document.getElementById('q-text').innerText = questions[Math.floor(Math.random() * questions.length)];
+            document.getElementById('overlay').style.display = 'flex';
+        }
+
+        function submitMove() {
+            document.getElementById('overlay').style.display = 'none';
+            const r = boardState[selectedCol].indexOf(null);
+            boardState[selectedCol][r] = currentPlayer;
+            
+            const slot = document.getElementById(`slot-${selectedCol}-${r}`);
+            slot.className = `slot ${currentPlayer === 1 ? 'red' : 'yellow'}`;
+
+            if (checkWin(selectedCol, r)) {
+                setTimeout(() => {
+                    alert(currentPlayer === 1 ? "RED WINS! 🎉" : "YELLOW WINS! 🎉");
+                    location.reload();
+                }, 500);
+                return;
+            }
+
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            const status = document.getElementById('status');
+            status.innerText = currentPlayer === 1 ? "Red Player's Turn ❤️" : "Yellow Player's Turn 💛";
+            status.className = `status-bar ${currentPlayer === 1 ? 'p1-turn' : 'p2-turn'}`;
+        }
+
+        function checkWin(c, r) {
+            const p = boardState[c][r];
+            const directions = [[0,1], [1,0], [1,1], [1,-1]];
+            for (let [dc, dr] of directions) {
+                let count = 1;
+                for (let i = 1; i < 4; i++) if (boardState[c+dc*i]?.[r+dr*i] === p) count++; else break;
+                for (let i = 1; i < 4; i++) if (boardState[c-dc*i]?.[r-dr*i] === p) count++; else break;
+                if (count >= 4) return true;
+            }
+            return false;
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>

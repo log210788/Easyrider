@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trial Lesson – Teacher Lewis (Vietnamese Support)</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b3e;
+    --dark-blue: #122250;
+    --mid-blue: #1a3166;
+    --gold: #f5c400;
+    --gold-light: #ffe066;
+    --white: #f9f9fb;
+    --soft: #e8edf8;
+    --green: #2ecc71;
+    --accent: #4a90e2;
+    --text: #1a1a2e;
+    --muted: #5a6a8a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--soft);
+    font-family: 'Nunito', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 36px 40px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -60px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: rgba(245,196,0,.10);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 30%;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(74,144,226,.12);
+  }
+  .header-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy);
+    font-family: 'Fredoka One', cursive;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.6rem;
+    line-height: 1.1;
+    color: white;
+  }
+  header h1 span { color: var(--gold); }
+  header p.subtitle {
+    margin-top: 8px;
+    color: #a0b4d6;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .header-meta {
+    margin-top: 18px;
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    color: #cdd8f0;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 20px;
+  }
+  .meta-pill span { color: var(--gold-light); }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 36px 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  /* ── SECTION CARD ── */
+  .card {
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(13,27,62,.08);
+  }
+  .card-header {
+    background: var(--dark-blue);
+    color: white;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .card-header .icon {
+    width: 36px; height: 36px;
+    background: var(--gold);
+    color: var(--navy);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .card-header h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.25rem;
+    letter-spacing: .3px;
+  }
+  .card-header .section-num {
+    margin-left: auto;
+    background: rgba(245,196,0,.2);
+    color: var(--gold-light);
+    font-size: 12px;
+    font-weight: 900;
+    padding: 3px 10px;
+    border-radius: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .card-body { padding: 24px 28px; }
+
+  /* ── TENSES LIST ── */
+  .tense-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .tense-list li {
+    background: var(--soft);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .tense-list li .num {
+    background: var(--navy);
+    color: var(--gold);
+    font-family: 'Fredoka One', cursive;
+    font-size: 13px;
+    min-width: 26px; height: 26px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── MULTIPLE CHOICE ── */
+  .mc-list { display: flex; flex-direction: column; gap: 20px; }
+  .mc-item {}
+  .mc-question {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #dde3f0;
+    display: flex;
+    gap: 10px;
+  }
+  .mc-question .qnum {
+    background: var(--mid-blue);
+    color: white;
+    font-family: 'Fredoka One', cursive;
+    font-size: 13px;
+    min-width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .mc-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .mc-option {
+    background: var(--soft);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: .92rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: border-color .18s, background .18s, transform .12s;
+    user-select: none;
+  }
+  .mc-option:hover { border-color: var(--accent); background: #eef3fc; transform: translateY(-1px); }
+  .mc-option.correct { border-color: var(--green); background: #eafaf2; color: #1a7a45; }
+  .mc-option.wrong { border-color: #e74c3c; background: #fdf0ee; color: #c0392b; }
+  .mc-option .letter {
+    background: var(--navy);
+    color: var(--gold);
+    font-family: 'Fredoka One', cursive;
+    font-size: 13px;
+    min-width: 26px; height: 26px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .mc-option.correct .letter { background: var(--green); color: white; }
+  .mc-option.wrong .letter { background: #e74c3c; color: white; }
+  .feedback {
+    margin-top: 8px;
+    font-size: .85rem;
+    font-weight: 700;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.ok { color: #1a7a45; }
+  .feedback.no { color: #c0392b; }
+
+  /* ── FIGURES OF SPEECH ── */
+
+  /* ── WRITING PROMPTS ── */
+  .prompts-grid { display: flex; flex-direction: column; gap: 14px; }
+  .prompt-item {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--mid-blue) 100%);
+    border-radius: 14px;
+    padding: 18px 22px;
+    color: white;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .prompt-item .pnum {
+    background: var(--gold);
+    color: var(--navy);
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    min-width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .prompt-item h3 { font-size: 1rem; font-weight: 900; }
+  .prompt-tips {
+    margin-top: 18px;
+    background: #fffbea;
+    border: 2px solid var(--gold);
+    border-radius: 14px;
+    padding: 18px 22px;
+  }
+  .prompt-tips h4 {
+    font-family: 'Fredoka One', cursive;
+    color: var(--navy);
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  .prompt-tips ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .prompt-tips ul li {
+    display: flex;
+    gap: 8px;
+    font-size: .9rem;
+    font-weight: 700;
+    color: #3a4a6a;
+  }
+  .prompt-tips ul li::before {
+    content: '\2726';
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  /* ── CLOZE TEXT ── */
+  .cloze-passage {
+    background: #f4f7ff;
+    border: 2px solid #dde3f0;
+    border-radius: 14px;
+    padding: 22px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 2;
+    color: var(--text);
+  }
+  .cloze-passage h3 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: var(--navy);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .cloze-input {
+    display: inline-block;
+    border: none;
+    border-bottom: 2px solid var(--accent);
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: .95rem;
+    color: var(--navy);
+    width: 140px;
+    padding: 2px 4px;
+    text-align: center;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .cloze-input:focus { border-bottom-color: var(--gold); }
+  .cloze-hint {
+    font-size: .8rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .cloze-check-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    background: var(--navy);
+    color: var(--gold);
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: background .2s, transform .12s;
+  }
+  .cloze-check-btn:hover { background: var(--mid-blue); transform: translateY(-2px); }
+
+  /* ── SCORE BAR ── */
+  .score-bar {
+    background: var(--navy);
+    color: white;
+    border-radius: 14px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-weight: 700;
+  }
+  .score-bar .label { font-family: 'Fredoka One', cursive; font-size: 1rem; color: var(--gold); }
+  .score-track {
+    flex: 1;
+    height: 10px;
+    background: rgba(255,255,255,.15);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .score-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 10px;
+    transition: width .5s ease;
+    width: 0%;
+  }
+  .score-num { font-size: .95rem; white-space: nowrap; }
+
+  /* ── ANSWER TRACKING ── */
+  .answer-controls {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px dashed #dde3f0;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .check-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: .9rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: background .2s;
+  }
+  .check-label:hover { background: rgba(0,0,0,.03); }
+  .check-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  .check-label.correct-label { color: var(--green); }
+  .check-label.wrong-label { color: #e74c3c; }
+  .reveal-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: .85rem;
+    font-weight: 700;
+    transition: background .2s, transform .12s;
+  }
+  .reveal-btn:hover { background: #3a7bc8; transform: translateY(-1px); }
+  .answer-reveal {
+    display: none;
+    margin-top: 10px;
+    background: #e7f3ff;
+    border-left: 4px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    font-size: .9rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .answer-reveal.show { display: block; }
+  .answer-reveal strong { color: var(--accent); }
+
+  /* ── VIETNAMESE TRANSLATION ── */
+  .vn-text {
+    display: none;
+    color: #b45309;
+    font-size: .88rem;
+    font-weight: 600;
+    font-style: italic;
+    margin-top: 4px;
+    padding: 4px 10px;
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
+    border-radius: 0 6px 6px 0;
+  }
+  .vn-text.show { display: block; }
+
+  .vn-inline {
+    display: none;
+    color: #b45309;
+    font-size: .82rem;
+    font-weight: 600;
+    font-style: italic;
+  }
+  .vn-inline.show { display: inline; }
+
+  /* ── TRANSLATE BUTTON (FLOATING) ── */
+  #vnToggleBtn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    background: linear-gradient(135deg, #da251d 0%, #f59e0b 100%);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    padding: 14px 24px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(218,37,29,.35);
+    transition: transform .2s, box-shadow .2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #vnToggleBtn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 32px rgba(218,37,29,.45);
+  }
+  #vnToggleBtn.active {
+    background: linear-gradient(135deg, #f59e0b 0%, #da251d 100%);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 28px 20px 22px; }
+    header h1 { font-size: 2rem; }
+    .card-body { padding: 18px 16px; }
+    .mc-options { grid-template-columns: 1fr; }
+    #vnToggleBtn { bottom: 14px; right: 14px; padding: 10px 16px; font-size: .85rem; }
+  }
+</style>
+</head>
+<body>
+
+<button id="vnToggleBtn" onclick="toggleVietnamese()">&#127483;&#127475; Ti&#7871;ng Vi&#7879;t</button>
+
+<header>
+  <div class="header-badge">Preply Trial Lesson</div>
+  <h1>English <span>Trial Lesson</span></h1>
+  <p class="subtitle">Let's find out where you are and where you're going &#128640;</p>
+  <div class="vn-text" data-vn="header-sub">H&#227;y c&#249;ng t&#236;m hi&#7875;u b&#7841;n &#273;ang &#7903; &#273;&#226;u v&#224; b&#7841;n s&#7869; &#273;i &#273;&#226;u &#128640;</div>
+  <div class="header-meta">
+    <div class="meta-pill">&#128105;&#8205;&#127979; Teacher <span>Lewis</span></div>
+    <div class="meta-pill">&#128218; Tenses &middot; Grammar &middot; Writing</div>
+    <div class="meta-pill">&#9201; ~45 mins</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- STUDENT INFO -->
+  <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="card-body" style="padding: 30px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center;">
+        <div>
+          <label style="color: white; font-weight: 700; margin-bottom: 8px; display: block;">Student Name: <span class="vn-inline">(T&#234;n h&#7885;c sinh)</span></label>
+          <input type="text" id="studentName" placeholder="Enter student name" style="width: 100%; padding: 12px 16px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600;">
+        </div>
+        <div>
+          <label style="color: white; font-weight: 700; margin-bottom: 8px; display: block;">Assessment Date: <span class="vn-inline">(Ng&#224;y &#273;&#225;nh gi&#225;)</span></label>
+          <input type="date" id="assessmentDate" style="width: 100%; padding: 12px 16px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE TRACKER -->
+  <div class="score-bar">
+    <div class="label">Score</div>
+    <div class="score-track"><div class="score-fill" id="scoreBar"></div></div>
+    <div class="score-num" id="scoreNum">0 / 15</div>
+  </div>
+
+  <!-- SECTION 1: FIND THE VERB -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icon">&#128221;</div>
+      <h2>Find the Verb in the Sentence</h2>
+      <div class="section-num">Section 1</div>
+    </div>
+    <div class="card-body">
+      <p style="margin-bottom:16px;color:var(--muted);font-weight:700;font-size:.9rem;">Read each sentence and find the verb (or verbs).</p>
+      <div class="vn-text">&#272;&#7885;c m&#7895;i c&#226;u v&#224; t&#236;m &#273;&#7897;ng t&#7915; (ho&#7863;c c&#225;c &#273;&#7897;ng t&#7915;).</div>
+      <ol class="tense-list">
+        <li>
+          <span class="num">1</span>
+          <div style="flex:1;">
+            She plays tennis every Saturday.
+            <div class="vn-text">C&#244; &#7845;y ch&#417;i qu&#7847;n v&#7907;t m&#7895;i th&#7913; B&#7843;y.</div>
+            <div class="answer-controls">
+              <label class="check-label correct-label"><input type="checkbox" class="tense-correct" data-q="1"> &#10003; Correct</label>
+              <label class="check-label wrong-label"><input type="checkbox" class="tense-wrong" data-q="1"> &#10007; Wrong</label>
+              <button class="reveal-btn" onclick="toggleTenseAnswer(1)">Show Answer</button>
+            </div>
+            <div class="answer-reveal" id="tense-ans-1"><strong>Answer:</strong> plays</div>
+          </div>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <div style="flex:1;">
+            They are watching a movie right now.
+            <div class="vn-text">H&#7885; &#273;ang xem phim ngay b&#226;y gi&#7901;.</div>
+            <div class="answer-controls">
+              <label class="check-label correct-label"><input type="checkbox" class="tense-correct" data-q="2"> &#10003; Correct</label>
+              <label class="check-label wrong-label"><input type="checkbox" class="tense-wrong" data-q="2"> &#10007; Wrong</label>
+              <button class="reveal-btn" onclick="toggleTenseAnswer(2)">Show Answer</button>
+            </div>
+            <div class="answer-reveal" id="tense-ans-2"><strong>Answer:</strong> are watching</div>
+          </div>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <div style="flex:1;">
+            She has finished her homework already.
+            <div class="vn-text">C&#244; &#7845;y &#273;&#227; ho&#224;n th&#224;nh b&#224;i t&#7853;p v&#7873; nh&#224; r&#7891;i.</div>
+            <div class="answer-controls">
+              <label class="check-label correct-label"><input type="checkbox" class="tense-correct" data-q="3"> &#10003; Correct</label>
+              <label class="check-label wrong-label"><input type="checkbox" class="tense-wrong" data-q="3"> &#10007; Wrong</label>
+              <button class="reveal-btn" onclick="toggleTenseAnswer(3)">Show Answer</button>
+            </div>
+            <div class="answer-reveal" id="tense-ans-3"><strong>Answer:</strong> has finished</div>
+          </div>
+        </li>
+        <li>
+          <span class="num">4</span>
+          <div style="flex:1;">
+            The cake was made by my sister.
+            <div class="vn-text">Chi&#7871;c b&#225;nh &#273;&#432;&#7907;c l&#224;m b&#7903;i ch&#7883; g&#225;i t&#244;i.</div>
+            <div class="answer-controls">
+              <label class="check-label correct-label"><input type="checkbox" class="tense-correct" data-q="4"> &#10003; Correct</label>
+              <label class="check-label wrong-label"><input type="checkbox" class="tense-wrong" data-q="4"> &#10007; Wrong</label>
+              <button class="reveal-btn" onclick="toggleTenseAnswer(4)">Show Answer</button>
+            </div>
+            <div class="answer-reveal" id="tense-ans-4"><strong>Answer:</strong> was made</div>
+          </div>
+        </li>
+        <li>
+          <span class="num">5</span>
+          <div style="flex:1;">
+            If it rains tomorrow, we will stay at home.
+            <div class="vn-text">N&#7871;u ng&#224;y mai tr&#7901;i m&#432;a, ch&#250;ng t&#244;i s&#7869; &#7903; nh&#224;.</div>
+            <div class="answer-controls">
+              <label class="check-label correct-label"><input type="checkbox" class="tense-correct" data-q="5"> &#10003; Correct</label>
+              <label class="check-label wrong-label"><input type="checkbox" class="tense-wrong" data-q="5"> &#10007; Wrong</label>
+              <button class="reveal-btn" onclick="toggleTenseAnswer(5)">Show Answer</button>
+            </div>
+            <div class="answer-reveal" id="tense-ans-5"><strong>Answer:</strong> rains, will stay</div>
+          </div>
+        </li>
+        <li>
+          <span class="num">6</span>
+          <div style="flex:1;">
+            I enjoy reading books in my free time.
+            <div class="vn-text">T&#244;i th&#237;ch &#273;&#7885;c s&#225;ch trong th&#7901;i gian r&#7843;nh.</div>
+            <div class="answer-controls">
+              <label class="check-label correct-label"><input type="checkbox" class="tense-correct" data-q="6"> &#10003; Correct</label>
+              <label class="check-label wrong-label"><input type="checkbox" class="tense-wrong" data-q="6"> &#10007; Wrong</label>
+              <button class="reveal-btn" onclick="toggleTenseAnswer(6)">Show Answer</button>
+            </div>
+            <div class="answer-reveal" id="tense-ans-6"><strong>Answer:</strong> enjoy, reading</div>
+          </div>
+        </li>
+        <li>
+          <span class="num">7</span>
+          <div style="flex:1;">
+            Not only did she win the competition, but she also broke the record.
+            <div class="vn-text">C&#244; &#7845;y kh&#244;ng ch&#7881; th&#7855;ng cu&#7897;c thi m&#224; c&#242;n ph&#225; k&#7927; l&#7909;c.</div>
+            <div class="answer-controls">
+              <label class="check-label correct-label"><input type="checkbox" class="tense-correct" data-q="7"> &#10003; Correct</label>
+              <label class="check-label wrong-label"><input type="checkbox" class="tense-wrong" data-q="7"> &#10007; Wrong</label>
+              <button class="reveal-btn" onclick="toggleTenseAnswer(7)">Show Answer</button>
+            </div>
+            <div class="answer-reveal" id="tense-ans-7"><strong>Answer:</strong> did win, broke</div>
+          </div>
+        </li>
+        <li>
+          <span class="num">8</span>
+          <div style="flex:1;">
+            Had I known about the problem, I would have acted differently.
+            <div class="vn-text">N&#7871;u t&#244;i bi&#7871;t v&#7873; v&#7845;n &#273;&#7873; &#273;&#243;, t&#244;i &#273;&#227; h&#224;nh &#273;&#7897;ng kh&#225;c.</div>
+            <div class="answer-controls">
+              <label class="check-label correct-label"><input type="checkbox" class="tense-correct" data-q="8"> &#10003; Correct</label>
+              <label class="check-label wrong-label"><input type="checkbox" class="tense-wrong" data-q="8"> &#10007; Wrong</label>
+              <button class="reveal-btn" onclick="toggleTenseAnswer(8)">Show Answer</button>
+            </div>
+            <div class="answer-reveal" id="tense-ans-8"><strong>Answer:</strong> had known, would have acted</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- SECTION 2: MULTIPLE CHOICE -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icon">&#127919;</div>
+      <h2>Multiple Choice</h2>
+      <div class="section-num">Section 2</div>
+    </div>
+    <div class="card-body">
+      <p style="margin-bottom:20px;color:var(--muted);font-weight:700;font-size:.9rem;">Choose the best answer for each question. Click to check your answer!</p>
+      <div class="vn-text">Ch&#7885;n c&#226;u tr&#7843; l&#7901;i t&#7889;t nh&#7845;t cho m&#7895;i c&#226;u h&#7887;i. Nh&#7845;p &#273;&#7875; ki&#7875;m tra!</div>
+      <div class="mc-list" id="mcList"></div>
+      <div class="answer-controls">
+        <label class="check-label correct-label"><input type="checkbox" class="mc-correct" data-q="all"> &#10003; Correct</label>
+        <label class="check-label wrong-label"><input type="checkbox" class="mc-wrong" data-q="all"> &#10007; Wrong</label>
+        <button class="reveal-btn" onclick="toggleMCAnswer()">Show Answers</button>
+      </div>
+      <div class="answer-reveal" id="mc-ans"><strong>Answers:</strong> 1-B (goes), 2-B (been), 3-C (to), 4-B (know), 5-C (been)</div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: FIGURES OF SPEECH -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icon">&#127912;</div>
+      <h2>Figures of Speech</h2>
+      <div class="section-num">Section 3</div>
+    </div>
+    <div class="card-body">
+      <p style="margin-bottom:20px;color:var(--muted);font-weight:700;font-size:.9rem;">Identify the figure of speech in each sentence.</p>
+      <div class="vn-text">X&#225;c &#273;&#7883;nh bi&#7879;n ph&#225;p tu t&#7915; trong m&#7895;i c&#226;u.</div>
+      <div class="mc-list" id="fosList"></div>
+      <div class="answer-controls">
+        <label class="check-label correct-label"><input type="checkbox" class="fos-correct" data-q="all"> &#10003; Correct</label>
+        <label class="check-label wrong-label"><input type="checkbox" class="fos-wrong" data-q="all"> &#10007; Wrong</label>
+        <button class="reveal-btn" onclick="toggleFOSAnswer()">Show Answers</button>
+      </div>
+      <div class="answer-reveal" id="fos-ans"><strong>Answers:</strong> 1-B (Metaphor), 2-B (Simile), 3-B (Personification), 4-B (Hyperbole), 5-B (Metonymy)</div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: CLOZE TEXT -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icon">&#9997;&#65039;</div>
+      <h2>Complete the Text</h2>
+      <div class="section-num">Section 4</div>
+    </div>
+    <div class="card-body">
+      <p style="margin-bottom:18px;color:var(--muted);font-weight:700;font-size:.9rem;">Fill in the blanks with an appropriate form of the verb in brackets. There may be more than one possible answer.</p>
+      <div class="vn-text">&#272;i&#7873;n v&#224;o ch&#7895; tr&#7889;ng v&#7899;i d&#7841;ng th&#237;ch h&#7907;p c&#7911;a &#273;&#7897;ng t&#7915; trong ngo&#7863;c. C&#243; th&#7875; c&#243; nhi&#7873;u h&#417;n m&#7897;t c&#226;u tr&#7843; l&#7901;i &#273;&#250;ng.</div>
+      <div class="cloze-passage">
+        <h3>A New Experience <span class="vn-inline">(M&#7897;t tr&#7843;i nghi&#7879;m m&#7899;i)</span></h3>
+        <p>
+          I (1) <input class="cloze-input" placeholder="find" data-verb="find"> myself in
+          some bizarre situations recently, but none so unusual as a few weeks ago, when I was lying
+          on a black plastic mattress, covered from head to toe in oil, with a man walking all over me.
+        </p>
+        <div class="vn-text">G&#7847;n &#273;&#226;y t&#244;i th&#7845;y m&#236;nh trong m&#7897;t s&#7889; t&#236;nh hu&#7889;ng k&#7923; l&#7841;, nh&#432;ng kh&#244;ng c&#243; g&#236; b&#7845;t th&#432;&#7901;ng b&#7857;ng v&#224;i tu&#7847;n tr&#432;&#7899;c, khi t&#244;i n&#7857;m tr&#234;n m&#7897;t t&#7845;m n&#7879;m nh&#7921;a &#273;en, ph&#7911; d&#7847;u t&#7915; &#273;&#7847;u &#273;&#7871;n ch&#226;n, v&#7899;i m&#7897;t ng&#432;&#7901;i &#273;&#224;n &#244;ng &#273;i kh&#7855;p ng&#432;&#7901;i t&#244;i.</div>
+        <br>
+        <p>
+          Incense (2) <input class="cloze-input" placeholder="burn" data-verb="burn"> on a low
+          table, the only sounds that of the sea and of crows ducking out of the way of an eagle.
+          In some parts of the world this might (3) <input class="cloze-input" placeholder="be" data-verb="be">
+          part of some full-moon ritual, and I would
+          (4) <input class="cloze-input" placeholder="be" data-verb="be"> concerned about
+          my safety. But this (5) <input class="cloze-input" placeholder="be" data-verb="be">
+          the middle of another hot and slightly steamy day in southern India, and whatever
+          (6) <input class="cloze-input" placeholder="happen" data-verb="happen"> to me
+          (7) <input class="cloze-input" placeholder="be done" data-verb="be done"> in the
+          name of health. I (8) <input class="cloze-input" placeholder="experience" data-verb="experience">
+          my first Ayurveda rejuvenation massage.
+        </p>
+        <div class="vn-text">H&#432;&#417;ng &#273;&#7889;t tr&#234;n b&#224;n th&#7845;p, &#226;m thanh duy nh&#7845;t l&#224; ti&#7871;ng bi&#7875;n v&#224; ti&#7871;ng qu&#7841; tr&#225;nh &#273;&#432;&#7901;ng &#273;&#7841;i b&#224;ng. &#7902; m&#7897;t s&#7889; n&#417;i tr&#234;n th&#7871; gi&#7899;i, &#273;i&#7873;u n&#224;y c&#243; th&#7875; l&#224; m&#7897;t ph&#7847;n c&#7911;a nghi l&#7877; tr&#259;ng tr&#242;n, v&#224; t&#244;i s&#7869; lo l&#7855;ng v&#7873; s&#7921; an to&#224;n c&#7911;a m&#236;nh. Nh&#432;ng &#273;&#226;y l&#224; gi&#7919;a m&#7897;t ng&#224;y n&#243;ng v&#224; h&#417;i &#7849;m &#7903; mi&#7873;n nam &#7844;n &#272;&#7897;, v&#224; b&#7845;t c&#7913; &#273;i&#7873;u g&#236; x&#7843;y ra v&#7899;i t&#244;i &#273;&#7873;u nh&#226;n danh s&#7913;c kh&#7887;e. T&#244;i &#273;ang tr&#7843;i nghi&#7879;m bu&#7893;i massage tr&#7867; h&#243;a Ayurveda &#273;&#7847;u ti&#234;n.</div>
+      </div>
+      <div class="answer-controls">
+        <label class="check-label correct-label"><input type="checkbox" class="cloze-correct" data-q="all"> &#10003; Correct</label>
+        <label class="check-label wrong-label"><input type="checkbox" class="cloze-wrong" data-q="all"> &#10007; Wrong</label>
+        <button class="reveal-btn" onclick="toggleClozeAnswer()">Show Answers</button>
+      </div>
+      <div class="answer-reveal" id="cloze-ans"><strong>Possible Answers:</strong> 1-have found, 2-was burning, 3-be, 4-have been, 5-was, 6-was happening, 7-was being done, 8-was experiencing</div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: WRITING PROMPTS -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icon">&#128394;&#65039;</div>
+      <h2>Writing Prompts</h2>
+      <div class="section-num">Section 5</div>
+    </div>
+    <div class="card-body">
+      <p style="margin-bottom:20px;color:var(--muted);font-weight:700;font-size:.9rem;">Choose <strong>one</strong> prompt and write <strong>2 paragraphs</strong>.</p>
+      <div class="vn-text">Ch&#7885;n <strong>m&#7897;t</strong> &#273;&#7873; b&#224;i v&#224; vi&#7871;t <strong>2 &#273;o&#7841;n v&#259;n</strong>.</div>
+      <div class="prompts-grid">
+        <div class="prompt-item">
+          <div class="pnum">1</div>
+          <div><h3>What is your daily routine?</h3><div class="vn-text" style="background:rgba(255,255,255,.1);border-left-color:rgba(255,255,255,.4);color:#ffe066;">Th&#243;i quen h&#224;ng ng&#224;y c&#7911;a b&#7841;n l&#224; g&#236;?</div></div>
+        </div>
+        <div class="prompt-item">
+          <div class="pnum">2</div>
+          <div><h3>Describe a memorable trip.</h3><div class="vn-text" style="background:rgba(255,255,255,.1);border-left-color:rgba(255,255,255,.4);color:#ffe066;">M&#244; t&#7843; m&#7897;t chuy&#7871;n &#273;i &#273;&#225;ng nh&#7899;.</div></div>
+        </div>
+        <div class="prompt-item">
+          <div class="pnum">3</div>
+          <div><h3>What are the advantages and disadvantages of social media?</h3><div class="vn-text" style="background:rgba(255,255,255,.1);border-left-color:rgba(255,255,255,.4);color:#ffe066;">&#431;u &#273;i&#7875;m v&#224; nh&#432;&#7907;c &#273;i&#7875;m c&#7911;a m&#7841;ng x&#227; h&#7897;i l&#224; g&#236;?</div></div>
+        </div>
+        <div class="prompt-item">
+          <div class="pnum">4</div>
+          <div><h3>Do you believe technology is making it more difficult for people to interact face-to-face? Explain your answer.</h3><div class="vn-text" style="background:rgba(255,255,255,.1);border-left-color:rgba(255,255,255,.4);color:#ffe066;">B&#7841;n c&#243; tin r&#7857;ng c&#244;ng ngh&#7879; &#273;ang khi&#7871;n vi&#7879;c giao ti&#7871;p tr&#7921;c ti&#7871;p kh&#243; kh&#259;n h&#417;n kh&#244;ng? Gi&#7843;i th&#237;ch c&#226;u tr&#7843; l&#7901;i c&#7911;a b&#7841;n.</div></div>
+        </div>
+      </div>
+      <div class="prompt-tips">
+        <h4>&#128161; Writing Checklist &#8212; Try to include:</h4>
+        <div class="vn-text">Danh s&#225;ch ki&#7875;m tra vi&#7871;t &#8212; H&#227;y c&#7889; g&#7855;ng bao g&#7891;m:</div>
+        <ul>
+          <li>A variety of tenses (past, present, future, perfect) <span class="vn-inline">&ndash; Nhi&#7873;u th&#236; kh&#225;c nhau</span></li>
+          <li>Conditional sentences (if/would/could) <span class="vn-inline">&ndash; C&#226;u &#273;i&#7873;u ki&#7879;n</span></li>
+          <li>Both passive and active voice <span class="vn-inline">&ndash; C&#7843; ch&#7911; &#273;&#7897;ng v&#224; b&#7883; &#273;&#7897;ng</span></li>
+          <li>Relative clauses (who, which, that) <span class="vn-inline">&ndash; M&#7879;nh &#273;&#7873; quan h&#7879;</span></li>
+          <li>Technical or topic-specific vocabulary <span class="vn-inline">&ndash; T&#7915; v&#7921;ng chuy&#234;n ng&#224;nh</span></li>
+          <li>2 full paragraphs <span class="vn-inline">&ndash; 2 &#273;o&#7841;n v&#259;n &#273;&#7847;y &#273;&#7911;</span></li>
+        </ul>
+      </div>
+      <div class="answer-controls">
+        <label class="check-label correct-label"><input type="checkbox" class="writing-correct" data-q="all"> &#10003; Correct</label>
+        <label class="check-label wrong-label"><input type="checkbox" class="writing-wrong" data-q="all"> &#10007; Wrong</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEAKNESS ANALYSIS -->
+  <div class="card" style="border: 3px solid #e74c3c;">
+    <div class="card-header" style="background: #e74c3c;">
+      <div class="icon">&#128202;</div>
+      <h2>Student Weakness Analysis</h2>
+    </div>
+    <div class="card-body">
+      <div id="weaknessReport" style="font-size: 1rem; line-height: 1.8;">
+        <p style="color: var(--muted); font-style: italic;">Mark incorrect answers above to see automatic weakness analysis...</p>
+      </div>
+      <button class="print-btn" style="background: #e74c3c; margin-top: 20px;" onclick="generateWeaknessReport()">&#128203; Generate Analysis Report</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── VIETNAMESE TOGGLE ─────────────────────────────────────────────────────────
+let vnVisible = false;
+
+function toggleVietnamese() {
+  vnVisible = !vnVisible;
+  const btn = document.getElementById('vnToggleBtn');
+  const vnTexts = document.querySelectorAll('.vn-text');
+  const vnInlines = document.querySelectorAll('.vn-inline');
+
+  vnTexts.forEach(el => el.classList.toggle('show', vnVisible));
+  vnInlines.forEach(el => el.classList.toggle('show', vnVisible));
+  btn.classList.toggle('active', vnVisible);
+  btn.innerHTML = vnVisible ? '\u{1F1FB}\u{1F1F3} \u1EA8n Ti\u1EBFng Vi\u1EC7t' : '\u{1F1FB}\u{1F1F3} Ti\u1EBFng Vi\u1EC7t';
+}
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const mcData = [
+  {
+    q: 'She ____ to school every day.',
+    vn: 'C\u00f4 \u1ea5y ____ \u0111\u1ebfn tr\u01b0\u1eddng m\u1ed7i ng\u00e0y.',
+    options: ['go','goes','gos','going'],
+    answer: 1
+  },
+  {
+    q: 'I have never ____ to Italy.',
+    vn: 'T\u00f4i ch\u01b0a bao gi\u1edd ____ \u0111\u1ebfn \u00dd.',
+    options: ['bean','been','being','bin'],
+    answer: 1
+  },
+  {
+    q: 'They are going ____ their grandparents this weekend.',
+    vn: 'H\u1ecd s\u1ebd ____ \u00f4ng b\u00e0 cu\u1ed1i tu\u1ea7n n\u00e0y.',
+    options: ['too','two','to','tow'],
+    answer: 2
+  },
+  {
+    q: "She didn't ____ the difference between the two paintings.",
+    vn: 'C\u00f4 \u1ea5y kh\u00f4ng ____ s\u1ef1 kh\u00e1c bi\u1ec7t gi\u1eefa hai b\u1ee9c tranh.',
+    options: ['no','know','now','known'],
+    answer: 1
+  },
+  {
+    q: 'He has ____ working here for five years.',
+    vn: 'Anh \u1ea5y \u0111\u00e3 ____ l\u00e0m vi\u1ec7c \u1edf \u0111\u00e2y n\u0103m n\u0103m.',
+    options: ['bin','bean','been','being'],
+    answer: 2
+  }
+];
+
+const fosData = [
+  {
+    q: '"The classroom was a zoo after the teacher left."',
+    vn: '"\u0110\u1ed3ng ngh\u0129a: L\u1edbp h\u1ecdc nh\u01b0 m\u1ed9t s\u1edf th\u00fa sau khi gi\u00e1o vi\u00ean r\u1eddi \u0111i."',
+    options: ['Simile','Metaphor','Personification','Hyperbole'],
+    answer: 1
+  },
+  {
+    q: '"She runs like the wind."',
+    vn: '"C\u00f4 \u1ea5y ch\u1ea1y nh\u01b0 gi\u00f3."',
+    options: ['Metaphor','Simile','Irony','Alliteration'],
+    answer: 1
+  },
+  {
+    q: '"The wind whispered through the trees."',
+    vn: '"Gi\u00f3 th\u00ec th\u1ea7m qua c\u00e1c t\u00e1n c\u00e2y."',
+    options: ['Hyperbole','Personification','Onomatopoeia','Metonymy'],
+    answer: 1
+  },
+  {
+    q: '"I\'ve told you a million times to clean your room!"',
+    vn: '"T\u00f4i \u0111\u00e3 n\u00f3i v\u1edbi b\u1ea1n m\u1ed9t tri\u1ec7u l\u1ea7n r\u1ed3i, d\u1ecdn ph\u00f2ng \u0111i!"',
+    options: ['Irony','Hyperbole','Simile','Euphemism'],
+    answer: 1
+  },
+  {
+    q: '"The White House announced new policies today."',
+    vn: '"Nh\u00e0 Tr\u1eafng c\u00f4ng b\u1ed1 ch\u00ednh s\u00e1ch m\u1edbi h\u00f4m nay."',
+    options: ['Metaphor','Metonymy','Personification','Irony'],
+    answer: 1
+  }
+];
+
+const LETTERS = ['A','B','C','D'];
+let totalCorrect = 0;
+const TOTAL_Q = mcData.length + fosData.length;
+
+function updateScore() {
+  const bar = document.getElementById('scoreBar');
+  const num = document.getElementById('scoreNum');
+  bar.style.width = (totalCorrect / TOTAL_Q * 100) + '%';
+  num.textContent = totalCorrect + ' / ' + TOTAL_Q;
+}
+
+function buildMC(container, data, idPrefix) {
+  data.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'mc-item';
+    div.innerHTML = `
+      <div class="mc-question">
+        <span class="qnum">${idx+1}</span>
+        <span>${item.q}</span>
+      </div>
+      ${item.vn ? `<div class="vn-text${vnVisible ? ' show' : ''}">${item.vn}</div>` : ''}
+      <div class="mc-options" id="${idPrefix}-opts-${idx}"></div>
+      <div class="feedback" id="${idPrefix}-fb-${idx}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsDiv = div.querySelector(`#${idPrefix}-opts-${idx}`);
+    item.options.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'mc-option';
+      btn.innerHTML = `<span class="letter">${LETTERS[oi]}</span>${opt}`;
+      btn.addEventListener('click', () => {
+        // disable all options in this question
+        const allBtns = optsDiv.querySelectorAll('.mc-option');
+        allBtns.forEach(b => b.style.pointerEvents = 'none');
+        const fb = document.getElementById(`${idPrefix}-fb-${idx}`);
+        if (oi === item.answer) {
+          btn.classList.add('correct');
+          fb.textContent = '\u2705 Correct!';
+          fb.className = 'feedback show ok';
+          totalCorrect++;
+          updateScore();
+        } else {
+          btn.classList.add('wrong');
+          fb.textContent = `\u274c Not quite \u2014 the answer is ${LETTERS[item.answer]}: ${item.options[item.answer]}`;
+          fb.className = 'feedback show no';
+          // highlight correct
+          allBtns[item.answer].classList.add('correct');
+        }
+      });
+      optsDiv.appendChild(btn);
+    });
+  });
+}
+
+buildMC(document.getElementById('mcList'), mcData, 'mc');
+buildMC(document.getElementById('fosList'), fosData, 'fos');
+updateScore();
+
+// ── TENSE ANSWER TRACKING ──
+function toggleTenseAnswer(num) {
+  const ans = document.getElementById(`tense-ans-${num}`);
+  ans.classList.toggle('show');
+}
+
+// Prevent both checkboxes from being checked
+const tenseCorrect = document.querySelectorAll('.tense-correct');
+const tenseWrong = document.querySelectorAll('.tense-wrong');
+
+tenseCorrect.forEach(cb => {
+  cb.addEventListener('change', function() {
+    if (this.checked) {
+      const q = this.dataset.q;
+      const wrongCb = document.querySelector(`.tense-wrong[data-q="${q}"]`);
+      if (wrongCb) wrongCb.checked = false;
+    }
+  });
+});
+
+tenseWrong.forEach(cb => {
+  cb.addEventListener('change', function() {
+    if (this.checked) {
+      const q = this.dataset.q;
+      const correctCb = document.querySelector(`.tense-correct[data-q="${q}"]`);
+      if (correctCb) correctCb.checked = false;
+    }
+  });
+});
+
+// ── SECTION ANSWER REVEALS ──
+function toggleMCAnswer() {
+  const ans = document.getElementById('mc-ans');
+  ans.classList.toggle('show');
+}
+
+function toggleFOSAnswer() {
+  const ans = document.getElementById('fos-ans');
+  ans.classList.toggle('show');
+}
+
+function toggleClozeAnswer() {
+  const ans = document.getElementById('cloze-ans');
+  ans.classList.toggle('show');
+}
+
+// ── WEAKNESS TRACKING ──
+const weaknessMap = {
+  tense: {
+    1: 'Identifying simple verbs',
+    2: 'Identifying continuous verb forms',
+    3: 'Identifying perfect verb forms',
+    4: 'Identifying passive verb forms',
+    5: 'Identifying multiple verbs in a sentence',
+    6: 'Identifying gerunds as verbs',
+    7: 'Identifying verbs in inverted structures',
+    8: 'Identifying verbs in complex conditionals'
+  },
+  mc: 'Basic grammar and spelling',
+  fos: 'Figures of Speech identification',
+  cloze: 'Verb tenses in context',
+  writing: 'Writing skills and structure'
+};
+
+function generateWeaknessReport() {
+  const weaknesses = [];
+  const strengths = [];
+  
+  // Check Tenses section
+  for (let i = 1; i <= 8; i++) {
+    const wrongCb = document.querySelector(`.tense-wrong[data-q="${i}"]`);
+    const correctCb = document.querySelector(`.tense-correct[data-q="${i}"]`);
+    if (wrongCb && wrongCb.checked) {
+      weaknesses.push(weaknessMap.tense[i]);
+    } else if (correctCb && correctCb.checked) {
+      strengths.push(weaknessMap.tense[i]);
+    }
+  }
+  
+  // Check Multiple Choice
+  const mcWrong = document.querySelector('.mc-wrong[data-q="all"]');
+  const mcCorrect = document.querySelector('.mc-correct[data-q="all"]');
+  if (mcWrong && mcWrong.checked) {
+    weaknesses.push(weaknessMap.mc);
+  } else if (mcCorrect && mcCorrect.checked) {
+    strengths.push(weaknessMap.mc);
+  }
+  
+  // Check Figures of Speech
+  const fosWrong = document.querySelector('.fos-wrong[data-q="all"]');
+  const fosCorrect = document.querySelector('.fos-correct[data-q="all"]');
+  if (fosWrong && fosWrong.checked) {
+    weaknesses.push(weaknessMap.fos);
+  } else if (fosCorrect && fosCorrect.checked) {
+    strengths.push(weaknessMap.fos);
+  }
+  
+  // Check Cloze Text
+  const clozeWrong = document.querySelector('.cloze-wrong[data-q="all"]');
+  const clozeCorrect = document.querySelector('.cloze-correct[data-q="all"]');
+  if (clozeWrong && clozeWrong.checked) {
+    weaknesses.push(weaknessMap.cloze);
+  } else if (clozeCorrect && clozeCorrect.checked) {
+    strengths.push(weaknessMap.cloze);
+  }
+  
+  // Check Writing
+  const writingWrong = document.querySelector('.writing-wrong[data-q="all"]');
+  const writingCorrect = document.querySelector('.writing-correct[data-q="all"]');
+  if (writingWrong && writingWrong.checked) {
+    weaknesses.push(weaknessMap.writing);
+  } else if (writingCorrect && writingCorrect.checked) {
+    strengths.push(weaknessMap.writing);
+  }
+  
+  // Generate report
+  let report = '<div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-bottom: 20px;">';
+  report += '<h3 style="color: #856404; margin-bottom: 15px; font-family: \'Fredoka One\', cursive;">\ud83d\udcc9 Areas for Improvement</h3>';
+  
+  if (weaknesses.length > 0) {
+    report += '<ul style="margin-left: 20px; line-height: 2;">';
+    weaknesses.forEach(w => {
+      report += `<li style="color: #c0392b; font-weight: 700;">${w}</li>`;
+    });
+    report += '</ul>';
+    
+    // Add recommendations
+    report += '<h4 style="color: #856404; margin-top: 20px; margin-bottom: 10px; font-weight: 900;">\ud83d\udca1 Recommendations:</h4>';
+    report += '<ul style="margin-left: 20px; line-height: 2;">';
+    
+    if (weaknesses.some(w => w.includes('tense') || w.includes('Conditional') || w.includes('Perfect'))) {
+      report += '<li>Focus on tense formation and usage in context</li>';
+      report += '<li>Practice timeline exercises to understand when to use each tense</li>';
+    }
+    if (weaknesses.some(w => w.includes('Passive'))) {
+      report += '<li>Study passive voice structure: be + past participle</li>';
+      report += '<li>Practice converting active sentences to passive</li>';
+    }
+    if (weaknesses.some(w => w.includes('Figures of Speech'))) {
+      report += '<li>Study common literary devices with examples</li>';
+      report += '<li>Practice identifying metaphors, similes, and personification in texts</li>';
+    }
+    if (weaknesses.some(w => w.includes('Gerund') || w.includes('Inversion'))) {
+      report += '<li>Study advanced grammar structures</li>';
+      report += '<li>Practice sentence transformation exercises</li>';
+    }
+    if (weaknesses.some(w => w.includes('context'))) {
+      report += '<li>Read more English texts to understand natural language use</li>';
+      report += '<li>Practice gap-fill exercises with various tenses</li>';
+    }
+    if (weaknesses.some(w => w.includes('Writing'))) {
+      report += '<li>Practice paragraph writing with clear topic sentences</li>';
+      report += '<li>Focus on using varied sentence structures and vocabulary</li>';
+    }
+    if (weaknesses.some(w => w.includes('spelling'))) {
+      report += '<li>Review commonly confused words (to/too/two, been/bean, etc.)</li>';
+      report += '<li>Practice spelling rules and patterns</li>';
+    }
+    
+    report += '</ul>';
+  } else {
+    report += '<p style="color: var(--muted); font-style: italic;">No weaknesses marked yet. Check the "Wrong" boxes above to track areas for improvement.</p>';
+  }
+  
+  report += '</div>';
+  
+  // Add strengths
+  if (strengths.length > 0) {
+    report += '<div style="background: #d4edda; padding: 20px; border-radius: 10px;">';
+    report += '<h3 style="color: #155724; margin-bottom: 15px; font-family: \'Fredoka One\', cursive;">\u2705 Strengths</h3>';
+    report += '<ul style="margin-left: 20px; line-height: 2;">';
+    strengths.forEach(s => {
+      report += `<li style="color: #28a745; font-weight: 700;">${s}</li>`;
+    });
+    report += '</ul>';
+    report += '</div>';
+  }
+  
+  document.getElementById('weaknessReport').innerHTML = report;
+}
+
+// Auto-update weakness report when checkboxes change
+document.addEventListener('change', function(e) {
+  if (e.target.type === 'checkbox' && 
+      (e.target.classList.contains('tense-wrong') || 
+       e.target.classList.contains('mc-wrong') || 
+       e.target.classList.contains('fos-wrong') || 
+       e.target.classList.contains('cloze-wrong') || 
+       e.target.classList.contains('writing-wrong') ||
+       e.target.classList.contains('tense-correct') || 
+       e.target.classList.contains('mc-correct') || 
+       e.target.classList.contains('fos-correct') || 
+       e.target.classList.contains('cloze-correct') || 
+       e.target.classList.contains('writing-correct'))) {
+    generateWeaknessReport();
+  }
+});
+
+// Mutual exclusion for section checkboxes
+const mcCorrectCb = document.querySelector('.mc-correct');
+const mcWrongCb = document.querySelector('.mc-wrong');
+if (mcCorrectCb && mcWrongCb) {
+  mcCorrectCb.addEventListener('change', () => { if (mcCorrectCb.checked) mcWrongCb.checked = false; });
+  mcWrongCb.addEventListener('change', () => { if (mcWrongCb.checked) mcCorrectCb.checked = false; });
+}
+
+const fosCorrectCb = document.querySelector('.fos-correct');
+const fosWrongCb = document.querySelector('.fos-wrong');
+if (fosCorrectCb && fosWrongCb) {
+  fosCorrectCb.addEventListener('change', () => { if (fosCorrectCb.checked) fosWrongCb.checked = false; });
+  fosWrongCb.addEventListener('change', () => { if (fosWrongCb.checked) fosCorrectCb.checked = false; });
+}
+
+const clozeCorrectCb = document.querySelector('.cloze-correct');
+const clozeWrongCb = document.querySelector('.cloze-wrong');
+if (clozeCorrectCb && clozeWrongCb) {
+  clozeCorrectCb.addEventListener('change', () => { if (clozeCorrectCb.checked) clozeWrongCb.checked = false; });
+  clozeWrongCb.addEventListener('change', () => { if (clozeWrongCb.checked) clozeCorrectCb.checked = false; });
+}
+
+const writingCorrectCb = document.querySelector('.writing-correct');
+const writingWrongCb = document.querySelector('.writing-wrong');
+if (writingCorrectCb && writingWrongCb) {
+  writingCorrectCb.addEventListener('change', () => { if (writingCorrectCb.checked) writingWrongCb.checked = false; });
+  writingWrongCb.addEventListener('change', () => { if (writingWrongCb.checked) writingCorrectCb.checked = false; });
+}
+</script>
+</body>
+</html>

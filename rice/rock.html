@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Star ESL Bingo</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #1a1a1a; /* Dark Rock Theme */
+            color: #ecf0f1;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { color: #f1c40f; text-transform: uppercase; letter-spacing: 3px; text-shadow: 2px 2px #c0392b; }
+        .subtitle { margin-bottom: 20px; color: #bdc3c7; font-style: italic; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .cell {
+            aspect-ratio: 1 / 1;
+            background: #2c3e50;
+            border: 2px solid #f1c40f;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .card-number {
+            font-size: 0.8rem;
+            color: #f1c40f;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .emoji { font-size: 2rem; margin-bottom: 5px; }
+        .text { font-size: 0.85rem; font-weight: bold; line-height: 1.2; }
+        .task { font-size: 0.7rem; color: #f39c12; margin-top: 6px; text-transform: uppercase; }
+
+        .cell.active {
+            background-color: #f1c40f;
+            color: #1a1a1a;
+            transform: scale(0.95);
+            box-shadow: 0 0 15px #f1c40f;
+        }
+        .cell.active .card-number, .cell.active .task { color: #1a1a1a; }
+
+        button {
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #7b241c;
+        }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #7b241c; }
+    </style>
+</head>
+<body>
+
+    <h1>Rock Star Bingo 🎸</h1>
+    <div class="subtitle">Complete the musical tasks to win the show!</div>
+
+    <div class="grid" id="bingoGrid"></div>
+
+    <button onclick="generateBoard()">Shuffle the Setlist 🎲</button>
+
+    <script>
+        const cards = [
+            { icon: "🎸", text: "Can name 3 famous rock bands", task: "Say them out loud!" },
+            { icon: "🥁", text: "Can clap a steady 4-beat rhythm", task: "1-2-3-4!" },
+            { icon: "🎤", text: "Can hum their favorite song", task: "Guess the song!" },
+            { icon: "🎹", text: "Knows what a 'Piano' is made of", task: "What are the keys?" },
+            { icon: "🎧", text: "Listened to music this morning", task: "What song?" },
+            { icon: "⚡", text: "Can do an 'Air Guitar' solo", task: "5 seconds of rock!" },
+            { icon: "🎷", text: "Can name a 'Wind' instrument", task: "What is it?" },
+            { icon: "🎶", text: "Can sing the 'Do-Re-Mi' scale", task: "Up and down!" },
+            { icon: "📻", text: "Knows a song by Maroon 5", task: "Sing a line!" },
+            { icon: "🕺", text: "Has a favorite dance move", task: "Show the class!" },
+            { icon: "🎻", text: "Knows how many strings a guitar has", task: "Is it 4, 6, or 12?" },
+            { icon: "📢", text: "Can name a song that is VERY LOUD", task: "Which one?" },
+            { icon: "🤫", text: "Can name a song that is VERY SOFT", task: "Which one?" },
+            { icon: "🖤", text: "Is wearing a black t-shirt", task: "Like a rock star!" },
+            { icon: "🌟", text: "Wants to be famous one day", task: "As what?" },
+            { icon: "🍎", text: "Knows a song about food", task: "What is it?" }
+        ];
+
+        function generateBoard() {
+            const grid = document.getElementById('bingoGrid');
+            grid.innerHTML = '';
+            const shuffled = [...cards].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach((item, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.innerHTML = `
+                    <div class="card-number">TRACK ${index + 1}</div>
+                    <div class="emoji">${item.icon}</div>
+                    <div class="text">${item.text}</div>
+                    <div class="task">${item.task}</div>
+                `;
+                cell.onclick = function() { this.classList.toggle('active'); checkWin(); };
+                grid.appendChild(cell);
+            });
+        }
+
+        function checkWin() {
+            const cells = document.querySelectorAll('.cell');
+            const active = Array.from(cells).map(c => c.classList.contains('active'));
+            const p = [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],[0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15],[0,5,10,15],[3,6,9,12]];
+            if (p.some(pattern => pattern.every(i => active[i]))) {
+                setTimeout(() => alert("YOU'RE A ROCK LEGEND! 🤘 BINGO!"), 200);
+            }
+        }
+        generateBoard();
+    </script>
+</body>
+</html>

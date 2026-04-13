@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presentation Drill — Teacher Lewis</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161920;
+    --surface2: #1e2230;
+    --border: rgba(255,255,255,0.08);
+    --gold: #f5c842;
+    --gold-dim: rgba(245,200,66,0.15);
+    --gold-glow: rgba(245,200,66,0.3);
+    --text: #f0ede8;
+    --muted: #8a8fa8;
+    --danger: #ff5c5c;
+    --success: #4de89a;
+    --phase-colors: #7c9eff, #c47cff, #ff9b5c, #4de89a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+    overflow-x: hidden;
+  }
+
+  /* Subtle grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; width: 100%; max-width: 640px; }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 2.5rem;
+  }
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .header .badge {
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--gold-dim);
+    color: var(--gold);
+    border: 1px solid var(--gold-glow);
+    border-radius: 20px;
+    padding: 2px 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* SCREENS */
+  .screen { display: none; flex-direction: column; gap: 1.25rem; }
+  .screen.active { display: flex; }
+
+  /* Start screen */
+  .start-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+  }
+  .start-card .icon {
+    font-size: 48px;
+    margin-bottom: 1rem;
+    display: block;
+    filter: drop-shadow(0 0 20px var(--gold-glow));
+  }
+  .start-card h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+  .start-card p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 1.75rem;
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Structure preview */
+  .structure {
+    background: var(--surface2);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+  .structure-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .structure-row:last-child { border-bottom: none; }
+  .structure-row .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .structure-row .time {
+    margin-left: auto;
+    font-size: 12px;
+    opacity: 0.6;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 28px;
+    border-radius: 50px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+  }
+  .btn-gold {
+    background: var(--gold);
+    color: #1a1400;
+  }
+  .btn-gold:hover { background: #ffd55a; transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { background: var(--surface2); }
+  .btn-danger {
+    background: rgba(255,92,92,0.15);
+    color: var(--danger);
+    border: 1px solid rgba(255,92,92,0.3);
+  }
+  .btn-danger:hover { background: rgba(255,92,92,0.25); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+  /* Topic reveal */
+  .topic-reveal {
+    background: linear-gradient(135deg, #1e2230 0%, #161920 100%);
+    border: 1px solid var(--gold-glow);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .topic-reveal::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+  .topic-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .topic-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+
+  /* Countdown ring */
+  .countdown-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.5rem 0;
+  }
+  .ring-container {
+    position: relative;
+    width: 90px;
+    height: 90px;
+  }
+  .ring-container svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: var(--surface2); stroke-width: 6; }
+  .ring-fg { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.5s; }
+  .ring-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .ring-text .seconds {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+  }
+  .ring-text .unit {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Phase card */
+  .phase-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.5rem;
+  }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+  .phase-chip {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .phase-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  /* Prompt box */
+  .prompt-box {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 1rem;
+    border-left: 3px solid;
+  }
+  .transition-hint {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 1rem;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+  }
+
+  /* Recording indicator */
+  .rec-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--danger);
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .rec-indicator.active { opacity: 1; }
+  .rec-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--danger);
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* Structure map diagram */
+  .struct-map {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.25rem 1rem 1rem;
+  }
+  .struct-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  .struct-node {
+    border: 2.5px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.3s, background 0.3s, transform 0.2s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+  .struct-node .node-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    transition: color 0.3s;
+    text-align: center;
+    line-height: 1.2;
+    padding: 0 4px;
+  }
+  .struct-node .node-tick {
+    font-size: 14px;
+    margin-bottom: 2px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .struct-node-wide {
+    flex: 1;
+    max-width: 340px;
+    height: 46px;
+  }
+  .struct-node-tall {
+    flex: 1;
+    height: 80px;
+  }
+  /* Done state */
+  .struct-node.done {
+    border-color: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.05);
+  }
+  .struct-node.done .node-label { color: rgba(255,255,255,0.45); }
+  .struct-node.done .node-tick { opacity: 1; }
+  /* Active state — highlighted with phase color via inline style */
+  .struct-node.active {
+    transform: scale(1.04);
+  }
+  .struct-node.active .node-label { color: #fff; }
+  /* Connector line between top and middle row */
+  .struct-connector {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 0 0;
+    margin-bottom: 0;
+  }
+  .connector-line {
+    width: 2px;
+    height: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 1px;
+    flex: 1;
+    max-width: calc(33.3% - 4px);
+    transition: background 0.3s;
+  }
+  .connector-line.lit { background: rgba(255,255,255,0.3); }
+
+  /* Playback screen */
+  .playback-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.5rem;
+  }
+  .playback-card h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+  }
+  .playback-card .sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+  }
+  audio {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    accent-color: var(--gold);
+  }
+  .stat-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  .stat {
+    flex: 1;
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+  .stat .val {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--gold);
+  }
+  .stat .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Share panel */
+  .share-panel {
+    background: var(--surface2);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+  }
+  .share-panel p { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .share-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 14px;
+    color: var(--text);
+    z-index: 999;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .fade-in { animation: fadeIn 0.35s ease forwards; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .mic-blocked {
+    background: rgba(255,92,92,0.1);
+    border: 1px solid rgba(255,92,92,0.25);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--danger);
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>Presentation Drill</h1>
+    <span class="badge">Teacher Lewis</span>
+  </div>
+
+  <!-- ===== SCREEN 1: START ===== -->
+  <div id="screen-start" class="screen active">
+    <div class="start-card fade-in">
+      <span class="icon">🎙️</span>
+      <h2>Speak. Structure.<br>Sound Brilliant.</h2>
+      <p>You'll get a random topic. Record a mini-presentation — intro, three points with transitions, and a conclusion. Then listen back.</p>
+
+      <div class="structure">
+        <div class="structure-row">
+          <span class="dot" style="background:#7c9eff"></span>
+          <span>Introduction — state your topic</span>
+          <span class="time">30s</span>
+        </div>
+        <div class="structure-row">
+          <span class="dot" style="background:#c47cff"></span>
+          <span>Point 1 + transition</span>
+          <span class="time">40s</span>
+        </div>
+        <div class="structure-row">
+          <span class="dot" style="background:#ff9b5c"></span>
+          <span>Point 2 + transition</span>
+          <span class="time">40s</span>
+        </div>
+        <div class="structure-row">
+          <span class="dot" style="background:#ffd55a"></span>
+          <span>Point 3 + transition</span>
+          <span class="time">40s</span>
+        </div>
+        <div class="structure-row">
+          <span class="dot" style="background:#4de89a"></span>
+          <span>Conclusion — wrap it up</span>
+          <span class="time">30s</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-gold" onclick="startGame()">Get My Topic ✦</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 2: TOPIC REVEAL ===== -->
+  <div id="screen-topic" class="screen">
+    <div class="topic-reveal fade-in">
+      <p class="topic-label">Your topic</p>
+      <p class="topic-text" id="topicText">—</p>
+      <p style="font-size:14px; color:var(--muted); margin-bottom:1.5rem; line-height:1.5;">
+        Plan for <strong style="color:var(--text)">20 seconds</strong>, then hit record.<br>
+        You'll be guided through each section.
+      </p>
+      <div class="btn-row">
+        <button class="btn btn-gold" onclick="beginDrill()">I'm Ready — Start Recording</button>
+        <button class="btn btn-outline" onclick="newTopic()">Different topic</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 3: DRILL ===== -->
+  <div id="screen-drill" class="screen">
+
+    <!-- Structure map -->
+    <div class="struct-map">
+      <!-- Introduction -->
+      <div class="struct-row">
+        <div class="struct-node struct-node-wide" id="snode-0">
+          <div class="node-tick">✓</div>
+          <div class="node-label">Introduction</div>
+        </div>
+      </div>
+      <!-- Connectors down to points -->
+      <div class="struct-connector">
+        <div class="connector-line" id="conn-0"></div>
+        <div class="connector-line" id="conn-1"></div>
+        <div class="connector-line" id="conn-2"></div>
+      </div>
+      <!-- Points 1, 2, 3 -->
+      <div class="struct-row">
+        <div class="struct-node struct-node-tall" id="snode-1">
+          <div class="node-tick">✓</div>
+          <div class="node-label">Point<br>1</div>
+        </div>
+        <div class="struct-node struct-node-tall" id="snode-2">
+          <div class="node-tick">✓</div>
+          <div class="node-label">Point<br>2</div>
+        </div>
+        <div class="struct-node struct-node-tall" id="snode-3">
+          <div class="node-tick">✓</div>
+          <div class="node-label">Point<br>3</div>
+        </div>
+      </div>
+      <!-- Connectors down to conclusion -->
+      <div class="struct-connector">
+        <div class="connector-line" id="conn-3"></div>
+        <div class="connector-line" id="conn-4"></div>
+        <div class="connector-line" id="conn-5"></div>
+      </div>
+      <!-- Conclusion -->
+      <div class="struct-row">
+        <div class="struct-node struct-node-wide" id="snode-4">
+          <div class="node-tick">✓</div>
+          <div class="node-label">Conclusion</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card fade-in" id="phaseCard">
+      <div class="phase-header">
+        <span class="phase-chip" id="phaseChip">—</span>
+        <span class="phase-title" id="phaseTitle">—</span>
+      </div>
+      <div class="prompt-box" id="phasePrompt" style="border-color: #7c9eff;"></div>
+      <div class="transition-hint" id="transitionHint" style="display:none">
+        <span>💬</span>
+        <span id="transitionText"></span>
+      </div>
+      <div class="countdown-wrap">
+        <div class="ring-container">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle class="ring-bg" cx="45" cy="45" r="38"/>
+            <circle class="ring-fg" id="ringFg" cx="45" cy="45" r="38"
+              stroke-dasharray="238.76" stroke-dashoffset="0" stroke="#7c9eff"/>
+          </svg>
+          <div class="ring-text">
+            <span class="seconds" id="timerNum">30</span>
+            <span class="unit">sec</span>
+          </div>
+        </div>
+      </div>
+      <div class="rec-indicator active" id="recIndicator">
+        <div class="rec-dot"></div> Recording
+      </div>
+    </div>
+
+    <div class="mic-blocked" id="micBlocked">
+      Microphone access was denied. Please allow mic access and reload the page.
+    </div>
+
+  </div>
+
+  <!-- ===== SCREEN 4: PLAYBACK ===== -->
+  <div id="screen-playback" class="screen">
+    <div class="playback-card fade-in">
+      <h2>Great work! 🎉</h2>
+      <p class="sub">Topic: <span id="playbackTopic" style="color:var(--gold)">—</span></p>
+
+      <div class="stat-row">
+        <div class="stat">
+          <div class="val" id="statTime">—</div>
+          <div class="lbl">Total time</div>
+        </div>
+        <div class="stat">
+          <div class="val">5</div>
+          <div class="lbl">Sections</div>
+        </div>
+        <div class="stat">
+          <div class="val">✓</div>
+          <div class="lbl">Completed</div>
+        </div>
+      </div>
+
+      <audio id="audioPlayer" controls></audio>
+
+      <div class="share-panel">
+        <p>Share or save your recording:</p>
+        <div class="share-row">
+          <button class="btn btn-outline" onclick="downloadAudio()" style="font-size:13px; padding:9px 16px;">⬇ Download</button>
+          <button class="btn btn-outline" onclick="shareAudio()" style="font-size:13px; padding:9px 16px;" id="shareBtn">↗ Share</button>
+          <button class="btn btn-outline" onclick="copyTranscript()" style="font-size:13px; padding:9px 16px;">📋 Copy structure</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:0.5rem;">
+      <button class="btn btn-gold" onclick="resetGame()">Try Another Topic ✦</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TOPICS = [
+  "The benefits of learning a second language",
+  "Why sleep is important for health",
+  "How smartphones have changed daily life",
+  "The advantages of living in a city",
+  "Why exercise is good for mental health",
+  "How social media affects relationships",
+  "The importance of eating healthy food",
+  "Why travel is a good way to learn",
+  "How music affects our mood",
+  "The pros and cons of working from home",
+  "Why reading books is valuable",
+  "How technology is changing education",
+  "The importance of protecting the environment",
+  "Why learning to cook is a useful skill",
+  "How pets improve people's lives",
+  "The benefits of waking up early",
+  "Why volunteering is important",
+  "How money affects happiness",
+  "The value of having a hobby",
+  "Why first impressions matter"
+];
+
+const PHASES = [
+  {
+    key: "intro",
+    label: "Introduction",
+    color: "#7c9eff",
+    duration: 30,
+    prompt: (topic) => `Introduce your topic. Tell the audience what you are going to talk about.\n\nExample: "Today I'd like to talk about ${topic.toLowerCase()}. This is an interesting topic because..."`,
+    transition: null
+  },
+  {
+    key: "point1",
+    label: "Point 1",
+    color: "#c47cff",
+    duration: 40,
+    prompt: () => "Give your FIRST point. Use a fact, example, or personal opinion to support it.",
+    transition: "Start with: \"First of all...\" / \"To begin with...\" / \"The first thing I want to mention is...\""
+  },
+  {
+    key: "point2",
+    label: "Point 2",
+    color: "#ff9b5c",
+    duration: 40,
+    prompt: () => "Give your SECOND point. Connect it naturally to your first point.",
+    transition: "Transition with: \"In addition to this...\" / \"Another important point is...\" / \"Moving on to my second point...\""
+  },
+  {
+    key: "point3",
+    label: "Point 3",
+    color: "#ffd55a",
+    duration: 40,
+    prompt: () => "Give your THIRD point. Make it your strongest or most interesting idea.",
+    transition: "Transition with: \"Finally...\" / \"Last but not least...\" / \"The third and most important point is...\""
+  },
+  {
+    key: "conclusion",
+    label: "Conclusion",
+    color: "#4de89a",
+    duration: 30,
+    prompt: (topic) => `Wrap up your presentation. Summarise your three points and give a final thought on ${topic.toLowerCase()}.`,
+    transition: "Begin with: \"To summarise...\" / \"In conclusion...\" / \"To wrap up what I've said...\""
+  }
+];
+
+let currentTopic = "";
+let currentPhase = 0;
+let timerInterval = null;
+let timeLeft = 0;
+let mediaRecorder = null;
+let allChunks = [];
+let fullBlob = null;
+let totalSeconds = 0;
+let startTime = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function startGame() {
+  newTopic();
+  showScreen('topic');
+}
+
+function newTopic() {
+  currentTopic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
+  document.getElementById('topicText').textContent = currentTopic;
+}
+
+async function beginDrill() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    allChunks = [];
+    startTime = Date.now();
+
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus'
+      : MediaRecorder.isTypeSupported('audio/webm')
+      ? 'audio/webm'
+      : 'audio/ogg';
+
+    mediaRecorder = new MediaRecorder(stream, { mimeType });
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) allChunks.push(e.data); };
+    mediaRecorder.start(500);
+
+    currentPhase = 0;
+    showScreen('drill');
+    runPhase();
+  } catch(e) {
+    showScreen('drill');
+    document.getElementById('micBlocked').style.display = 'block';
+  }
+}
+
+function updateStructMap(phase) {
+  const colors = ['#7c9eff','#c47cff','#ff9b5c','#ffd55a','#4de89a'];
+  for (let i = 0; i < 5; i++) {
+    const node = document.getElementById('snode-' + i);
+    if (!node) continue;
+    node.classList.remove('active','done');
+    node.style.borderColor = '';
+    node.style.background = '';
+    node.style.boxShadow = '';
+    if (i < phase) {
+      node.classList.add('done');
+    } else if (i === phase) {
+      node.classList.add('active');
+      node.style.borderColor = colors[i];
+      node.style.background = colors[i] + '22';
+      node.style.boxShadow = '0 0 16px ' + colors[i] + '44';
+    }
+  }
+  // Light up connector lines for done/active phases
+  // connectors 0,1,2 = intro→points; 3,4,5 = points→conclusion
+  const connStates = [
+    phase > 0, phase > 1, phase > 2,   // intro done → light all 3 top connectors
+    phase > 3, phase > 3, phase > 3    // all points done → light bottom connectors
+  ];
+  // More nuanced: light individual top connectors as each point activates
+  const topLit = [phase >= 1, phase >= 2, phase >= 3];
+  const botLit = [phase >= 4, phase >= 4, phase >= 4];
+  [0,1,2].forEach(i => {
+    const c = document.getElementById('conn-' + i);
+    if (c) c.classList.toggle('lit', topLit[i]);
+  });
+  [3,4,5].forEach((id, i) => {
+    const c = document.getElementById('conn-' + id);
+    if (c) c.classList.toggle('lit', botLit[i]);
+  });
+}
+
+function runPhase() {
+  const phase = PHASES[currentPhase];
+  updateStructMap(currentPhase);
+
+  // Update chip
+  const chip = document.getElementById('phaseChip');
+  chip.textContent = phase.label;
+  chip.style.background = phase.color + '22';
+  chip.style.color = phase.color;
+  chip.style.border = '1px solid ' + phase.color + '44';
+
+  document.getElementById('phaseTitle').textContent = phase.label;
+
+  const promptEl = document.getElementById('phasePrompt');
+  promptEl.textContent = phase.prompt(currentTopic);
+  promptEl.style.borderColor = phase.color;
+
+  const hintEl = document.getElementById('transitionHint');
+  if (phase.transition) {
+    hintEl.style.display = 'flex';
+    document.getElementById('transitionText').textContent = phase.transition;
+  } else {
+    hintEl.style.display = 'none';
+  }
+
+  document.getElementById('ringFg').style.stroke = phase.color;
+  document.getElementById('recIndicator').classList.add('active');
+
+  timeLeft = phase.duration;
+  updateRing(timeLeft, phase.duration);
+  document.getElementById('timerNum').textContent = timeLeft;
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timerNum').textContent = timeLeft;
+    updateRing(timeLeft, phase.duration);
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      nextPhase();
+    }
+  }, 1000);
+}
+
+function updateRing(remaining, total) {
+  const circumference = 238.76;
+  const offset = circumference * (1 - remaining / total);
+  document.getElementById('ringFg').style.strokeDashoffset = offset;
+}
+
+function nextPhase() {
+  currentPhase++;
+  if (currentPhase >= PHASES.length) {
+    finishDrill();
+    return;
+  }
+  // Brief flash between phases
+  const card = document.getElementById('phaseCard');
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(6px)';
+  card.style.transition = 'all 0.25s ease';
+  setTimeout(() => {
+    card.style.opacity = '1';
+    card.style.transform = 'translateY(0)';
+    runPhase();
+  }, 280);
+}
+
+function finishDrill() {
+  clearInterval(timerInterval);
+  totalSeconds = Math.round((Date.now() - startTime) / 1000);
+
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+    mediaRecorder.stream.getTracks().forEach(t => t.stop());
+    mediaRecorder.onstop = () => buildPlayback();
+  } else {
+    buildPlayback();
+  }
+}
+
+function buildPlayback() {
+  const mimeType = allChunks[0]?.type || 'audio/webm';
+  fullBlob = new Blob(allChunks, { type: mimeType });
+  const url = URL.createObjectURL(fullBlob);
+
+  document.getElementById('audioPlayer').src = url;
+  document.getElementById('playbackTopic').textContent = currentTopic;
+
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  document.getElementById('statTime').textContent = mins > 0
+    ? `${mins}m ${secs}s`
+    : `${totalSeconds}s`;
+
+  // Show/hide share button based on Web Share API support
+  if (!navigator.share) {
+    document.getElementById('shareBtn').style.display = 'none';
+  }
+
+  showScreen('playback');
+}
+
+function downloadAudio() {
+  if (!fullBlob) return;
+  const ext = fullBlob.type.includes('ogg') ? 'ogg' : 'webm';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(fullBlob);
+  a.download = `presentation-${currentTopic.replace(/\s+/g, '-').toLowerCase()}.${ext}`;
+  a.click();
+  showToast('Downloading your recording...');
+}
+
+async function shareAudio() {
+  if (!fullBlob || !navigator.share) return;
+  try {
+    const ext = fullBlob.type.includes('ogg') ? 'ogg' : 'webm';
+    const file = new File([fullBlob], `presentation.${ext}`, { type: fullBlob.type });
+    await navigator.share({
+      title: 'My Presentation Practice',
+      text: `I just practised a presentation on: "${currentTopic}"`,
+      files: [file]
+    });
+  } catch(e) {
+    showToast('Could not share — try downloading instead.');
+  }
+}
+
+function copyTranscript() {
+  const text = `Presentation Practice — Teacher Lewis
+Topic: ${currentTopic}
+
+Structure:
+1. Introduction (30s) — Introduce your topic
+2. Point 1 + Transition (40s) — "First of all..."
+3. Point 2 + Transition (40s) — "In addition..."
+4. Point 3 + Transition (40s) — "Finally..."
+5. Conclusion (30s) — "In conclusion..."
+
+Total time: ${totalSeconds}s`;
+  navigator.clipboard.writeText(text).then(() => showToast('Structure copied to clipboard!'));
+}
+
+function resetGame() {
+  fullBlob = null;
+  allChunks = [];
+  currentPhase = 0;
+  showScreen('start');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>

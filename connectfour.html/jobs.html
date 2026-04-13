@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect 4 – Jobs & Careers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --p1: #ff4757;
+            --p2: #ffa502;
+            --board: #1e90ff;
+            --bg: #e8f4fd;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg);
+            margin: 0;
+            padding: 20px 10px 40px;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: #1e3a5f;
+            margin: 0 0 14px;
+            letter-spacing: 1px;
+        }
+
+        .status-bar {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.6rem;
+            padding: 10px 36px;
+            border-radius: 50px;
+            margin-bottom: 18px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+            transition: all 0.3s;
+        }
+        .p1-turn { color: var(--p1); border: 4px solid var(--p1); }
+        .p2-turn { color: var(--p2); border: 4px solid var(--p2); }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: var(--board);
+            padding: 12px;
+            border-radius: 20px;
+            gap: 8px;
+            box-shadow: 0 10px 0 #0972d4, 0 12px 30px rgba(0,0,0,0.2);
+        }
+
+        .board-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .column-numbers {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            padding: 0 12px;
+            margin-bottom: 6px;
+            width: 100%;
+        }
+
+        .col-num {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.6rem;
+            color: #1e3a5f;
+            text-align: center;
+            background: white;
+            border-radius: 12px;
+            padding: 4px 0;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            line-height: 1.2;
+            transition: transform 0.15s, background 0.15s;
+            cursor: pointer;
+            user-select: none;
+        }
+        .col-num:hover {
+            background: #fffbe6;
+            transform: translateY(-3px);
+        }
+        .col-num.full {
+            color: #ccc;
+            background: #f0f0f0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 8px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+        .column:hover { background: rgba(255,255,255,0.15); }
+
+        .slot {
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            background: #d6eaff;
+            border: 3px solid rgba(0,0,0,0.08);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.15);
+        }
+
+        .slot.red   { background: var(--p1) !important; box-shadow: 0 0 12px rgba(255,71,87,0.6), inset 0 -3px 6px rgba(0,0,0,0.2); }
+        .slot.yellow{ background: var(--p2) !important; box-shadow: 0 0 12px rgba(255,165,2,0.6), inset 0 -3px 6px rgba(0,0,0,0.2); }
+
+        /* Overlay */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,20,50,0.88);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        #q-card {
+            background: white;
+            padding: 36px 40px 32px;
+            border-radius: 28px;
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+            border: 6px solid var(--board);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.7); opacity: 0; }
+            to   { transform: scale(1);   opacity: 1; }
+        }
+
+        .player-badge {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1rem;
+            padding: 4px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 14px;
+            color: white;
+        }
+        .badge-red    { background: var(--p1); }
+        .badge-yellow { background: var(--p2); }
+
+        #q-text {
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #1e3a5f;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        #q-translation {
+            font-size: 1.15rem;
+            color: #5a7a9a;
+            margin-bottom: 22px;
+            min-height: 28px;
+            font-style: italic;
+            transition: opacity 0.3s;
+        }
+
+        .question-icon {
+            margin: 10px 0;
+            animation: bounce 2s infinite;
+        }
+
+        .question-icon img {
+            width: 180px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 3px solid #e0e0e0;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .translate-btn {
+            background: none;
+            border: 2px solid #aac4e0;
+            color: #4a7aaa;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 24px;
+            transition: all 0.2s;
+        }
+        .translate-btn:hover { background: #e8f4fd; border-color: #1e90ff; color: #1e90ff; }
+
+        .judge-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+        .btn {
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 800;
+            font-family: 'Nunito', sans-serif;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+        }
+        .btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(0,0,0,0.15); }
+        .btn:active { transform: translateY(2px);  box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
+        .btn-yes { background: #2ecc71; color: white; }
+        .btn-no  { background: #e0e0e0; color: #555; }
+
+        /* Win overlay */
+        #win-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,20,50,0.92);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        #win-card {
+            background: white;
+            padding: 50px 60px;
+            border-radius: 30px;
+            text-align: center;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #win-card h2 { font-family: 'Fredoka One', cursive; font-size: 3rem; margin: 0 0 10px; }
+        #win-card p  { font-size: 1.3rem; color: #555; margin-bottom: 20px; }
+        .win-icons { font-size: 2rem; margin-bottom: 20px; }
+        .btn-restart { background: var(--board); color: white; padding: 16px 40px; font-size: 1.2rem; }
+
+        /* Job icons decoration */
+        .job-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .job-icon {
+            font-size: 2.5rem;
+            opacity: 0.7;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        .job-icon:hover {
+            transform: scale(1.2) rotate(10deg);
+            opacity: 1;
+        }
+
+        .difficulty-bar {
+            display: flex;
+            gap: 0;
+            margin-bottom: 16px;
+            border-radius: 50px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+            border: 3px solid var(--board);
+        }
+        .diff-btn {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.1rem;
+            padding: 10px 28px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s;
+            background: white;
+            color: #888;
+        }
+        .diff-btn:hover { background: #e8f4fd; }
+        .diff-btn.active {
+            background: var(--board);
+            color: white;
+        }
+
+        .qr-sidebar {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            padding: 14px;
+            border-radius: 18px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+            text-align: center;
+            z-index: 100;
+        }
+        .qr-sidebar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+        }
+        .qr-sidebar p {
+            margin: 8px 0 0;
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.75rem;
+            color: #1e3a5f;
+        }
+
+        @media (max-width: 560px) {
+            .slot { width: 40px; height: 40px; }
+            .board { gap: 5px; padding: 8px; }
+            #q-text { font-size: 1.3rem; }
+            .job-icon { font-size: 2rem; }
+            .diff-btn { font-size: 0.9rem; padding: 8px 18px; }
+            .qr-sidebar { position: static; transform: none; margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>💼 Connect 4 – Jobs & Careers</h1>
+
+<div class="job-icons">
+    <span class="job-icon">👨‍⚕️</span>
+    <span class="job-icon">👩‍💻</span>
+    <span class="job-icon">👨‍🏫</span>
+    <span class="job-icon">👩‍🔬</span>
+    <span class="job-icon">👨‍🍳</span>
+    <span class="job-icon">👩‍🎨</span>
+    <span class="job-icon">👨‍🔧</span>
+    <span class="job-icon">👩‍✈️</span>
+</div>
+
+<div class="difficulty-bar">
+    <button class="diff-btn active" id="btn-easy" onclick="setDifficulty('easy')">⭐ Easy — Name the Job</button>
+    <button class="diff-btn" id="btn-hard" onclick="setDifficulty('hard')">🔥 Hard — Answer a Question</button>
+</div>
+
+<div id="status" class="status-bar p1-turn">🔴 Red Player's Turn</div>
+
+<div class="board-wrapper">
+    <div class="column-numbers" id="col-nums">
+        <div class="col-num" onclick="handleColumnClick(0)">1</div>
+        <div class="col-num" onclick="handleColumnClick(1)">2</div>
+        <div class="col-num" onclick="handleColumnClick(2)">3</div>
+        <div class="col-num" onclick="handleColumnClick(3)">4</div>
+        <div class="col-num" onclick="handleColumnClick(4)">5</div>
+        <div class="col-num" onclick="handleColumnClick(5)">6</div>
+        <div class="col-num" onclick="handleColumnClick(6)">7</div>
+    </div>
+    <div class="board" id="board"></div>
+</div>
+
+<!-- Question Overlay -->
+<div id="overlay">
+    <div id="q-card">
+        <div id="player-badge" class="player-badge badge-red">🔴 Red's Question</div>
+        <div id="q-text">Question goes here...</div>
+        <div id="q-translation"></div>
+        <div class="question-icon" id="question-icon"><img id="q-image" src="" alt="Job image"></div>
+        <button class="translate-btn" id="translate-btn" onclick="toggleTranslation()">🇹🇭 Show Thai Translation</button>
+        <div class="judge-btns">
+            <button class="btn btn-no"  onclick="handleJudge(false)">❌ Try Again</button>
+            <button class="btn btn-yes" onclick="handleJudge(true)">✅ Great Answer!</button>
+        </div>
+    </div>
+</div>
+
+<!-- Win Overlay -->
+<div id="win-overlay">
+    <div id="win-card">
+        <h2 id="win-title">🎉 Red Wins!</h2>
+        <p>Fantastic playing — well done!</p>
+        <div class="win-icons">
+            <span>🏆</span>
+            <span>💼</span>
+            <span>🌟</span>
+        </div>
+        <button class="btn btn-restart" onclick="location.reload()">🔄 Play Again</button>
+    </div>
+</div>
+
+<div class="qr-sidebar">
+    <img src="../overlays/teacherlewis1-overlay/public/qrcode_preply.com.png" alt="Preply QR Code">
+    <p>Book a lesson!</p>
+</div>
+
+<script>
+    const ROWS = 6, COLS = 7;
+    let currentPlayer = 1;
+    let boardState = Array(COLS).fill(null).map(() => Array(ROWS).fill(null));
+    let activeCol = null;
+    let translationVisible = false;
+    let currentTranslation = '';
+    let difficulty = 'easy';
+
+    // ─── DIFFICULTY SELECTOR ─────────────────────────────────────────────────
+    function setDifficulty(mode) {
+        difficulty = mode;
+        document.getElementById('btn-easy').classList.toggle('active', mode === 'easy');
+        document.getElementById('btn-hard').classList.toggle('active', mode === 'hard');
+    }
+
+    // ─── JOB DATA ────────────────────────────────────────────────────────────
+    const IMG_PATH = '../images/jobs/';
+    const jobs = [
+        { file: 'imgi_1_1479446325_7_images-1.jpg',   job: 'Homemaker',       jobTh: 'แม่บ้าน',              g: 'she', q: 'What does a homemaker do every day?',            qTh: 'แม่บ้านทำอะไรทุกวัน?' },
+        { file: 'imgi_2_1479446345_10_images-2.jpg',   job: 'Bus Driver',      jobTh: 'คนขับรถเมล์',          g: 'she', q: 'Where does a bus driver work?',                  qTh: 'คนขับรถเมล์ทำงานที่ไหน?' },
+        { file: 'imgi_3_1479446367_11_images-3.jpg',   job: 'Cleaner',         jobTh: 'คนทำความสะอาด',        g: 'she', q: 'What tools does a cleaner use?',                 qTh: 'คนทำความสะอาดใช้เครื่องมืออะไรบ้าง?' },
+        { file: 'imgi_4_1479446389_6_images-4.jpg',    job: 'Dancer',          jobTh: 'นักเต้น',              g: 'she', q: 'Where does a dancer perform?',                   qTh: 'นักเต้นแสดงที่ไหน?' },
+        { file: 'imgi_5_1479446405_9_images.jpg',      job: 'Chef',            jobTh: 'พ่อครัว',              g: 'he',  q: 'What does a chef cook?',                         qTh: 'พ่อครัวทำอาหารอะไร?' },
+        { file: 'imgi_6_1479446423_8_imgres-1.jpg',    job: 'Nurse',           jobTh: 'พยาบาล',               g: 'she', q: 'Where does a nurse work?',                       qTh: 'พยาบาลทำงานที่ไหน?' },
+        { file: 'imgi_7_1479446441_7_imgres-2.jpg',    job: 'Police Officer',  jobTh: 'ตำรวจ',                g: 'he',  q: 'What does a police officer do?',                 qTh: 'ตำรวจทำหน้าที่อะไร?' },
+        { file: 'imgi_8_1479446458_10_imgres-3.jpg',   job: 'Firefighter',     jobTh: 'นักดับเพลิง',          g: 'she', q: 'When do people call a firefighter?',             qTh: 'คนจะโทรหานักดับเพลิงเมื่อไหร่?' },
+        { file: 'imgi_9_1479446482_8_imgres-4.jpg',    job: 'Office Worker',   jobTh: 'พนักงานออฟฟิศ',        g: 'he',  q: 'What does an office worker do every day?',       qTh: 'พนักงานออฟฟิศทำอะไรทุกวัน?' },
+        { file: 'imgi_10_1479446500_10_imgres-5.jpg',  job: 'Engineer',        jobTh: 'วิศวกร',               g: 'he',  q: 'What does an engineer build or design?',         qTh: 'วิศวกรสร้างหรือออกแบบอะไร?' },
+        { file: 'imgi_11_1479446523_9_imgres-6.jpg',   job: 'Dentist',         jobTh: 'ทันตแพทย์',            g: 'she', q: 'How often should you visit the dentist?',        qTh: 'คุณควรไปพบทันตแพทย์บ่อยแค่ไหน?' },
+        { file: 'imgi_12_1479446611_10_imgres-7.jpg',  job: 'Secretary',       jobTh: 'เลขานุการ',            g: 'she', q: 'What does a secretary do in an office?',         qTh: 'เลขานุการทำอะไรในออฟฟิศ?' },
+        { file: 'imgi_13_1479446632_11_imgres-8.jpg',  job: 'Taxi Driver',     jobTh: 'คนขับแท็กซี่',         g: 'he',  q: 'Where does a taxi driver take people?',          qTh: 'คนขับแท็กซี่พาผู้คนไปที่ไหน?' },
+        { file: 'imgi_14_1479446651_11_imgres-9.jpg',  job: 'Mechanic',        jobTh: 'ช่างซ่อมรถ',           g: 'he',  q: 'What does a mechanic fix?',                      qTh: 'ช่างซ่อมรถซ่อมอะไร?' },
+        { file: 'imgi_15_1479446676_10_imgres-10.jpg', job: 'Salesperson',     jobTh: 'พนักงานขาย',           g: 'he',  q: 'What skills does a salesperson need?',           qTh: 'พนักงานขายต้องมีทักษะอะไรบ้าง?' },
+        { file: 'imgi_16_1479446697_9_imgres-11.jpg',  job: 'Barista',         jobTh: 'บาริสต้า',             g: 'he',  q: 'What does a barista make?',                      qTh: 'บาริสต้าทำอะไร?' },
+    ];
+
+    let deck = [];
+    function getNextJob() {
+        if (deck.length === 0) deck = jobs.map((_, i) => i).sort(() => Math.random() - 0.5);
+        return jobs[deck.pop()];
+    }
+
+    // ─── AUDIO ────────────────────────────────────────────────────────────────
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        if (type === 'correct') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.15);
+        } else {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+        }
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    }
+
+    // ─── BOARD INIT ───────────────────────────────────────────────────────────
+    function init() {
+        const board = document.getElementById('board');
+        for (let c = 0; c < COLS; c++) {
+            const colDiv = document.createElement('div');
+            colDiv.className = 'column';
+            colDiv.onclick = () => handleColumnClick(c);
+            for (let r = 0; r < ROWS; r++) {
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                slot.id = `slot-${c}-${r}`;
+                colDiv.appendChild(slot);
+            }
+            board.appendChild(colDiv);
+        }
+    }
+
+    function updateColumnNumbers() {
+        const nums = document.querySelectorAll('.col-num');
+        nums.forEach((el, c) => {
+            if (boardState[c].indexOf(null) === -1) {
+                el.classList.add('full');
+            } else {
+                el.classList.remove('full');
+            }
+        });
+    }
+
+    function handleColumnClick(c) {
+        if (boardState[c].indexOf(null) === -1) return; // column full
+        activeCol = c;
+        translationVisible = false;
+        const j = getNextJob();
+
+        if (difficulty === 'easy') {
+            const pronoun = j.g === 'he' ? 'he' : 'she';
+            const Pronoun = j.g === 'he' ? 'He' : 'She';
+            document.getElementById('q-text').innerText = 'What does ' + pronoun + ' do?';
+            const article = /^[aeiou]/i.test(j.job) ? 'an' : 'a';
+            currentTranslation = Pronoun + "'s " + article + ' ' + j.job + ' — ' + j.jobTh;
+        } else {
+            document.getElementById('q-text').innerText = j.q;
+            currentTranslation = j.qTh;
+        }
+
+        document.getElementById('q-translation').innerText = '';
+        document.getElementById('translate-btn').innerText = difficulty === 'easy'
+            ? '🇹🇭 Show Answer'
+            : '🇹🇭 Show Thai Translation';
+        document.getElementById('q-image').src = IMG_PATH + j.file;
+        const badge = document.getElementById('player-badge');
+        badge.innerText = currentPlayer === 1 ? '🔴 Red\'s Question' : '🟡 Yellow\'s Question';
+        badge.className = 'player-badge ' + (currentPlayer === 1 ? 'badge-red' : 'badge-yellow');
+        document.getElementById('overlay').style.display = 'flex';
+    }
+
+    function toggleTranslation() {
+        translationVisible = !translationVisible;
+        document.getElementById('q-translation').innerText = translationVisible ? currentTranslation : '';
+        const hideLabel = difficulty === 'easy' ? '🙈 Hide Answer' : '🙈 Hide Translation';
+        const showLabel = difficulty === 'easy' ? '🇹🇭 Show Answer' : '🇹🇭 Show Thai Translation';
+        document.getElementById('translate-btn').innerText = translationVisible ? hideLabel : showLabel;
+    }
+
+    function handleJudge(isCorrect) {
+        document.getElementById('overlay').style.display = 'none';
+        if (!isCorrect) {
+            playSound('wrong');
+            return; // turn stays with same player, they just don't place a piece
+        }
+        playSound('correct');
+        const r = boardState[activeCol].indexOf(null);
+        boardState[activeCol][r] = currentPlayer;
+        const slot = document.getElementById(`slot-${activeCol}-${r}`);
+        slot.className = `slot ${currentPlayer === 1 ? 'red' : 'yellow'}`;
+        updateColumnNumbers();
+
+        if (checkWin(activeCol, r)) {
+            setTimeout(() => showWin(currentPlayer), 300);
+            return;
+        }
+
+        currentPlayer = currentPlayer === 1 ? 2 : 1;
+        updateStatus();
+    }
+
+    function updateStatus() {
+        const s = document.getElementById('status');
+        s.innerText = currentPlayer === 1 ? '🔴 Red Player\'s Turn' : '🟡 Yellow Player\'s Turn';
+        s.className = `status-bar ${currentPlayer === 1 ? 'p1-turn' : 'p2-turn'}`;
+    }
+
+    function showWin(player) {
+        const title = document.getElementById('win-title');
+        title.innerText = player === 1 ? '🎉 Red Wins!' : '🎉 Yellow Wins!';
+        title.style.color = player === 1 ? '#ff4757' : '#ffa502';
+        document.getElementById('win-overlay').style.display = 'flex';
+    }
+
+    function checkWin(c, r) {
+        const p = boardState[c][r];
+        const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+        for (let [dc, dr] of dirs) {
+            let count = 1;
+            for (let i = 1; i < 4; i++) { if (boardState[c+dc*i]?.[r+dr*i] === p) count++; else break; }
+            for (let i = 1; i < 4; i++) { if (boardState[c-dc*i]?.[r-dr*i] === p) count++; else break; }
+            if (count >= 4) return true;
+        }
+        return false;
+    }
+
+    init();
+</script>
+</body>
+</html>

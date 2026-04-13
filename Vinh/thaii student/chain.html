@@ -1,0 +1,1189 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🛒 Supermarket Past Tense Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1b2d;--panel:#162035;--card:#1d2d47;--accent:#f5c518;--accent2:#4ecdc4;
+  --correct:#2ecc71;--wrong:#e74c3c;--text:#eef2ff;--muted:#7a8baa;--radius:14px;
+  --ff:'Nunito',sans-serif;--ffh:'Fredoka One',cursive;
+  --shadow:0 4px 20px rgba(0,0,0,.3);
+}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--ff);padding:12px;max-width:780px;margin:0 auto;min-height:100vh;-webkit-tap-highlight-color:transparent;}
+
+/* ── MODE SELECT ── */
+#mode-screen{text-align:center;padding:20px 6px;}
+#mode-screen h1{font-family:var(--ffh);color:var(--accent);font-size:1.8rem;margin-bottom:4px;text-shadow:0 2px 12px rgba(245,197,24,.25);}
+#mode-screen .intro{color:var(--muted);font-size:.88rem;margin-bottom:24px;}
+.mode-cards{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;}
+.mode-card{background:var(--card);border:2px solid #2a3f5f;border-radius:16px;padding:20px 16px;width:100%;max-width:320px;cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;text-align:left;box-shadow:var(--shadow);}
+.mode-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 6px 28px rgba(245,197,24,.15);}
+.mode-card.selected{border-color:var(--accent);background:#1f3050;box-shadow:0 0 20px rgba(245,197,24,.2);animation:pop .25s ease;}
+.mode-icon{font-size:2rem;margin-bottom:8px;}
+.mode-title{font-family:var(--ffh);font-size:1.1rem;color:var(--accent);margin-bottom:4px;}
+.mode-desc{font-size:.82rem;color:var(--muted);line-height:1.5;}
+.mode-badge{display:inline-block;margin-top:8px;font-size:.72rem;border-radius:10px;padding:2px 9px;font-weight:700;}
+#start-btn{background:linear-gradient(135deg,var(--accent),#ffdb4d);color:#0f1b2d;font-family:var(--ff);font-weight:900;font-size:1.1rem;padding:14px 40px;border:none;border-radius:12px;cursor:pointer;transition:transform .1s,box-shadow .2s;display:none;box-shadow:0 4px 16px rgba(245,197,24,.35);}
+#start-btn:hover{transform:scale(1.03);box-shadow:0 6px 24px rgba(245,197,24,.45);}
+#start-btn:active{transform:scale(.98);}
+.instructions-section{text-align:left;}
+
+/* ── GAME SCREEN ── */
+#game-screen{display:none;}
+.game-title{font-family:var(--ffh);color:var(--accent);font-size:1.3rem;letter-spacing:.5px;margin-bottom:2px;text-shadow:0 2px 10px rgba(245,197,24,.2);}
+.subtitle{color:var(--muted);font-size:.78rem;margin-bottom:10px;}
+.top-bar{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.badge{background:var(--card);border:1px solid #2a3f5f;border-radius:20px;padding:4px 12px;font-size:.78rem;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.badge span{color:var(--accent);}
+#streak-badge span{color:#ff9f43;}
+#round-badge span{color:var(--accent2);}
+#comp-badge span{color:#a29bfe;}
+.btn-sm{font-family:var(--ff);font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:.76rem;padding:7px 12px;transition:transform .1s,box-shadow .15s;min-height:36px;}
+.btn-sm:active{transform:scale(.95);}
+#timer-toggle{background:#253a5e;color:#ff9f43;border:1px solid #ff9f43;}
+#comp-toggle{background:#1a2a40;color:#a29bfe;border:1px solid #a29bfe;}
+#chain-toggle-btn{background:#1a3040;color:var(--accent2);border:1px solid var(--accent2);}
+#back-btn{background:#1a2030;color:var(--muted);border:1px solid #2a3f5f;}
+#restart-game-btn{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;box-shadow:0 2px 8px rgba(231,76,60,.3);}
+.mode-pill{display:inline-flex;align-items:center;gap:5px;background:var(--card);border:1px solid #2a3f5f;border-radius:20px;padding:4px 12px;font-size:.76rem;color:var(--muted);margin-bottom:10px;}
+.mode-pill strong{color:var(--accent2);}
+
+.timer-bar-wrap{background:#0f1b2d;border-radius:6px;height:6px;margin-bottom:10px;display:none;overflow:hidden;}
+.timer-bar{height:6px;border-radius:6px;background:linear-gradient(90deg,var(--correct),var(--accent));transition:width .5s linear;}
+.progress-dots{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
+.dot{width:10px;height:10px;border-radius:50%;background:#1d2d47;border:1.5px solid #2a3f5f;transition:background .3s,border-color .3s,transform .2s;}
+.dot.done{background:var(--correct);border-color:var(--correct);box-shadow:0 0 6px rgba(46,204,113,.4);}
+.dot.wrong-dot{background:var(--wrong);border-color:var(--wrong);box-shadow:0 0 6px rgba(231,76,60,.4);}
+.dot.current{background:var(--accent);border-color:var(--accent);transform:scale(1.3);box-shadow:0 0 8px rgba(245,197,24,.5);}
+
+/* chain box */
+.chain-box{background:var(--panel);border:1px solid #2a3f5f;border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;min-height:50px;transition:filter .3s,opacity .3s;box-shadow:var(--shadow);}
+.chain-box.hidden-mode{display:none !important;}
+.chain-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+.chain-text{font-size:.9rem;line-height:1.9;}
+.chain-word{color:var(--accent);font-weight:700;}
+
+/* reveal panel */
+#reveal-panel{display:none;background:#0a2a1a;border:1px solid var(--correct);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;box-shadow:0 4px 16px rgba(46,204,113,.15);}
+#reveal-panel .chain-label{color:var(--correct);}
+
+.challenge-card{background:var(--card);border:2px solid #2a3f5f;border-radius:var(--radius);padding:18px 16px;margin-bottom:12px;transition:border-color .3s,box-shadow .3s;box-shadow:var(--shadow);}
+.challenge-card.correct{border-color:var(--correct);box-shadow:0 0 20px rgba(46,204,113,.2);animation:pulse-correct .5s ease;}
+.challenge-card.wrong{border-color:var(--wrong);box-shadow:0 0 20px rgba(231,76,60,.2);animation:shake .4s ease;}
+.challenge-intro{font-size:.82rem;color:var(--muted);margin-bottom:10px;}
+.verb-prompt{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.base-verb{font-family:var(--ffh);font-size:1.6rem;color:var(--accent);background:#0f1b2d;border:2px solid var(--accent);border-radius:10px;padding:6px 16px;box-shadow:0 0 14px rgba(245,197,24,.15);}
+.arrow{color:var(--muted);font-size:1.3rem;}
+#answer-input{font-family:var(--ff);font-size:1.1rem;font-weight:700;background:#0f1b2d;border:2px solid #2a3f5f;border-radius:10px;color:var(--text);padding:10px 14px;width:100%;max-width:200px;outline:none;transition:border-color .2s,box-shadow .2s;}
+#answer-input:focus{border-color:var(--accent2);box-shadow:0 0 12px rgba(78,205,196,.25);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.action{font-family:var(--ff);font-weight:700;border:none;border-radius:10px;cursor:pointer;font-size:.92rem;padding:11px 20px;transition:transform .1s,box-shadow .15s;min-height:44px;}
+.action:active{transform:scale(.96);}
+#check-btn{background:linear-gradient(135deg,var(--accent),#ffdb4d);color:#0f1b2d;font-size:.95rem;padding:11px 24px;box-shadow:0 3px 12px rgba(245,197,24,.3);}
+#hint-btn{background:#253a5e;color:var(--accent2);border:1px solid var(--accent2);padding:11px 18px;}
+#next-btn{background:linear-gradient(135deg,var(--correct),#58d68d);color:#0f1b2d;display:none;font-size:.95rem;padding:11px 24px;box-shadow:0 3px 12px rgba(46,204,113,.3);}
+.feedback{margin-top:12px;display:none;border-radius:10px;padding:12px 14px;font-size:.88rem;line-height:1.7;}
+.feedback.correct{background:#0d3320;border:1px solid var(--correct);color:var(--correct);}
+.feedback.wrong{background:#3a0d0d;border:1px solid var(--wrong);color:#f5b5b5;}
+.correct-answer{font-size:1.1rem;font-family:var(--ffh);color:var(--accent);}
+.example{color:var(--text);margin-top:6px;font-size:.84rem;opacity:.9;}
+.category-tag{display:inline-block;margin-top:6px;background:#1a3040;border:1px solid #2a4f6f;border-radius:12px;padding:3px 12px;font-size:.74rem;}
+.thai-reveal{display:none;margin-top:8px;background:#0f2030;border-radius:8px;padding:8px 12px;font-size:.88rem;color:var(--accent2);}
+#thai-btn{background:#1a3040;color:var(--accent2);border:1px solid var(--accent2);font-size:.8rem;margin-top:8px;font-family:var(--ff);font-weight:700;border-radius:8px;cursor:pointer;padding:8px 14px;min-height:38px;}
+.hint-text{color:#ff9f43;font-size:.84rem;margin-top:6px;display:none;}
+
+/* ── COMPREHENSION CARD ── */
+#comp-card{
+  display:none;
+  background:linear-gradient(135deg,#0d1f3a,#132840);
+  border:2px solid #a29bfe;
+  border-radius:var(--radius);
+  padding:20px 18px;
+  margin-bottom:12px;
+  box-shadow:0 4px 20px rgba(162,155,254,.15);
+  animation:fade-in .3s ease;
+}
+#comp-card.comp-correct{border-color:var(--correct);background:linear-gradient(135deg,#0a2a1a,#0d3320);box-shadow:0 0 20px rgba(46,204,113,.2);}
+#comp-card.comp-wrong{border-color:var(--wrong);background:linear-gradient(135deg,#2a0d0d,#3a1010);box-shadow:0 0 20px rgba(231,76,60,.2);}
+.comp-header{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.comp-icon{font-size:1.4rem;}
+.comp-title{font-family:var(--ffh);font-size:1rem;color:#a29bfe;}
+.comp-subtitle{font-size:.72rem;color:var(--muted);margin-left:auto;}
+.comp-sentence{background:#0f1b2d;border:1px solid #2a3f5f;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:.92rem;line-height:1.6;}
+.comp-sentence .sentence-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.comp-sentence em{color:var(--accent);font-style:normal;font-weight:700;}
+.comp-question{font-size:.96rem;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.5;}
+.comp-thai-q{display:none;font-size:.82rem;color:var(--accent2);margin-bottom:12px;background:#0f2030;border-radius:8px;padding:8px 12px;}
+.comp-tf-row{display:flex;gap:10px;margin-bottom:12px;}
+.comp-tf-btn{flex:1;font-family:var(--ffh);font-size:1.1rem;padding:14px 10px;border:2px solid;border-radius:12px;cursor:pointer;transition:transform .1s,box-shadow .2s,background .2s;min-height:52px;}
+.comp-tf-btn:active{transform:scale(.96);}
+.comp-true-btn{background:#0a2a1a;color:var(--correct);border-color:var(--correct);}
+.comp-true-btn:hover{background:#0d3320;box-shadow:0 0 16px rgba(46,204,113,.3);}
+.comp-false-btn{background:#2a0d0d;color:var(--wrong);border-color:var(--wrong);}
+.comp-false-btn:hover{background:#3a1010;box-shadow:0 0 16px rgba(231,76,60,.3);}
+.comp-tf-btn.selected-correct{background:var(--correct);color:#0f1b2d;box-shadow:0 0 20px rgba(46,204,113,.4);animation:pulse-correct .4s ease;}
+.comp-tf-btn.selected-wrong{background:var(--wrong);color:#fff;box-shadow:0 0 20px rgba(231,76,60,.4);animation:shake .3s ease;}
+.comp-tf-btn.reveal-correct{background:var(--correct);color:#0f1b2d;opacity:.7;}
+.comp-tf-btn:disabled{cursor:default;}
+.comp-feedback{display:none;border-radius:10px;padding:10px 14px;font-size:.86rem;line-height:1.6;margin-bottom:10px;}
+.comp-feedback.cf-correct{background:#0d3320;border:1px solid var(--correct);color:var(--correct);}
+.comp-feedback.cf-wrong{background:#3a0d0d;border:1px solid var(--wrong);color:#f5b5b5;}
+#comp-thai-toggle{background:#1a3040;color:var(--accent2);border:1px solid var(--accent2);font-size:.78rem;font-family:var(--ff);font-weight:700;border-radius:8px;cursor:pointer;padding:7px 14px;min-height:36px;}
+#comp-next-btn{background:linear-gradient(135deg,#a29bfe,#7c73e6);color:#fff;font-family:var(--ff);font-weight:900;font-size:.95rem;padding:11px 24px;border:none;border-radius:10px;cursor:pointer;display:none;box-shadow:0 3px 12px rgba(162,155,254,.3);min-height:44px;}
+.comp-skip-btn{background:transparent;color:var(--muted);border:1px solid #2a3f5f;font-family:var(--ff);font-weight:700;font-size:.78rem;padding:7px 16px;border-radius:8px;cursor:pointer;min-height:36px;}
+.comp-skip-btn:hover{color:var(--text);border-color:#4a5f7f;}
+.comp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+.chain-summary{background:var(--panel);border:1px solid #2a3f5f;border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;display:none;box-shadow:var(--shadow);}
+.summary-item{display:flex;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px solid #1d2d47;font-size:.84rem;flex-wrap:wrap;}
+.summary-item:last-child{border-bottom:none;}
+.s-num{color:var(--muted);min-width:22px;font-size:.78rem;}
+.s-base{color:var(--muted);min-width:60px;}
+.s-past{color:var(--accent);font-weight:700;min-width:60px;}
+.s-ex{color:#5a6e8a;font-size:.76rem;flex:1;min-width:0;}
+
+/* memory test */
+#memory-test{display:none;text-align:center;padding:20px 12px;max-width:780px;margin:0 auto;}
+#memory-test h2{font-family:var(--ffh);font-size:1.5rem;color:var(--accent2);margin-bottom:4px;}
+.memory-chain{text-align:left;background:var(--panel);border:1px solid #2a3f5f;border-radius:var(--radius);padding:16px;margin:14px 0;font-size:.92rem;line-height:2.2;box-shadow:var(--shadow);}
+.memory-blank{display:inline-block;min-width:70px;border-bottom:2px dashed var(--muted);color:var(--muted);text-align:center;margin:0 2px;padding:2px 6px;font-weight:700;transition:all .3s;}
+.memory-blank.active{border-color:var(--accent);color:var(--accent);background:rgba(245,197,24,.08);border-radius:6px;}
+.memory-blank.recalled{border-color:var(--correct);color:var(--correct);border-style:solid;background:rgba(46,204,113,.1);border-radius:6px;}
+.memory-blank.missed{border-color:var(--wrong);color:var(--wrong);border-style:solid;background:rgba(231,76,60,.1);border-radius:6px;text-decoration:line-through;}
+.memory-blank .correct-word{display:block;font-size:.72rem;color:var(--correct);text-decoration:none;}
+.memory-input-area{background:var(--card);border:2px solid #2a3f5f;border-radius:var(--radius);padding:18px 16px;margin:12px 0;box-shadow:var(--shadow);}
+.memory-progress{color:var(--muted);font-size:.82rem;margin-bottom:8px;}
+.memory-base{font-family:var(--ffh);font-size:1.3rem;color:var(--accent);margin-bottom:10px;}
+#memory-input{font-family:var(--ff);font-size:1.1rem;font-weight:700;background:#0f1b2d;border:2px solid #2a3f5f;border-radius:10px;color:var(--text);padding:10px 14px;width:100%;max-width:220px;outline:none;transition:border-color .2s;}
+#memory-input:focus{border-color:var(--accent2);box-shadow:0 0 12px rgba(78,205,196,.25);}
+.memory-score{margin-top:14px;background:var(--panel);border-radius:12px;padding:14px;display:inline-block;}
+.memory-score .label{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:1px;}
+.memory-score .value{font-family:var(--ffh);font-size:1.6rem;color:var(--accent2);}
+
+/* winner */
+#winner-screen{display:none;text-align:center;padding:24px 12px;}
+#winner-screen h2{font-family:var(--ffh);font-size:1.8rem;color:var(--accent);margin-bottom:8px;text-shadow:0 2px 12px rgba(245,197,24,.25);}
+#restart-btn{background:linear-gradient(135deg,var(--accent),#ffdb4d);color:#0f1b2d;font-family:var(--ff);font-weight:900;font-size:1rem;padding:12px 28px;border:none;border-radius:12px;cursor:pointer;margin-top:14px;box-shadow:0 4px 16px rgba(245,197,24,.3);min-height:44px;}
+#restart-btn:active{transform:scale(.97);}
+#menu-btn{background:#1d2d47;color:var(--muted);font-family:var(--ff);font-weight:700;font-size:.9rem;padding:12px 22px;border:1px solid #2a3f5f;border-radius:12px;cursor:pointer;margin-top:10px;margin-left:8px;min-height:44px;}
+#menu-btn:active{transform:scale(.97);}
+.final-chain{text-align:left;margin-top:16px;background:var(--panel);border-radius:var(--radius);padding:16px;font-size:.88rem;line-height:1.9;box-shadow:var(--shadow);}
+.score-breakdown{background:var(--card);border:1px solid #2a3f5f;border-radius:var(--radius);padding:16px;margin:14px 0;box-shadow:var(--shadow);}
+.score-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1d2d47;font-size:.9rem;}
+.score-row:last-child{border-bottom:none;font-size:1.1rem;font-weight:900;color:var(--accent);}
+.score-row .label{color:var(--muted);}
+.score-row .val{font-weight:700;}
+.score-row .val.green{color:var(--correct);}
+.score-row .val.purple{color:#a29bfe;}
+.score-row .val.orange{color:#ff9f43;}
+.score-row .val.cyan{color:var(--accent2);}
+
+/* ── ANIMATIONS ── */
+@keyframes pulse-correct{
+  0%{transform:scale(1)}25%{transform:scale(1.03)}50%{transform:scale(1)}75%{transform:scale(1.015)}100%{transform:scale(1)}
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}15%{transform:translateX(-6px)}30%{transform:translateX(6px)}45%{transform:translateX(-4px)}60%{transform:translateX(4px)}75%{transform:translateX(-2px)}
+}
+@keyframes pop{
+  0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}
+}
+@keyframes score-pop{
+  0%{transform:scale(1)}40%{transform:scale(1.4);color:var(--accent)}100%{transform:scale(1)}
+}
+@keyframes fade-in{
+  0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}
+}
+.score-flash{animation:score-pop .4s ease;}
+.fade-in{animation:fade-in .3s ease;}
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:480px){
+  body{padding:8px;}
+  #mode-screen h1{font-size:1.5rem;}
+  .mode-card{padding:16px 14px;}
+  .game-title{font-size:1.15rem;}
+  .top-bar{flex-direction:column;}
+  .badges{width:100%;justify-content:flex-start;}
+  .badge{font-size:.72rem;padding:3px 10px;}
+  .btn-sm{font-size:.72rem;padding:6px 10px;}
+  .base-verb{font-size:1.3rem;padding:5px 12px;}
+  #answer-input{max-width:100%;width:100%;}
+  .verb-prompt{gap:8px;}
+  .action{width:100%;text-align:center;padding:12px 16px;}
+  .btn-row{flex-direction:column;}
+  .summary-item{font-size:.78rem;}
+  .s-ex{display:none;}
+  #restart-btn,#menu-btn{display:block;width:100%;margin-left:0;margin-top:8px;}
+  .comp-tf-btn{font-size:.95rem;padding:12px 8px;}
+}
+@media(min-width:481px) and (max-width:768px){
+  body{padding:10px;}
+  #mode-screen h1{font-size:1.7rem;}
+  .game-title{font-size:1.25rem;}
+  #answer-input{max-width:180px;}
+}
+</style>
+</head>
+<body>
+
+<!-- MODE SELECT -->
+<div id="mode-screen">
+  <h1>🛒 Supermarket Game</h1>
+  <p class="intro">Choose how to play, then press Start</p>
+  
+  <div class="instructions-section" style="background:var(--card);border:1px solid #2a3f5f;border-radius:14px;padding:18px;margin-bottom:24px;box-shadow:0 4px 20px rgba(0,0,0,.3);">
+    <div style="margin-bottom:16px;">
+      <h3 style="color:var(--accent);font-size:1rem;margin-bottom:8px;">🎮 How to Play:</h3>
+      <ul style="color:var(--text);font-size:.88rem;line-height:1.8;margin-left:18px;">
+        <li>Change each verb to its past tense form</li>
+        <li>Build a shopping chain with your correct answers</li>
+        <li>Answer a quick True/False question after each verb</li>
+        <li>Try to get the highest score possible</li>
+        <li>Use hints if you need help (costs 5 points)</li>
+        <li>Timer mode adds extra challenge</li>
+      </ul>
+    </div>
+    <div style="border-top:1px solid #2a3f5f;padding-top:14px;">
+      <h3 style="color:var(--accent2);font-size:1rem;margin-bottom:8px;">📖 วิธีเล่น:</h3>
+      <ul style="color:var(--text);font-size:.88rem;line-height:1.8;margin-left:18px;">
+        <li>เปลี่ยนคำกริยาแต่ละคำเป็นรูปอดีตกาล</li>
+        <li>สร้างโซ่ช้อปปิ้งด้วยคำตอบที่ถูกต้องของคุณ</li>
+        <li>ตอบคำถาม True/False หลังจากแต่ละคำกริยา</li>
+        <li>พยายามทำคะแนนให้ได้สูงที่สุด</li>
+        <li>ใช้คำใบ้ถ้าต้องการความช่วยเหลือ (เสีย 5 คะแนน)</li>
+        <li>โหมดจับเวลาจะเพิ่มความท้าทาย</li>
+      </ul>
+    </div>
+  </div>
+  <div class="mode-cards">
+    <div class="mode-card" id="card-visible" onclick="selectMode('visible')">
+      <div class="mode-icon">👀</div>
+      <div class="mode-title">Chain Visible</div>
+      <div class="mode-desc">The full shopping chain stays on screen throughout. Great for beginners or early practice.</div>
+      <div class="mode-badge" style="background:#1a3018;color:#2ecc71;border:1px solid #2ecc71;">Easier</div>
+    </div>
+    <div class="mode-card" id="card-hidden" onclick="selectMode('hidden')">
+      <div class="mode-icon">🙈</div>
+      <div class="mode-title">Chain Hidden</div>
+      <div class="mode-desc">The chain is hidden while you play — you have to remember it all! Teacher can reveal it any time to check.</div>
+      <div class="mode-badge" style="background:#3a1a0a;color:#ff9f43;border:1px solid #ff9f43;">Memory Challenge</div>
+    </div>
+  </div>
+  <button id="start-btn" onclick="startGame()">▶ Start Game</button>
+  <br>
+  <button id="examples-btn" onclick="showExamples()" style="background:#1a3040;color:var(--accent2);font-family:var(--ff);font-weight:700;font-size:.9rem;padding:10px 22px;border:1px solid var(--accent2);border-radius:10px;cursor:pointer;margin-top:10px;display:none;min-height:44px;">📚 Examples / ตัวอย่าง</button>
+  <button id="app-btn" onclick="showAppInstructions()" style="background:#1d2d47;color:var(--muted);font-family:var(--ff);font-weight:700;font-size:.9rem;padding:10px 22px;border:1px solid #2a3f5f;border-radius:10px;cursor:pointer;margin-top:10px;display:none;min-height:44px;">📲 Make App</button>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen">
+  <div class="top-bar">
+    <div>
+      <h1 class="game-title">🛒 I went to the supermarket...</h1>
+      <div class="subtitle">Past tense chain game — Teacher Lewis</div>
+    </div>
+    <div class="badges">
+      <div class="badge" id="round-badge">Round <span id="round-num">1</span>/<span id="total-num">?</span></div>
+      <div class="badge" id="streak-badge">🔥 <span id="streak-num">0</span></div>
+      <div class="badge">⭐ <span id="score-num">0</span></div>
+      <div class="badge" id="comp-badge" style="display:none">🧠 <span id="comp-score-num">0</span></div>
+      <button class="btn-sm" id="timer-toggle" onclick="toggleTimer()">⏱ Timer: OFF</button>
+      <button class="btn-sm" id="comp-toggle" onclick="toggleComp()">🧠 Comprehension: ON</button>
+      <button class="btn-sm" id="chain-toggle-btn" onclick="toggleChain()" style="display:none">👁 Reveal Chain</button>
+      <button class="btn-sm" id="restart-game-btn" onclick="restartCurrentGame()">Restart Game</button>
+      <button class="btn-sm" id="back-btn" onclick="goToMenu()">Menu</button>
+    </div>
+  </div>
+
+  <div class="mode-pill">Mode: <strong id="mode-label">—</strong></div>
+
+  <div class="progress-dots" id="dots"></div>
+  <div class="timer-bar-wrap" id="timer-wrap"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
+
+  <div class="chain-box" id="chain-box">
+    <div class="chain-label">🧺 The shopping chain so far</div>
+    <div class="chain-text" id="chain-display"><span style="color:var(--muted)">Start building the chain!</span></div>
+  </div>
+
+  <div id="reveal-panel">
+    <div class="chain-label">👁 Chain revealed — teacher view</div>
+    <div class="chain-text" id="reveal-display"></div>
+  </div>
+
+  <div class="challenge-card" id="challenge-card">
+    <div class="challenge-intro">Change this verb to past tense:</div>
+    <div class="verb-prompt">
+      <span class="base-verb" id="base-verb-display">-</span>
+      <span class="arrow">→</span>
+      <input type="text" id="answer-input" placeholder="past tense..." autocomplete="off" spellcheck="false"/>
+    </div>
+    <div class="hint-text" id="hint-text"></div>
+    <div class="btn-row">
+      <button class="action" id="check-btn" onclick="checkAnswer()">✓ Check</button>
+      <button class="action" id="hint-btn" onclick="showHint()">💡 Hint</button>
+      <button class="action" id="next-btn" onclick="handleNext()">Next →</button>
+    </div>
+    <div class="feedback" id="feedback-box">
+      <div id="feedback-text"></div>
+      <button id="thai-btn" onclick="toggleThai()">🇹🇭 Show Thai</button>
+      <div class="thai-reveal" id="thai-reveal"></div>
+    </div>
+  </div>
+
+  <!-- ── COMPREHENSION CARD ── -->
+  <div id="comp-card">
+    <div class="comp-header">
+      <span class="comp-icon">🧠</span>
+      <span class="comp-title">Comprehension Check</span>
+      <span class="comp-subtitle">Read the sentence carefully!</span>
+    </div>
+    <div class="comp-sentence">
+      <div class="sentence-label">📖 Example sentence:</div>
+      <div id="comp-sentence-text"></div>
+    </div>
+    <div class="comp-question" id="comp-question-text"></div>
+    <div class="comp-thai-q" id="comp-thai-q"></div>
+    <div class="comp-tf-row">
+      <button class="comp-tf-btn comp-true-btn" id="comp-true-btn" onclick="answerComp(true)">✅ TRUE</button>
+      <button class="comp-tf-btn comp-false-btn" id="comp-false-btn" onclick="answerComp(false)">❌ FALSE</button>
+    </div>
+    <div class="comp-feedback" id="comp-feedback"></div>
+    <div class="comp-row">
+      <button id="comp-thai-toggle" onclick="toggleCompThai()">🇹🇭 Show Thai question</button>
+      <button class="comp-skip-btn" id="comp-skip-btn" onclick="skipComp()">Skip →</button>
+      <button id="comp-next-btn" onclick="proceedAfterComp()">Next Round →</button>
+    </div>
+  </div>
+
+  <div class="chain-summary" id="chain-summary">
+    <div class="chain-label">📋 Full chain so far — always saved here</div>
+    <div id="summary-list"></div>
+  </div>
+
+  <div class="failure-report" id="failure-report" style="background:var(--card);border:1px solid var(--wrong);border-radius:var(--radius);padding:16px;margin-bottom:12px;display:none;">
+    <div class="chain-label" style="color:var(--wrong);">🚫 Mistakes Report - Review these!</div>
+    <div id="failure-list"></div>
+  </div>
+</div>
+
+<!-- APP INSTRUCTIONS MODAL -->
+<div id="app-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow:auto;-webkit-overflow-scrolling:touch;">
+  <div style="background:var(--card);border:1px solid #2a3f5f;border-radius:16px;padding:20px;margin:20px auto;max-width:500px;width:calc(100% - 24px);position:relative;box-shadow:0 8px 40px rgba(0,0,0,.5);">
+    <button onclick="closeAppInstructions()" style="position:absolute;top:10px;right:10px;background:var(--panel);border:1px solid #2a3f5f;color:var(--muted);font-size:1.2rem;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;">✕</button>
+    <h2 style="color:var(--accent);font-family:var(--ffh);font-size:1.3rem;margin-bottom:16px;">📲 Install as App</h2>
+    <div style="background:var(--panel);border-radius:12px;padding:14px;margin-bottom:14px;">
+      <h3 style="color:var(--accent2);font-size:.95rem;margin-bottom:8px;">🍎 iPhone / iPad</h3>
+      <ol style="color:var(--text);font-size:.85rem;line-height:1.9;margin-left:18px;">
+        <li>Open this page in <strong>Safari</strong></li>
+        <li>Tap the <strong>Share</strong> button ⬆ at the bottom</li>
+        <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+        <li>Tap <strong>"Add"</strong> to confirm</li>
+      </ol>
+    </div>
+    <div style="background:var(--panel);border-radius:12px;padding:14px;margin-bottom:14px;">
+      <h3 style="color:var(--accent2);font-size:.95rem;margin-bottom:8px;">🤖 Android</h3>
+      <ol style="color:var(--text);font-size:.85rem;line-height:1.9;margin-left:18px;">
+        <li>Open this page in <strong>Chrome</strong></li>
+        <li>Tap the <strong>three dots menu ⋮</strong> (top right)</li>
+        <li>Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></li>
+        <li>Tap <strong>"Add"</strong> or <strong>"Install"</strong> to confirm</li>
+      </ol>
+    </div>
+    <button onclick="closeAppInstructions()" style="background:linear-gradient(135deg,var(--accent),#ffdb4d);color:#0f1b2d;font-family:var(--ff);font-weight:700;font-size:1rem;padding:12px 24px;border:none;border-radius:12px;cursor:pointer;margin-top:14px;width:100%;min-height:44px;box-shadow:0 4px 16px rgba(245,197,24,.3);">✓ Close</button>
+  </div>
+</div>
+
+<!-- EXAMPLES MODAL -->
+<div id="examples-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow:auto;-webkit-overflow-scrolling:touch;">
+  <div style="background:var(--card);border:1px solid #2a3f5f;border-radius:16px;padding:20px;margin:20px auto;max-width:600px;width:calc(100% - 24px);position:relative;box-shadow:0 8px 40px rgba(0,0,0,.5);">
+    <button onclick="closeExamples()" style="position:absolute;top:10px;right:10px;background:var(--panel);border:1px solid #2a3f5f;color:var(--muted);font-size:1.2rem;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;">✕</button>
+    <h2 style="color:var(--accent);font-family:var(--ffh);font-size:1.3rem;margin-bottom:6px;">📚 Past Tense Examples</h2>
+    <p style="color:var(--muted);font-size:.8rem;margin-bottom:16px;">Study these before you play!</p>
+    <div id="examples-content"></div>
+  </div>
+</div>
+
+<!-- MEMORY TEST SCREEN -->
+<div id="memory-test">
+  <div style="font-size:2.5rem">🧠</div>
+  <h2>Memory Recall Test!</h2>
+  <p style="color:var(--muted);font-size:.88rem;margin-bottom:4px;">Can you remember every verb in the chain?</p>
+  <p style="color:var(--muted);font-size:.82rem;">จำคำกริยาทุกคำในโซ่ได้ไหม? พิมพ์รูปอดีตกาลของแต่ละคำ!</p>
+  <div class="memory-chain" id="memory-chain-display"></div>
+  <div class="memory-input-area" id="memory-input-area">
+    <div class="memory-progress" id="memory-progress">Word 1 of ?</div>
+    <div class="memory-base">Base verb: <span id="memory-base-verb">&mdash;</span></div>
+    <div style="display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <input type="text" id="memory-input" placeholder="past tense..." autocomplete="off" spellcheck="false"/>
+      <button class="action" id="memory-check-btn" onclick="checkMemoryAnswer()" style="background:linear-gradient(135deg,var(--accent2),#7ee8de);color:#0f1b2d;font-size:.92rem;padding:11px 20px;">✓ Submit</button>
+    </div>
+    <div id="memory-feedback" style="margin-top:10px;font-size:.88rem;min-height:24px;"></div>
+  </div>
+  <div class="memory-score">
+    <div class="label">Memory Score</div>
+    <div class="value"><span id="memory-correct-count">0</span> / <span id="memory-total-count">?</span></div>
+  </div>
+  <div id="memory-done-area" style="display:none;margin-top:16px;">
+    <p style="color:var(--accent);font-size:1rem;font-weight:700;margin-bottom:10px;" id="memory-result-msg"></p>
+    <button onclick="finishMemoryTest()" style="background:linear-gradient(135deg,var(--accent),#ffdb4d);color:#0f1b2d;font-family:var(--ff);font-weight:900;font-size:1rem;padding:12px 28px;border:none;border-radius:12px;cursor:pointer;box-shadow:0 4px 16px rgba(245,197,24,.3);min-height:44px;">🏆 See Final Results</button>
+  </div>
+</div>
+
+<!-- WINNER SCREEN -->
+<div id="winner-screen">
+  <div style="font-size:3rem">🏆</div>
+  <h2>Excellent work!</h2>
+  <p style="color:var(--muted);margin-bottom:14px;">All <span id="final-rounds"></span> rounds complete!</p>
+  <div class="score-breakdown">
+    <div class="score-row"><span class="label">⭐ Game score</span><span class="val green" id="final-score">0</span></div>
+    <div class="score-row"><span class="label">🧠 Comprehension bonus</span><span class="val purple" id="comp-bonus-display">0</span></div>
+    <div class="score-row"><span class="label">🎯 Memory bonus</span><span class="val cyan" id="memory-bonus-display">0</span></div>
+    <div class="score-row"><span class="label">🏆 TOTAL</span><span class="val" id="total-final-score">0</span></div>
+  </div>
+  <div id="comp-result-summary" style="display:none;background:var(--panel);border:1px solid #a29bfe;border-radius:var(--radius);padding:14px;margin-bottom:14px;text-align:left;">
+    <div style="font-size:.72rem;color:#a29bfe;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🧠 Comprehension results</div>
+    <div id="comp-result-list"></div>
+  </div>
+  <div class="final-chain" id="winner-chain"></div>
+  <div style="margin-top:16px;">
+    <button id="restart-btn" onclick="restartSameMode()">🔄 Play Again (same mode)</button>
+    <button id="menu-btn" onclick="goToMenu()">☰ Choose Mode</button>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  WORD DATA  (base → past + comprehension Q)
+// ─────────────────────────────────────────────
+const ALL_WORDS=[
+  {base:"be",past:"was",accept:["was"],thai:"เป็น / คือ / อยู่",example:"I was at the supermarket for an hour.",category:"Essential",
+   comp:{q:"The person spent a short time at the supermarket.",thaiq:"คนนั้นใช้เวลาสั้นๆ ที่ซูเปอร์มาร์เก็ต",isTrue:false,explain:"An hour is quite a long time — not short!"}},
+  {base:"be",past:"were",accept:["were"],thai:"เป็น / คือ / อยู่ (พหูพจน์)",example:"We were in the snack aisle together.",category:"Essential",
+   comp:{q:"They were shopping alone.",thaiq:"พวกเขาซื้อของคนเดียว",isTrue:false,explain:"'Together' means they were with someone else."}},
+  {base:"go",past:"went",accept:["went"],thai:"ไป",example:"I went to the supermarket after work.",category:"Essential",
+   comp:{q:"The person visited the supermarket before starting their job.",thaiq:"คนนั้นไปซูเปอร์มาร์เก็ตก่อนเริ่มงาน",isTrue:false,explain:"'After work' means they went when work finished."}},
+  {base:"eat",past:"ate",accept:["ate"],thai:"กิน",example:"I ate a sample at the bakery counter.",category:"Essential",
+   comp:{q:"The person tried some food for free at the bakery.",thaiq:"คนนั้นได้ลองชิมอาหารฟรีที่เคาน์เตอร์เบเกอรี่",isTrue:true,explain:"A 'sample' is a free small piece of food to try."}},
+  {base:"drink",past:"drank",accept:["drank"],thai:"ดื่ม",example:"I drank a free coffee while shopping.",category:"Essential",
+   comp:{q:"The person paid for their coffee.",thaiq:"คนนั้นจ่ายเงินสำหรับกาแฟ",isTrue:false,explain:"The coffee was free — they didn't pay for it."}},
+  {base:"see",past:"saw",accept:["saw"],thai:"เห็น",example:"I saw a friend at the checkout.",category:"Essential",
+   comp:{q:"The person met someone they knew while paying.",thaiq:"คนนั้นพบคนที่รู้จักขณะจ่ายเงิน",isTrue:true,explain:"The checkout is where you pay. They saw a friend there."}},
+  {base:"have",past:"had",accept:["had"],thai:"มี",example:"I had a long list of things to buy.",category:"Essential",
+   comp:{q:"The person only needed to buy one or two things.",thaiq:"คนนั้นต้องการซื้อของแค่หนึ่งหรือสองอย่าง",isTrue:false,explain:"A 'long list' means many things to buy."}},
+  {base:"do",past:"did",accept:["did"],thai:"ทำ",example:"I did the weekly shopping on Saturday.",category:"Essential",
+   comp:{q:"The person goes shopping every day.",thaiq:"คนนั้นไปซื้อของทุกวัน",isTrue:false,explain:"'Weekly shopping' means once a week, not every day."}},
+  {base:"make",past:"made",accept:["made"],thai:"ทำ / สร้าง",example:"I made a note of everything I needed.",category:"Essential",
+   comp:{q:"The person wrote down what they needed before shopping.",thaiq:"คนนั้นจดสิ่งที่ต้องการก่อนไปซื้อของ",isTrue:true,explain:"'Made a note' means they wrote it down."}},
+  {base:"buy",past:"bought",accept:["bought"],thai:"ซื้อ",example:"I bought fresh vegetables and fruit.",category:"Essential",
+   comp:{q:"The person purchased frozen food.",thaiq:"คนนั้นซื้ออาหารแช่แข็ง",isTrue:false,explain:"They bought fresh vegetables and fruit — not frozen food."}},
+  {base:"say",past:"said",accept:["said"],thai:"พูด / บอก",example:"I said hello to the cashier.",category:"Essential",
+   comp:{q:"The person spoke to the person at the checkout.",thaiq:"คนนั้นพูดกับพนักงานที่แคชเชียร์",isTrue:true,explain:"A cashier works at the checkout. The person greeted them."}},
+  {base:"put",past:"put",accept:["put"],thai:"วาง",example:"I put the heavy items in first.",category:"No-Change",
+   comp:{q:"The person placed the lightest items into the bag first.",thaiq:"คนนั้นใส่ของที่เบาที่สุดก่อน",isTrue:false,explain:"They put the heavy items in first, not the lightest."}},
+  {base:"cut",past:"cut",accept:["cut"],thai:"ตัด",example:"I cut open the packaging in the store.",category:"No-Change",
+   comp:{q:"The person opened the packaging inside the shop.",thaiq:"คนนั้นเปิดบรรจุภัณฑ์ภายในร้าน",isTrue:true,explain:"'In the store' means inside the shop — correct!"}},
+  {base:"set",past:"set",accept:["set"],thai:"ตั้ง / วาง",example:"I set my basket down to check my list.",category:"No-Change",
+   comp:{q:"The person put their basket down while looking at their list.",thaiq:"คนนั้นวางตะกร้าลงขณะดูรายการ",isTrue:true,explain:"'Set down' means placed it on the ground, then checked the list."}},
+  {base:"cost",past:"cost",accept:["cost"],thai:"ราคา / มีราคา",example:"It cost more than I expected.",category:"No-Change",
+   comp:{q:"The price was cheaper than the person thought it would be.",thaiq:"ราคาถูกกว่าที่คนนั้นคิดไว้",isTrue:false,explain:"'More than expected' means it was more expensive, not cheaper."}},
+  {base:"hit",past:"hit",accept:["hit"],thai:"ตี / ชน",example:"I hit my elbow on the shelf by accident.",category:"No-Change",
+   comp:{q:"The person intentionally knocked the shelf.",thaiq:"คนนั้นตั้งใจชนชั้นวางของ",isTrue:false,explain:"'By accident' means it was not intentional."}},
+  {base:"let",past:"let",accept:["let"],thai:"ให้ / อนุญาต",example:"I let someone go ahead of me in the queue.",category:"No-Change",
+   comp:{q:"The person allowed another customer to go before them.",thaiq:"คนนั้นให้ลูกค้าคนอื่นผ่านไปก่อน",isTrue:true,explain:"'Let someone go ahead' means giving them your place in the queue."}},
+  {base:"shut",past:"shut",accept:["shut"],thai:"ปิด",example:"I shut the fridge door after checking the price.",category:"No-Change",
+   comp:{q:"The person closed the fridge without looking at the price first.",thaiq:"คนนั้นปิดตู้เย็นโดยไม่ดูราคาก่อน",isTrue:false,explain:"They checked the price first, then shut the door."}},
+  {base:"sing",past:"sang",accept:["sang"],thai:"ร้องเพลง",example:"I sang along to the music in the store.",category:"Vowel-Swap",
+   comp:{q:"The supermarket was completely silent.",thaiq:"ซูเปอร์มาร์เก็ตเงียบสนิท",isTrue:false,explain:"There was music playing — that's why they could sing along!"}},
+  {base:"swim",past:"swam",accept:["swam"],thai:"ว่ายน้ำ",example:"I swam laps before going shopping.",category:"Vowel-Swap",
+   comp:{q:"The person exercised before doing their shopping.",thaiq:"คนนั้นออกกำลังกายก่อนไปซื้อของ",isTrue:true,explain:"Swimming laps is exercise. They did this before shopping."}},
+  {base:"begin",past:"began",accept:["began"],thai:"เริ่ม",example:"I began my shopping in the fruit section.",category:"Vowel-Swap",
+   comp:{q:"The first part of the shop the person visited was the fruit section.",thaiq:"ส่วนแรกของร้านที่คนนั้นเยี่ยมชมคือแผนกผลไม้",isTrue:true,explain:"'Began in the fruit section' means that's where they started."}},
+  {base:"sit",past:"sat",accept:["sat"],thai:"นั่ง",example:"I sat down at the café inside the store.",category:"Vowel-Swap",
+   comp:{q:"The person had a rest at a café that was outside the supermarket.",thaiq:"คนนั้นพักที่คาเฟ่นอกซูเปอร์มาร์เก็ต",isTrue:false,explain:"The café was 'inside the store' — not outside."}},
+  {base:"think",past:"thought",accept:["thought"],thai:"คิด",example:"I thought about what to cook for dinner.",category:"Ught-Ending",
+   comp:{q:"The person was planning their evening meal while shopping.",thaiq:"คนนั้นวางแผนมื้อเย็นขณะช้อปปิ้ง",isTrue:true,explain:"Thinking about what to cook for dinner = planning the evening meal."}},
+  {base:"catch",past:"caught",accept:["caught"],thai:"จับ / คว้า",example:"I caught a falling bottle before it broke.",category:"Ught-Ending",
+   comp:{q:"The bottle fell and smashed on the floor.",thaiq:"ขวดตกและแตกบนพื้น",isTrue:false,explain:"They caught the bottle before it broke — so it didn't smash."}},
+  {base:"teach",past:"taught",accept:["taught"],thai:"สอน",example:"My mum taught me how to pick ripe fruit.",category:"Ught-Ending",
+   comp:{q:"The person learned how to choose good fruit from their mother.",thaiq:"คนนั้นเรียนรู้วิธีเลือกผลไม้ดีๆ จากแม่",isTrue:true,explain:"'Taught me how to pick ripe fruit' = their mum showed them."}},
+  {base:"bring",past:"brought",accept:["brought"],thai:"นำมา",example:"I brought my reusable bag with me.",category:"Ught-Ending",
+   comp:{q:"The person used a plastic bag from the supermarket.",thaiq:"คนนั้นใช้ถุงพลาสติกจากซูเปอร์มาร์เก็ต",isTrue:false,explain:"A reusable bag is their own bag — not a shop's plastic bag."}},
+  {base:"run",past:"ran",accept:["ran"],thai:"วิ่ง",example:"I ran to catch the store before it closed.",category:"Movement",
+   comp:{q:"The person arrived at the shop with plenty of time to spare.",thaiq:"คนนั้นมาถึงร้านโดยมีเวลาเหลือมากมาย",isTrue:false,explain:"They had to run — which suggests they were almost too late."}},
+  {base:"fly",past:"flew",accept:["flew"],thai:"บิน",example:"I flew home and went shopping straight away.",category:"Movement",
+   comp:{q:"The person went to the supermarket immediately after their flight.",thaiq:"คนนั้นไปซูเปอร์มาร์เก็ตทันทีหลังจากเที่ยวบิน",isTrue:true,explain:"'Straight away' means immediately — right after landing."}},
+  {base:"drive",past:"drove",accept:["drove"],thai:"ขับรถ",example:"I drove to the big supermarket across town.",category:"Movement",
+   comp:{q:"The supermarket the person visited was nearby.",thaiq:"ซูเปอร์มาร์เก็ตที่คนนั้นไปอยู่ใกล้ๆ",isTrue:false,explain:"'Across town' means on the other side of the city — not nearby."}},
+  {base:"find",past:"found",accept:["found"],thai:"พบ / หา",example:"I found a great deal on imported cheese.",category:"Movement",
+   comp:{q:"The person discovered a good price on local cheese.",thaiq:"คนนั้นพบราคาดีสำหรับชีสท้องถิ่น",isTrue:false,explain:"The cheese was imported (from another country), not local."}},
+  {base:"leave",past:"left",accept:["left"],thai:"ออกจาก / ลืมทิ้งไว้",example:"I left my shopping bags in the car.",category:"Movement",
+   comp:{q:"The person forgot their bags outside the shop.",thaiq:"คนนั้นลืมถุงไว้นอกร้าน",isTrue:false,explain:"They left them in the car, not outside the shop."}},
+  {base:"meet",past:"met",accept:["met"],thai:"พบ (คน)",example:"I met my neighbour in the vegetable aisle.",category:"Movement",
+   comp:{q:"The person bumped into someone from their street while shopping.",thaiq:"คนนั้นพบคนจากถนนเดียวกันขณะช้อปปิ้ง",isTrue:true,explain:"A neighbour lives on the same street. They met them in the shop."}},
+  {base:"walk",past:"walked",accept:["walked"],thai:"เดิน",example:"I walked to the supermarket this morning.",category:"Regular",
+   comp:{q:"The person drove to the supermarket.",thaiq:"คนนั้นขับรถไปซูเปอร์มาร์เก็ต",isTrue:false,explain:"They walked — they didn't drive."}},
+  {base:"talk",past:"talked",accept:["talked"],thai:"พูดคุย",example:"I talked to the staff about a missing item.",category:"Regular",
+   comp:{q:"The person spoke to an employee because something wasn't on the shelf.",thaiq:"คนนั้นพูดกับพนักงานเพราะสินค้าไม่อยู่บนชั้นวาง",isTrue:true,explain:"A 'missing item' means something they couldn't find on the shelf."}},
+  {base:"play",past:"played",accept:["played"],thai:"เล่น",example:"I played a game on my phone while waiting.",category:"Regular",
+   comp:{q:"The person was busy working on their phone in the queue.",thaiq:"คนนั้นยุ่งกับการทำงานบนโทรศัพท์ในคิว",isTrue:false,explain:"They played a game — for fun, not for work."}},
+  {base:"watch",past:"watched",accept:["watched"],thai:"ดู / สังเกต",example:"I watched a cooking demo at the supermarket.",category:"Regular",
+   comp:{q:"The person saw someone prepare food at the store.",thaiq:"คนนั้นเห็นคนเตรียมอาหารที่ร้าน",isTrue:true,explain:"A cooking demo is when someone prepares food to show customers."}},
+  {base:"work",past:"worked",accept:["worked"],thai:"ทำงาน",example:"I worked late before doing my shopping.",category:"Regular",
+   comp:{q:"The person finished work on time that day.",thaiq:"คนนั้นเลิกงานตรงเวลาในวันนั้น",isTrue:false,explain:"'Worked late' means they stayed at work longer than usual."}},
+  {base:"start",past:"started",accept:["started"],thai:"เริ่มต้น",example:"I started my shopping list from scratch.",category:"Regular",
+   comp:{q:"The person used their old shopping list.",thaiq:"คนนั้นใช้รายการช้อปปิ้งเก่า",isTrue:false,explain:"'From scratch' means starting completely new — no old list."}},
+  {base:"finish",past:"finished",accept:["finished"],thai:"เสร็จสิ้น",example:"I finished my shopping in under twenty minutes.",category:"Regular",
+   comp:{q:"The person spent more than half an hour shopping.",thaiq:"คนนั้นใช้เวลาช้อปปิ้งมากกว่าครึ่งชั่วโมง",isTrue:false,explain:"Under twenty minutes is less than half an hour (thirty minutes)."}},
+  {base:"call",past:"called",accept:["called"],thai:"โทร / เรียก",example:"I called my wife to ask what brand to buy.",category:"Regular",
+   comp:{q:"The person knew exactly which brand to buy before phoning.",thaiq:"คนนั้นรู้แน่ชัดว่าต้องซื้อยี่ห้ออะไรก่อนโทร",isTrue:false,explain:"They called to ask — which means they didn't know beforehand."}},
+  {base:"ask",past:"asked",accept:["asked"],thai:"ถาม",example:"I asked a staff member where the soy sauce was.",category:"Regular",
+   comp:{q:"The person couldn't find the soy sauce on their own.",thaiq:"คนนั้นหาซอสถั่วเหลืองเองไม่เจอ",isTrue:true,explain:"They had to ask a staff member — so they couldn't find it alone."}},
+  {base:"serve",past:"served",accept:["served"],thai:"เสิร์ฟ / ให้บริการ",example:"The deli counter served me quickly.",category:"Service",
+   comp:{q:"The person had to wait a long time at the deli counter.",thaiq:"คนนั้นต้องรอนานที่เคาน์เตอร์เดลี่",isTrue:false,explain:"'Served quickly' means there was no long wait."}},
+  {base:"order",past:"ordered",accept:["ordered"],thai:"สั่ง",example:"I ordered a birthday cake from the bakery.",category:"Service",
+   comp:{q:"The person bought a ready-made cake from the shelf.",thaiq:"คนนั้นซื้อเค้กสำเร็จรูปจากชั้นวาง",isTrue:false,explain:"Ordering a cake means requesting a custom one — not grabbing one off the shelf."}},
+  {base:"prepare",past:"prepared",accept:["prepared"],thai:"เตรียม",example:"I prepared a shopping list the night before.",category:"Service",
+   comp:{q:"The person made their list on the same day they went shopping.",thaiq:"คนนั้นทำรายการในวันเดียวกับที่ไปช้อปปิ้ง",isTrue:false,explain:"'The night before' means the previous evening — not the same day."}},
+  {base:"book",past:"booked",accept:["booked"],thai:"จอง",example:"I booked a delivery slot for the weekend.",category:"Service",
+   comp:{q:"The person reserved a time for their groceries to be delivered.",thaiq:"คนนั้นจองเวลาสำหรับการจัดส่งของชำ",isTrue:true,explain:"'Booked a delivery slot' = reserved a time for delivery."}},
+];
+
+const CAT_COLOR={
+  "Essential":"#f5c518","No-Change":"#4ecdc4","Vowel-Swap":"#ff9f43",
+  "Ught-Ending":"#a29bfe","Movement":"#fd79a8","Regular":"#55efc4","Service":"#74b9ff"
+};
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let gameWords=[],round=0,score=0,streak=0;
+let chainBuilt=[],hintUsed=false,answered=false,dotStates=[];
+let timerOn=false,timerInterval=null;
+let selectedMode=null,chainRevealed=false;
+let failedAnswers=[];
+
+// comprehension state
+let compOn=true;
+let compScore=0, compTotal=0;
+let compResults=[];
+let waitingForComp=false;
+
+// ─────────────────────────────────────────────
+//  AUDIO
+// ─────────────────────────────────────────────
+const AudioCtx=window.AudioContext||window.webkitAudioContext;
+let audioCtx=null;
+function ensureAudio(){if(!audioCtx)audioCtx=new AudioCtx();}
+function playTone(freq,dur,type,vol){
+  ensureAudio();
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type=type||'sine';o.frequency.value=freq;
+  g.gain.value=vol||.15;
+  g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);
+  o.connect(g);g.connect(audioCtx.destination);
+  o.start();o.stop(audioCtx.currentTime+dur);
+}
+function sfxCorrect(){playTone(523,.08,'sine',.18);setTimeout(()=>playTone(659,.08,'sine',.15),80);setTimeout(()=>playTone(784,.15,'sine',.13),160);}
+function sfxWrong(){playTone(200,.15,'sawtooth',.12);setTimeout(()=>playTone(160,.2,'sawtooth',.1),120);}
+function sfxClick(){playTone(880,.04,'sine',.08);}
+function sfxSelect(){playTone(440,.06,'sine',.1);setTimeout(()=>playTone(554,.06,'sine',.08),60);}
+function sfxWin(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,.15,'sine',.13),i*120));}
+function sfxStreak(){playTone(698,.06,'sine',.1);setTimeout(()=>playTone(880,.1,'sine',.1),70);}
+function sfxCompCorrect(){playTone(880,.06,'sine',.1);setTimeout(()=>playTone(1047,.12,'sine',.08),60);}
+function sfxCompWrong(){playTone(300,.1,'triangle',.1);}
+
+// ─────────────────────────────────────────────
+//  MODE SELECT & GAME INIT
+// ─────────────────────────────────────────────
+function selectMode(m){
+  selectedMode=m;
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('card-'+m).classList.add('selected');
+  document.getElementById('start-btn').style.display='inline-block';
+  document.getElementById('examples-btn').style.display='inline-block';
+  document.getElementById('app-btn').style.display='inline-block';
+  sfxSelect();
+}
+
+function startGame(){
+  if(!selectedMode)return;
+  sfxClick();
+  chainRevealed=false;
+  compScore=0;compTotal=0;compResults=[];waitingForComp=false;
+  document.getElementById('mode-screen').style.display='none';
+  document.getElementById('winner-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+  document.getElementById('mode-label').textContent=
+    selectedMode==='visible'?'👀 Chain Visible':'🙈 Chain Hidden';
+
+  const toggleBtn=document.getElementById('chain-toggle-btn');
+  const chainBox=document.getElementById('chain-box');
+  const revealPanel=document.getElementById('reveal-panel');
+
+  if(selectedMode==='hidden'){
+    toggleBtn.style.display='inline-block';
+    toggleBtn.textContent='👁 Reveal Chain';
+    chainBox.classList.add('hidden-mode');
+    revealPanel.style.display='none';
+  } else {
+    toggleBtn.style.display='none';
+    chainBox.classList.remove('hidden-mode');
+    revealPanel.style.display='none';
+  }
+
+  // update comp badge visibility
+  document.getElementById('comp-badge').style.display=compOn?'inline-flex':'none';
+  updateCompToggleBtn();
+
+  // Deduplicate: only one entry per base verb (random pick among variants)
+  const shuffledAll=shuffle([...ALL_WORDS]);
+  const seenBase=new Set();
+  const uniqueWords=[];
+  shuffledAll.forEach(w=>{if(!seenBase.has(w.base)){seenBase.add(w.base);uniqueWords.push(w);}});
+  gameWords=shuffle(uniqueWords);
+  round=0;score=0;streak=0;chainBuilt=[];dotStates=[];failedAnswers=[];
+  document.getElementById('total-num').textContent=gameWords.length;
+  startRound();
+}
+
+function restartSameMode(){document.getElementById('winner-screen').style.display='none';startGame();}
+function restartCurrentGame(){
+  round=0;score=0;streak=0;chainBuilt=[];dotStates=[];failedAnswers=[];
+  compScore=0;compTotal=0;compResults=[];waitingForComp=false;
+  clearInterval(timerInterval);
+  hideCompCard();
+  startRound();
+}
+function goToMenu(){
+  document.getElementById('game-screen').style.display='none';
+  document.getElementById('winner-screen').style.display='none';
+  document.getElementById('memory-test').style.display='none';
+  document.getElementById('mode-screen').style.display='block';
+  clearInterval(timerInterval);
+  hideCompCard();
+}
+
+// ─────────────────────────────────────────────
+//  COMPREHENSION TOGGLE
+// ─────────────────────────────────────────────
+function toggleComp(){
+  sfxClick();
+  compOn=!compOn;
+  updateCompToggleBtn();
+  document.getElementById('comp-badge').style.display=compOn?'inline-flex':'none';
+}
+function updateCompToggleBtn(){
+  const btn=document.getElementById('comp-toggle');
+  btn.textContent=compOn?'🧠 Comprehension: ON':'🧠 Comprehension: OFF';
+  btn.style.background=compOn?'#1a2a40':'#1a2030';
+  btn.style.borderColor=compOn?'#a29bfe':'#2a3f5f';
+  btn.style.color=compOn?'#a29bfe':getComputedStyle(document.documentElement).getPropertyValue('--muted');
+}
+
+// ─────────────────────────────────────────────
+//  ROUND LOGIC
+// ─────────────────────────────────────────────
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function buildChainText(){
+  if(!chainBuilt.length)return'<span style="color:var(--muted)">Start building the chain!</span>';
+  let html='<div style="margin-bottom:6px;">I went to the supermarket and I '+
+    chainBuilt.map(w=>`<span class="chain-word">${w.past}</span>`).join(' and I ')+'</div>';
+  html+='<div style="margin-top:8px;border-top:1px solid #2a3f5f;padding-top:8px;">';
+  chainBuilt.forEach((w,i)=>{
+    html+=`<div style="display:flex;gap:6px;align-items:baseline;padding:3px 0;font-size:.82rem;">
+      <span style="color:var(--muted);min-width:20px;">${i+1}.</span>
+      <span class="chain-word" style="min-width:55px;">${w.past}</span>
+      <span style="color:var(--muted);font-style:italic;font-size:.78rem;">${w.example}</span>
+    </div>`;
+  });
+  html+='</div>';
+  return html;
+}
+
+function buildDots(){
+  const d=document.getElementById('dots');d.innerHTML='';
+  gameWords.forEach((_,i)=>{
+    const dot=document.createElement('div');
+    let cls='dot';
+    if(i<round)cls+=' '+(dotStates[i]==='correct'?'done':'wrong-dot');
+    else if(i===round)cls+=' current';
+    dot.className=cls;dot.title=gameWords[i].base;
+    d.appendChild(dot);
+  });
+}
+
+function startRound(){
+  if(round>=gameWords.length){showWinner();return;}
+  answered=false;hintUsed=false;waitingForComp=false;
+  hideCompCard();
+  const w=gameWords[round];
+  document.getElementById('base-verb-display').textContent=w.base;
+  document.getElementById('answer-input').value='';
+  document.getElementById('answer-input').disabled=false;
+  document.getElementById('check-btn').style.display='inline-block';
+  document.getElementById('next-btn').style.display='none';
+  document.getElementById('next-btn').textContent=
+    (compOn && w.comp) ? 'Next: Comprehension →' : 'Next Round →';
+  document.getElementById('feedback-box').style.display='none';
+  document.getElementById('hint-text').style.display='none';
+  document.getElementById('thai-reveal').style.display='none';
+  document.getElementById('thai-btn').textContent='🇹🇭 Show Thai';
+  document.getElementById('challenge-card').className='challenge-card';
+
+  const chainHtml=buildChainText();
+  document.getElementById('chain-display').innerHTML=chainHtml;
+  document.getElementById('reveal-display').innerHTML=chainHtml;
+
+  document.getElementById('round-num').textContent=round+1;
+  document.getElementById('streak-num').textContent=streak;
+  document.getElementById('score-num').textContent=score;
+  document.getElementById('comp-score-num').textContent=compScore;
+  buildDots();updateSummary();updateFailureReport();
+  if(timerOn)startTimer();
+  document.getElementById('answer-input').focus();
+}
+
+function checkAnswer(){
+  if(answered)return;
+  const w=gameWords[round];
+  const val=document.getElementById('answer-input').value.trim().toLowerCase();
+  if(!val)return;
+  answered=true;clearInterval(timerInterval);
+  const fb=document.getElementById('feedback-box');
+  fb.style.display='block';
+  document.getElementById('answer-input').disabled=true;
+  document.getElementById('check-btn').style.display='none';
+  document.getElementById('next-btn').style.display='inline-block';
+  document.getElementById('next-btn').textContent=
+    (compOn && w.comp) ? '🧠 Next: Comprehension →' : 'Next Round →';
+  document.getElementById('thai-reveal').innerHTML=
+    `<div style="margin-bottom:6px;"><strong>🇹🇭 คำแปล:</strong> ${w.base} → ${w.past} = <span style="color:var(--accent)">${w.thai}</span></div>`+
+    `<div><strong>📝 ตัวอย่างประโยค:</strong> <em>${w.example}</em></div>`;
+
+  const cc=CAT_COLOR[w.category]||'#4ecdc4';
+  const catTag=`<span class="category-tag" style="border-color:${cc};color:${cc}">${w.category}</span>`;
+  const isCorrect=w.accept.includes(val);
+
+  if(isCorrect){
+    sfxCorrect();
+    const pts=hintUsed?5:10;
+    score+=pts;streak++;
+    if(streak>=3){score+=3;sfxStreak();}
+    dotStates[round]='correct';
+    document.getElementById('challenge-card').className='challenge-card correct';
+    fb.className='feedback correct fade-in';
+    document.getElementById('feedback-text').innerHTML=
+      `✅ Correct! <span class="correct-answer">${w.past}</span>`+
+      (hintUsed?' <span style="color:var(--muted);font-size:.75rem">(hint +5)</span>':`<span style="color:var(--muted);font-size:.75rem"> +10</span>`)+
+      (streak>=3?` <span style="color:#ff9f43;font-size:.8rem">🔥 Streak +3!</span>`:'')+
+      `<div class="example">📖 ${w.example}</div>${catTag}`;
+    chainBuilt.push(w);
+  } else {
+    sfxWrong();
+    streak=0;dotStates[round]='wrong';
+    failedAnswers.push({base:w.base,correct:w.past,wrong:val,thai:w.thai,example:w.example,category:w.category});
+    document.getElementById('challenge-card').className='challenge-card wrong';
+    fb.className='feedback wrong fade-in';
+    document.getElementById('feedback-text').innerHTML=
+      `❌ The past tense is: <span class="correct-answer">${w.past}</span>`+
+      `<div class="example">📖 ${w.example}</div>${catTag}`;
+    chainBuilt.push(w);
+  }
+
+  const chainHtml=buildChainText();
+  document.getElementById('chain-display').innerHTML=chainHtml;
+  document.getElementById('reveal-display').innerHTML=chainHtml;
+  document.getElementById('streak-num').textContent=streak;
+  document.getElementById('score-num').textContent=score;
+  const scoreBadge=document.getElementById('score-num');
+  scoreBadge.classList.remove('score-flash');void scoreBadge.offsetWidth;scoreBadge.classList.add('score-flash');
+  buildDots();updateSummary();updateFailureReport();
+}
+
+// ─────────────────────────────────────────────
+//  NEXT BUTTON → routes to comprehension or next round
+// ─────────────────────────────────────────────
+function handleNext(){
+  sfxClick();
+  const w=gameWords[round];
+  if(compOn && w.comp && !waitingForComp){
+    showCompCard(w);
+  } else {
+    round++;
+    startRound();
+  }
+}
+
+// ─────────────────────────────────────────────
+//  COMPREHENSION CARD
+// ─────────────────────────────────────────────
+function showCompCard(w){
+  waitingForComp=true;
+  const c=w.comp;
+  document.getElementById('comp-sentence-text').innerHTML=highlightVerb(w.example,w.past);
+  document.getElementById('comp-question-text').textContent='True or False? — '+c.q;
+  document.getElementById('comp-thai-q').textContent='จริงหรือเท็จ? — '+c.thaiq;
+  document.getElementById('comp-thai-q').style.display='none';
+  document.getElementById('comp-feedback').style.display='none';
+  document.getElementById('comp-feedback').className='comp-feedback';
+  document.getElementById('comp-next-btn').style.display='none';
+  document.getElementById('comp-true-btn').disabled=false;
+  document.getElementById('comp-false-btn').disabled=false;
+  document.getElementById('comp-true-btn').className='comp-tf-btn comp-true-btn';
+  document.getElementById('comp-false-btn').className='comp-tf-btn comp-false-btn';
+  document.getElementById('comp-skip-btn').style.display='inline-block';
+  document.getElementById('comp-card').className='comp-card';
+  document.getElementById('comp-card').style.display='block';
+  // hide next-round button while comp is showing
+  document.getElementById('next-btn').style.display='none';
+  // scroll to comp card
+  document.getElementById('comp-card').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function highlightVerb(sentence, past){
+  // bold the past tense verb in the example sentence
+  const re=new RegExp('\\b'+past+'\\b','gi');
+  return sentence.replace(re,`<em>${past}</em>`);
+}
+
+function answerComp(userAnswer){
+  const w=gameWords[round];
+  const c=w.comp;
+  compTotal++;
+  const isCorrect=(userAnswer===c.isTrue);
+  const trueBtn=document.getElementById('comp-true-btn');
+  const falseBtn=document.getElementById('comp-false-btn');
+  trueBtn.disabled=true;falseBtn.disabled=true;
+
+  // highlight buttons
+  if(userAnswer===true){
+    trueBtn.className='comp-tf-btn comp-true-btn '+(isCorrect?'selected-correct':'selected-wrong');
+    if(!isCorrect)falseBtn.className='comp-tf-btn comp-false-btn reveal-correct';
+  } else {
+    falseBtn.className='comp-tf-btn comp-false-btn '+(isCorrect?'selected-correct':'selected-wrong');
+    if(!isCorrect)trueBtn.className='comp-tf-btn comp-true-btn reveal-correct';
+  }
+
+  const fb=document.getElementById('comp-feedback');
+  fb.style.display='block';
+  document.getElementById('comp-skip-btn').style.display='none';
+
+  if(isCorrect){
+    sfxCompCorrect();
+    compScore+=5;
+    document.getElementById('comp-score-num').textContent=compScore;
+    document.getElementById('comp-badge').style.display='inline-flex';
+    fb.className='comp-feedback cf-correct';
+    fb.innerHTML=`✅ Correct! +5 comprehension points<div style="margin-top:5px;font-size:.82rem;opacity:.85;">💡 ${c.explain}</div>`;
+    document.getElementById('comp-card').className='comp-card comp-correct';
+    compResults.push({verb:w.base,q:c.q,correct:true});
+  } else {
+    sfxCompWrong();
+    fb.className='comp-feedback cf-wrong';
+    const correctLabel=c.isTrue?'TRUE ✅':'FALSE ❌';
+    fb.innerHTML=`❌ The answer was <strong>${correctLabel}</strong><div style="margin-top:5px;font-size:.82rem;opacity:.85;">💡 ${c.explain}</div>`;
+    document.getElementById('comp-card').className='comp-card comp-wrong';
+    compResults.push({verb:w.base,q:c.q,correct:false});
+  }
+
+  document.getElementById('comp-next-btn').style.display='inline-block';
+  // flash comp score
+  const cb=document.getElementById('comp-score-num');
+  cb.classList.remove('score-flash');void cb.offsetWidth;cb.classList.add('score-flash');
+}
+
+function toggleCompThai(){
+  const el=document.getElementById('comp-thai-q');
+  const btn=document.getElementById('comp-thai-toggle');
+  if(el.style.display==='none'||el.style.display===''){
+    el.style.display='block';btn.textContent='🇹🇭 Hide Thai question';
+  } else {
+    el.style.display='none';btn.textContent='🇹🇭 Show Thai question';
+  }
+}
+
+function skipComp(){
+  sfxClick();
+  hideCompCard();
+  round++;
+  startRound();
+}
+
+function proceedAfterComp(){
+  sfxClick();
+  hideCompCard();
+  round++;
+  startRound();
+}
+
+function hideCompCard(){
+  document.getElementById('comp-card').style.display='none';
+  document.getElementById('comp-card').className='comp-card';
+  waitingForComp=false;
+}
+
+// ─────────────────────────────────────────────
+//  HINTS & EXTRAS
+// ─────────────────────────────────────────────
+function showHint(){
+  if(answered||hintUsed)return;
+  sfxClick();hintUsed=true;
+  const w=gameWords[round];
+  const h=document.getElementById('hint-text');
+  h.textContent=`💡 Hint: starts with "${w.past[0].toUpperCase()}"... (${w.past.length} letters)`;
+  h.style.display='block';
+}
+function toggleThai(){
+  const r=document.getElementById('thai-reveal'),b=document.getElementById('thai-btn');
+  r.style.display=(r.style.display==='none'||r.style.display==='')?'block':'none';
+  b.textContent=r.style.display==='block'?'🇹🇭 Hide Thai':'🇹🇭 Show Thai';
+}
+function toggleTimer(){
+  sfxClick();timerOn=!timerOn;
+  document.getElementById('timer-toggle').textContent=`⏱ Timer: ${timerOn?'ON':'OFF'}`;
+  document.getElementById('timer-wrap').style.display=timerOn?'block':'none';
+  if(!timerOn)clearInterval(timerInterval);
+}
+function startTimer(){
+  clearInterval(timerInterval);let t=15;
+  const bar=document.getElementById('timer-bar');
+  bar.style.transition='none';bar.style.width='100%';
+  setTimeout(()=>{bar.style.transition='width 15s linear';bar.style.width='0%';},50);
+  timerInterval=setInterval(()=>{t--;if(t<=0){clearInterval(timerInterval);if(!answered){document.getElementById('answer-input').value='';checkAnswer();}}},1000);
+}
+function toggleChain(){
+  const chainBox=document.getElementById('chain-box');
+  const revealPanel=document.getElementById('reveal-panel');
+  const btn=document.getElementById('chain-toggle-btn');
+  chainRevealed=!chainRevealed;
+  if(chainRevealed){
+    document.getElementById('reveal-display').innerHTML=buildChainText();
+    revealPanel.style.display='block';btn.textContent='🙈 Hide Chain';
+  } else {
+    revealPanel.style.display='none';btn.textContent='👁 Reveal Chain';
+  }
+}
+
+// ─────────────────────────────────────────────
+//  SUMMARY & FAILURE REPORT
+// ─────────────────────────────────────────────
+function updateSummary(){
+  const s=document.getElementById('chain-summary');
+  if(!chainBuilt.length||selectedMode==='hidden'){s.style.display='none';return;}
+  s.style.display='block';
+  document.getElementById('summary-list').innerHTML=chainBuilt.map((w,i)=>
+    `<div class="summary-item">
+      <span class="s-num">${i+1}.</span>
+      <span class="s-base">${w.base}</span>
+      <span class="s-past">${w.past}</span>
+      <span class="s-ex">${w.example}</span>
+    </div>`
+  ).join('');
+}
+function updateFailureReport(){
+  const fr=document.getElementById('failure-report');
+  if(!failedAnswers.length){fr.style.display='none';return;}
+  fr.style.display='block';
+  document.getElementById('failure-list').innerHTML=failedAnswers.map((f,i)=>
+    `<div class="summary-item" style="border-bottom:1px solid var(--wrong);padding:8px 0;">
+      <span class="s-num" style="color:var(--wrong);">${i+1}.</span>
+      <span class="s-base" style="color:var(--wrong);font-weight:700;">${f.base}</span>
+      <span class="s-past" style="color:var(--correct);font-weight:700;">${f.correct}</span>
+      <span class="s-past" style="color:var(--wrong);font-weight:700;text-decoration:line-through;">${f.wrong}</span>
+      <span class="s-ex">${f.example}</span>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:4px;">Thai: ${f.thai} | Category: ${f.category}</div>
+    </div>`
+  ).join('');
+}
+
+// ─────────────────────────────────────────────
+//  MEMORY TEST
+// ─────────────────────────────────────────────
+function showWinner(){startMemoryTest();}
+
+let memoryStep=0,memoryCorrectCount=0,memoryBonus=0;
+
+function startMemoryTest(){
+  sfxSelect();
+  document.getElementById('game-screen').style.display='none';
+  document.getElementById('winner-screen').style.display='none';
+  document.getElementById('memory-test').style.display='block';
+  memoryStep=0;memoryCorrectCount=0;memoryBonus=0;
+  document.getElementById('memory-correct-count').textContent='0';
+  document.getElementById('memory-total-count').textContent=chainBuilt.length;
+  document.getElementById('memory-done-area').style.display='none';
+  document.getElementById('memory-input-area').style.display='block';
+  document.getElementById('memory-feedback').innerHTML='';
+  buildMemoryChainDisplay();
+  showMemoryStep();
+}
+
+function buildMemoryChainDisplay(){
+  let html='I went to the supermarket ';
+  chainBuilt.forEach(function(w,i){
+    html+='and I <span class="memory-blank" id="mem-blank-'+i+'">'
+      +'<span style="font-size:.68rem;color:var(--muted)">'+w.base+'</span></span> ';
+  });
+  document.getElementById('memory-chain-display').innerHTML=html;
+}
+
+function showMemoryStep(){
+  if(memoryStep>=chainBuilt.length){endMemoryTest();return;}
+  var w=chainBuilt[memoryStep];
+  document.getElementById('memory-progress').textContent='Word '+(memoryStep+1)+' of '+chainBuilt.length;
+  document.getElementById('memory-base-verb').textContent=w.base;
+  document.getElementById('memory-input').value='';
+  document.getElementById('memory-input').disabled=false;
+  document.getElementById('memory-check-btn').style.display='inline-block';
+  document.getElementById('memory-feedback').innerHTML='';
+  document.querySelectorAll('.memory-blank').forEach(function(b){b.classList.remove('active');});
+  var blank=document.getElementById('mem-blank-'+memoryStep);
+  if(blank)blank.classList.add('active');
+  document.getElementById('memory-input').focus();
+}
+
+function checkMemoryAnswer(){
+  var w=chainBuilt[memoryStep];
+  var val=document.getElementById('memory-input').value.trim().toLowerCase();
+  if(!val)return;
+  document.getElementById('memory-input').disabled=true;
+  document.getElementById('memory-check-btn').style.display='none';
+  var blank=document.getElementById('mem-blank-'+memoryStep);
+  var ok=w.accept.includes(val);
+  if(ok){
+    sfxCorrect();memoryCorrectCount++;memoryBonus+=5;
+    if(blank){blank.classList.remove('active');blank.classList.add('recalled');blank.innerHTML='<strong>'+w.past+'</strong>';}
+    document.getElementById('memory-feedback').innerHTML='<span style="color:var(--correct)">✅ Correct! +5 bonus</span>';
+  } else {
+    sfxWrong();
+    if(blank){blank.classList.remove('active');blank.classList.add('missed');blank.innerHTML='<s>'+val+'</s><span class="correct-word">→ '+w.past+'</span>';}
+    document.getElementById('memory-feedback').innerHTML='<span style="color:var(--wrong)">❌ It was <strong>'+w.past+'</strong></span>';
+  }
+  document.getElementById('memory-correct-count').textContent=memoryCorrectCount;
+  memoryStep++;
+  setTimeout(showMemoryStep,1200);
+}
+
+function endMemoryTest(){
+  document.getElementById('memory-input-area').style.display='none';
+  document.getElementById('memory-done-area').style.display='block';
+  var pct=chainBuilt.length?Math.round((memoryCorrectCount/chainBuilt.length)*100):0;
+  var msg='';
+  if(pct===100)msg='🌟 PERFECT MEMORY! You remembered everything!';
+  else if(pct>=80)msg='🔥 Amazing recall! Almost perfect!';
+  else if(pct>=60)msg='👍 Good memory! Keep practicing!';
+  else if(pct>=40)msg='💪 Not bad! Try to remember more next time.';
+  else msg='🧠 Keep training your memory!';
+  document.getElementById('memory-result-msg').textContent=msg+' ('+memoryCorrectCount+'/'+chainBuilt.length+' = '+pct+'%)';
+  sfxWin();
+}
+
+function finishMemoryTest(){
+  sfxClick();
+  document.getElementById('memory-test').style.display='none';
+  document.getElementById('winner-screen').style.display='block';
+  document.getElementById('final-rounds').textContent=gameWords.length;
+  document.getElementById('final-score').textContent=score;
+  document.getElementById('comp-bonus-display').textContent=compScore;
+  document.getElementById('memory-bonus-display').textContent=memoryBonus;
+  document.getElementById('total-final-score').textContent=score+compScore+memoryBonus;
+
+  // comprehension results summary
+  const crs=document.getElementById('comp-result-summary');
+  if(compResults.length>0){
+    crs.style.display='block';
+    const correct=compResults.filter(r=>r.correct).length;
+    const pct=Math.round((correct/compResults.length)*100);
+    document.getElementById('comp-result-list').innerHTML=
+      `<div style="font-size:.88rem;margin-bottom:8px;">Score: <strong style="color:#a29bfe">${correct}/${compResults.length}</strong> (${pct}%)</div>`+
+      compResults.map(r=>
+        `<div style="display:flex;gap:6px;align-items:baseline;padding:4px 0;border-bottom:1px solid #1d2d47;font-size:.78rem;">
+          <span style="min-width:20px">${r.correct?'✅':'❌'}</span>
+          <span style="color:var(--accent);font-weight:700;min-width:55px">${r.verb}</span>
+          <span style="color:var(--muted)">${r.q}</span>
+        </div>`
+      ).join('');
+  } else {
+    crs.style.display='none';
+  }
+
+  var ct=dotStates.filter(function(s){return s==='correct';}).length;
+  document.getElementById('winner-chain').innerHTML=
+    '<div style="color:var(--muted);font-size:.76rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Full chain — '+ct+'/'+gameWords.length+' correct:</div>'
+    +'I went to the supermarket and I '
+    +chainBuilt.map(function(w){return '<span style="color:var(--accent);font-weight:700">'+w.past+'</span>';}).join(' and I ');
+}
+
+// ─────────────────────────────────────────────
+//  MODALS
+// ─────────────────────────────────────────────
+function showAppInstructions(){document.getElementById('app-modal').style.display='block';}
+function closeAppInstructions(){document.getElementById('app-modal').style.display='none';}
+
+function showExamples(){
+  const container=document.getElementById('examples-content');
+  const cats=["Essential","No-Change","Vowel-Swap","Ught-Ending","Movement","Regular","Service"];
+  const catDesc={
+    "Essential":"คำกริยาที่สำคัญที่สุด — เปลี่ยนรูปไม่เหมือนกัน",
+    "No-Change":"คำกริยาที่ไม่เปลี่ยนรูป — present = past!",
+    "Vowel-Swap":"เปลี่ยนสระตรงกลาง เช่น i→a",
+    "Ught-Ending":"ลงท้ายด้วย -ought หรือ -aught",
+    "Movement":"คำกริยาเกี่ยวกับการเคลื่อนไหว",
+    "Regular":"คำกริยาปกติ เติม -ed",
+    "Service":"คำกริยาเกี่ยวกับการบริการ เติม -ed"
+  };
+  let html='';
+  cats.forEach(cat=>{
+    const words=ALL_WORDS.filter(w=>w.category===cat);
+    if(!words.length)return;
+    const seen=new Set();
+    const unique=words.filter(w=>{const k=w.base+w.past;if(seen.has(k))return false;seen.add(k);return true;});
+    const cc=CAT_COLOR[cat]||'#4ecdc4';
+    html+=`<div style="background:var(--panel);border-radius:12px;padding:14px;margin-bottom:12px;border-left:3px solid ${cc};">`;
+    html+=`<h3 style="color:${cc};font-size:.92rem;margin-bottom:4px;">${cat}</h3>`;
+    html+=`<p style="color:var(--muted);font-size:.75rem;margin-bottom:10px;">${catDesc[cat]||''}</p>`;
+    html+=`<table style="width:100%;border-collapse:collapse;">`;
+    html+=`<tr style="border-bottom:1px solid #2a3f5f;">
+      <th style="text-align:left;color:var(--muted);font-size:.72rem;padding:4px 6px;font-weight:700;">Present</th>
+      <th style="text-align:left;color:var(--muted);font-size:.72rem;padding:4px 6px;font-weight:700;">Past</th>
+      <th style="text-align:left;color:var(--muted);font-size:.72rem;padding:4px 6px;font-weight:700;">Thai</th>
+      <th style="text-align:left;color:var(--muted);font-size:.72rem;padding:4px 6px;font-weight:700;">Example</th>
+    </tr>`;
+    unique.forEach(w=>{
+      html+=`<tr style="border-bottom:1px solid #1d2d47;">
+        <td style="padding:5px 6px;color:var(--text);font-weight:700;font-size:.84rem;">${w.base}</td>
+        <td style="padding:5px 6px;color:${cc};font-weight:700;font-size:.84rem;">${w.past}</td>
+        <td style="padding:5px 6px;color:var(--accent2);font-size:.8rem;">${w.thai}</td>
+        <td style="padding:5px 6px;color:var(--muted);font-size:.76rem;font-style:italic;">${w.example}</td>
+      </tr>`;
+    });
+    html+=`</table></div>`;
+  });
+  container.innerHTML=html;
+  document.getElementById('examples-modal').style.display='block';
+}
+function closeExamples(){document.getElementById('examples-modal').style.display='none';}
+
+// ─────────────────────────────────────────────
+//  KEYBOARD
+// ─────────────────────────────────────────────
+document.getElementById('answer-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){if(!answered)checkAnswer();else handleNext();}
+});
+document.getElementById('memory-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter')checkMemoryAnswer();
+});
+</script>
+</body>
+</html>

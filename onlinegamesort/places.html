@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City Connect Four</title>
+    <style>
+        body { font-family: 'Comic Sans MS', cursive, sans-serif; background-color: #e3f2fd; text-align: center; margin: 0; padding: 20px; }
+        h1 { color: #1565c0; font-size: 2.5em; text-shadow: 2px 2px #fff; }
+        
+        #game-layout { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+
+        /* Riddle & Learning Box */
+        #info-box { background: white; padding: 20px; border-radius: 20px; border: 5px solid #ff9800; width: 90%; max-width: 600px; box-shadow: 0 6px rgba(0,0,0,0.1); }
+        .turn-box { font-size: 1.5em; font-weight: bold; margin-bottom: 10px; padding: 5px; border-radius: 10px; }
+        .p1-turn { color: #d32f2f; background: #ffebee; }
+        .p2-turn { color: #fbc02d; background: #fffde7; }
+        #riddle-text { font-size: 1.3em; color: #333; min-height: 40px; margin: 15px 0; }
+        #learning-text { font-size: 1em; color: #4caf50; font-weight: bold; min-height: 20px; }
+
+        /* The Board */
+        #board { background-color: #0d47a1; padding: 15px; border-radius: 15px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; box-shadow: 0 12px #002171; border: 4px solid #fff; }
+        .cell { width: 65px; height: 65px; background-color: #bbdefb; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .cell.red { background-color: #f44336; box-shadow: inset 0 0 15px #b71c1c; }
+        .cell.yellow { background-color: #ffeb3b; box-shadow: inset 0 0 15px #f9a825; }
+        .cell:hover { background-color: #90caf9; }
+
+        /* Buttons */
+        button { background: #4caf50; color: white; border: none; padding: 15px 30px; border-radius: 50px; cursor: pointer; font-size: 1.2em; font-weight: bold; box-shadow: 0 5px #2e7d32; }
+        button:active { box-shadow: 0 0; transform: translateY(4px); }
+        #answer-btn { background: #2196f3; box-shadow: 0 5px #1565c0; }
+
+        .qr-sidebar {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            padding: 14px;
+            border-radius: 18px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+            text-align: center;
+            z-index: 50;
+        }
+        .qr-sidebar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+        }
+        .qr-sidebar p {
+            margin: 8px 0 0;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #1565c0;
+        }
+
+        #win-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; justify-content: center; align-items: center; color: white; z-index: 100; }
+    </style>
+</head>
+<body>
+
+    <h1>🏙️ My City Connect Four</h1>
+    
+    <div id="game-layout">
+        <div id="info-box">
+            <div id="turn-display" class="turn-box p1-turn">🔴 Player 1's Turn</div>
+            <p id="riddle-text">Click "Get New Riddle" to start!</p>
+            <p id="learning-text"></p>
+            <div id="button-group">
+                <button id="riddle-btn" onclick="askRiddle()">Get New Riddle ❓</button>
+                <button id="answer-btn" onclick="unlockBoard()" style="display:none;">I Answered It! ✅</button>
+            </div>
+        </div>
+
+        <div id="board"></div>
+    </div>
+
+    <div class="qr-sidebar">
+        <img src="../overlays/teacherlewis1-overlay/public/qrcode_preply.com.png" alt="Preply QR Code">
+        <p>Book a lesson!</p>
+    </div>
+
+    <div id="win-overlay">
+        <h2 id="win-text" style="font-size: 3em;"></h2>
+        <button onclick="location.reload()">Play Again! 🔄</button>
+    </div>
+
+    <script>
+        const ROWS = 6, COLS = 7;
+        let currentPlayer = 1, canPlay = false, boardArr = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+
+        const cityPlaces = [
+            { name: "Grocery Store", q: "I have carts, aisles, and yummy food to buy. Where am I?", learn: "We go here to buy food and learn about money!" },
+            { name: "School", q: "I have desks, a playground, and teachers who help you learn. Where am I?", learn: "We go here to grow our brains and meet friends!" },
+            { name: "Park", q: "I have swings, green grass, and trees for climbing. Where am I?", learn: "We go here to exercise and enjoy nature!" },
+            { name: "Hospital", q: "Doctors work here to help you feel better when you are sick. Where am I?", learn: "We go here to stay healthy and strong!" },
+            { name: "Beach", q: "I have yellow sand and blue ocean water. Don't forget your towel! Where am I?", learn: "We go here to swim and learn about the sea!" },
+            { name: "Bank", q: "This is a safe place where people keep their money. Where am I?", learn: "We go here to save money for the future!" },
+            { name: "Movie Theatre", q: "I have a giant screen, popcorn, and lots of seats. Where am I?", learn: "We go here to watch stories and be good listeners!" },
+            { name: "Stadium", q: "I am a huge circle where athletes play big games. Where am I?", learn: "We go here to cheer for teams and learn about sports!" }
+        ];
+
+        // Setup Board
+        const boardUI = document.getElementById('board');
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.id = `c-${r}-${c}`;
+                cell.onclick = () => handleMove(c);
+                boardUI.appendChild(cell);
+            }
+        }
+
+        let currentPlace = {};
+
+        function askRiddle() {
+            currentPlace = cityPlaces[Math.floor(Math.random() * cityPlaces.length)];
+            document.getElementById('riddle-text').innerText = "RIDDLE: " + currentPlace.q;
+            document.getElementById('learning-text').innerText = "";
+            document.getElementById('riddle-btn').style.display = 'none';
+            document.getElementById('answer-btn').style.display = 'inline-block';
+            speak(currentPlace.q);
+        }
+
+        function unlockBoard() {
+            canPlay = true;
+            document.getElementById('riddle-text').innerText = "Correct! It's the " + currentPlace.name + "!";
+            document.getElementById('learning-text').innerText = "💡 " + currentPlace.learn;
+            document.getElementById('answer-btn').style.display = 'none';
+            speak(currentPlace.learn);
+        }
+
+        function handleMove(col) {
+            if (!canPlay) return;
+            for (let r = ROWS - 1; r >= 0; r--) {
+                if (boardArr[r][col] === 0) {
+                    boardArr[r][col] = currentPlayer;
+                    drawPiece(r, col);
+                    if (checkWin(r, col)) return showWin();
+                    nextTurn();
+                    break;
+                }
+            }
+        }
+
+        function drawPiece(r, col) {
+            const cell = document.getElementById(`c-${r}-${col}`);
+            cell.classList.add(currentPlayer === 1 ? 'red' : 'yellow');
+        }
+
+        function nextTurn() {
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            canPlay = false;
+            const turnDisplay = document.getElementById('turn-display');
+            turnDisplay.innerText = currentPlayer === 1 ? "🔴 Player 1's Turn" : "🟡 Player 2's Turn";
+            turnDisplay.className = `turn-box ${currentPlayer === 1 ? 'p1-turn' : 'p2-turn'}`;
+            document.getElementById('riddle-btn').style.display = 'inline-block';
+        }
+
+        function checkWin(r, c) {
+            const p = boardArr[r][c];
+            const check = (dr, dc) => {
+                let count = 1;
+                for (let i = 1; i < 4; i++) if (boardArr[r + dr * i]?.[c + dc * i] === p) count++; else break;
+                for (let i = 1; i < 4; i++) if (boardArr[r - dr * i]?.[c - dc * i] === p) count++; else break;
+                return count >= 4;
+            };
+            return check(0,1) || check(1,0) || check(1,1) || check(1,-1);
+        }
+
+        function showWin() {
+            document.getElementById('win-overlay').style.display = 'flex';
+            document.getElementById('win-text').innerText = `🏆 PLAYER ${currentPlayer} WINS!`;
+            speak(`Hooray! Player ${currentPlayer} wins the game!`);
+        }
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.rate = 0.9;
+            window.speechSynthesis.speak(msg);
+        }
+    </script>
+</body>
+</html>

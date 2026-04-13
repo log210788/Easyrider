@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESL Conversation Match</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1b2d;
+    --panel: #162236;
+    --q-bg: #1a3a5c;
+    --q-border: #2e6da4;
+    --a-bg: #1a4a2e;
+    --a-border: #2e9e5c;
+    --gold: #f5c842;
+    --teal: #38d9a9;
+    --coral: #ff6b6b;
+    --white: #f0f4ff;
+    --muted: #7a93b4;
+    --matched-bg: #0d2e1c;
+    --matched-border: #38d9a9;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 25%, rgba(46,109,164,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 75%, rgba(56,217,169,0.10) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 24px 20px 8px;
+  }
+  header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    color: var(--gold);
+    letter-spacing: 1px;
+    text-shadow: 0 0 28px rgba(245,200,66,0.4);
+  }
+  header p.eng {
+    font-size: 1rem;
+    color: var(--muted);
+    margin-top: 5px;
+    font-weight: 700;
+  }
+  header p.thai {
+    font-size: 0.95rem;
+    color: var(--teal);
+    margin-top: 3px;
+    font-weight: 700;
+    opacity: 0.85;
+  }
+
+  /* ── SCORE BAR ── */
+  .score-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 12px auto 0;
+    position: relative;
+    z-index: 1;
+    padding: 0 16px;
+  }
+  .score-chip {
+    background: var(--panel);
+    border: 2px solid var(--q-border);
+    border-radius: 50px;
+    padding: 6px 18px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: var(--gold);
+  }
+  .score-chip span { color: var(--white); }
+
+  .btn {
+    background: var(--gold);
+    color: var(--bg);
+    border: none;
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 16px rgba(245,200,66,0.3);
+    white-space: nowrap;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(245,200,66,0.5); }
+  .btn:active { transform: scale(0.97); }
+
+  /* Thai toggle button — outline style when OFF, filled teal when ON */
+  .btn-thai {
+    background: transparent;
+    color: var(--teal);
+    border: 2px solid var(--teal);
+    box-shadow: none;
+  }
+  .btn-thai:hover { background: rgba(56,217,169,0.1); box-shadow: none; transform: translateY(-2px); }
+  .btn-thai.on {
+    background: var(--teal);
+    color: var(--bg);
+    box-shadow: 0 4px 16px rgba(56,217,169,0.35);
+  }
+
+  /* ── TOPIC BAR ── */
+  .topic-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px 8px;
+    position: relative;
+    z-index: 1;
+  }
+  .topic-btn {
+    background: var(--panel);
+    border: 2px solid var(--q-border);
+    border-radius: 50px;
+    padding: 7px 18px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 0.9rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .topic-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .topic-btn.active { background: var(--gold); border-color: var(--gold); color: var(--bg); }
+
+  /* ── HINT ── */
+  .hint-bar {
+    text-align: center;
+    min-height: 26px;
+    font-size: 0.95rem;
+    color: var(--coral);
+    font-weight: 900;
+    position: relative;
+    z-index: 1;
+    padding: 4px 16px 2px;
+  }
+
+  /* ── GAME AREA ── */
+  .game-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 8px 20px 50px;
+  }
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+  .column-panel {
+    background: rgba(22, 34, 54, 0.55);
+    border-radius: 20px;
+    padding: 20px;
+    border: 1.5px solid rgba(46,109,164,0.3);
+  }
+  .column-panel.answers-panel { border-color: rgba(46,158,92,0.3); }
+
+  .section-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label.questions { color: var(--gold); }
+  .section-label.answers   { color: var(--teal); }
+
+  .tiles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+
+  /* ── TILE ── */
+  .tile {
+    border-radius: 14px;
+    padding: 16px 22px 16px 18px;
+    font-size: 1.08rem;
+    font-weight: 700;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s, background 0.18s, opacity 0.3s;
+    position: relative;
+    user-select: none;
+    min-height: 68px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+  }
+  .tile.question {
+    background: var(--q-bg);
+    border: 2.5px solid var(--q-border);
+    color: var(--white);
+  }
+  .tile.answer {
+    background: var(--a-bg);
+    border: 2.5px solid var(--a-border);
+    color: var(--white);
+  }
+  .tile:hover:not(.matched) {
+    transform: translateX(6px);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+  }
+  .tile.selected.question {
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 0 3px rgba(245,200,66,0.35), 0 6px 20px rgba(0,0,0,0.4);
+    transform: translateX(8px);
+    background: #1e4a72;
+  }
+  .tile.selected.answer {
+    border-color: var(--teal) !important;
+    box-shadow: 0 0 0 3px rgba(56,217,169,0.3), 0 6px 20px rgba(0,0,0,0.4);
+    transform: translateX(8px);
+    background: #1e5a36;
+  }
+  .tile.matched {
+    background: var(--matched-bg) !important;
+    border-color: var(--matched-border) !important;
+    cursor: default;
+    opacity: 0.5;
+  }
+  .tile.matched .tile-text { text-decoration: line-through; }
+  .tile.matched::after {
+    content: '✓';
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    color: var(--teal);
+    font-size: 1.2rem;
+    font-family: 'Fredoka One', cursive;
+  }
+  .tile.wrong {
+    animation: shake 0.4s ease;
+    border-color: var(--coral) !important;
+    box-shadow: 0 0 0 3px rgba(255,107,107,0.3) !important;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%  { transform: translateX(-10px); }
+    40%  { transform: translateX(10px); }
+    60%  { transform: translateX(-7px); }
+    80%  { transform: translateX(7px); }
+  }
+
+  .tile-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.2);
+    position: absolute;
+    top: 7px;
+    right: 10px;
+  }
+
+  /* ── THAI TRANSLATION ON TILE ── */
+  .tile-thai {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--teal);
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+    line-height: 1.4;
+    padding-top: 0;
+  }
+  /* When individual tile thai is ON, show it */
+  .tile.thai-revealed .tile-thai {
+    opacity: 0.9;
+    max-height: 60px;
+    padding-top: 3px;
+  }
+  /* Keep matched tiles dimmed */
+  .tile.matched .tile-thai { opacity: 0.4 !important; }
+
+  /* ── TILE THAI TOGGLE BUTTON ── */
+  .tile-thai-toggle {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: linear-gradient(135deg, rgba(56, 217, 169, 0.15), rgba(56, 217, 169, 0.25));
+    border: 1.5px solid rgba(56, 217, 169, 0.3);
+    border-radius: 8px;
+    padding: 3px 8px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--teal);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.7;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(56, 217, 169, 0.1);
+    z-index: 10;
+  }
+  .tile-thai-toggle:hover {
+    background: linear-gradient(135deg, rgba(56, 217, 169, 0.25), rgba(56, 217, 169, 0.35));
+    border-color: rgba(56, 217, 169, 0.5);
+    opacity: 1;
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(56, 217, 169, 0.2);
+  }
+  .tile-thai-toggle:active {
+    transform: translateY(0) scale(0.98);
+  }
+  .tile.thai-revealed .tile-thai-toggle {
+    background: linear-gradient(135deg, var(--teal), rgba(56, 217, 169, 0.8));
+    color: var(--bg);
+    border-color: var(--teal);
+    opacity: 1;
+    box-shadow: 0 4px 16px rgba(56, 217, 169, 0.4);
+  }
+  .tile.thai-revealed .tile-thai-toggle:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(56, 217, 169, 0.5);
+  }
+
+  /* Add subtle glow effect for revealed tiles */
+  .tile.thai-revealed {
+    box-shadow: 0 0 0 1px rgba(56, 217, 169, 0.2);
+  }
+  .tile.thai-revealed:hover {
+    box-shadow: 0 6px 24px rgba(0,0,0,0.45), 0 0 0 1px rgba(56, 217, 169, 0.3);
+  }
+
+  /* ── WIN OVERLAY ── */
+  .win-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .win-overlay.show { display: flex; }
+  .win-card {
+    background: var(--panel);
+    border: 3px solid var(--gold);
+    border-radius: 28px;
+    padding: 44px 52px;
+    text-align: center;
+    box-shadow: 0 0 80px rgba(245,200,66,0.3);
+    animation: popIn 0.45s cubic-bezier(0.34,1.56,0.64,1);
+    max-width: 420px;
+    width: 90%;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .win-emoji  { font-size: 4.5rem; margin-bottom: 12px; display: block; }
+  .win-title  { font-family: 'Fredoka One', cursive; font-size: 2.4rem; color: var(--gold); margin-bottom: 10px; }
+  .win-sub    { color: var(--muted); font-size: 1rem; margin-bottom: 28px; line-height: 1.5; }
+  .win-stars  { font-size: 2rem; margin-bottom: 14px; }
+
+  @media (max-width: 700px) {
+    .columns { grid-template-columns: 1fr; gap: 16px; }
+    .tile { font-size: 0.95rem; padding: 14px 14px; min-height: 58px; }
+    .column-panel { padding: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🗣️ Conversation Match</h1>
+  <p class="eng">Tap a sentence on the left — then tap its matching response on the right!</p>
+  <p class="thai">แตะประโยคทางซ้าย แล้วแตะคำตอบที่เข้าคู่กันทางขวา!</p>
+</header>
+
+<div class="score-bar">
+  <div class="score-chip">✅ Matches: <span id="matchCount">0</span> / <span id="totalCount">0</span></div>
+  <div class="score-chip">❌ Misses: <span id="missCount">0</span></div>
+  <button class="btn" onclick="shuffleAndReset()">🔀 New Round</button>
+  <button class="btn btn-thai" id="thaiToggle" onclick="toggleThai()">🇹🇭 Show Thai</button>
+</div>
+
+<div class="topic-bar" id="topicBar"></div>
+<div class="hint-bar" id="hintBar"></div>
+
+<div class="game-wrap">
+  <div class="columns">
+    <div class="column-panel">
+      <div class="section-label questions">💬 What they say…</div>
+      <div class="tiles-list" id="questionsGrid"></div>
+    </div>
+    <div class="column-panel answers-panel">
+      <div class="section-label answers">💡 Best response…</div>
+      <div class="tiles-list" id="answersGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="win-overlay" id="winOverlay">
+  <div class="win-card">
+    <span class="win-emoji">🎉</span>
+    <div class="win-stars" id="winStars">⭐⭐⭐</div>
+    <div class="win-title">Excellent!</div>
+    <div class="win-sub" id="winSub">You matched everything!</div>
+    <button class="btn" onclick="shuffleAndReset()">▶ Play Again</button>
+  </div>
+</div>
+
+<script>
+const TOPICS = {
+  "Small Talk": [
+    { q: "How are you today?",                                  qt: "วันนี้เป็นยังไงบ้าง?",                                           a: "I'm doing great, thanks for asking!",                   at: "ฉันสบายดีมาก ขอบคุณที่ถามนะ!" },
+    { q: "What do you do for work?",                            qt: "คุณทำงานอะไรอยู่?",                                             a: "I'm an English teacher — I love it!",                   at: "ฉันเป็นครูสอนภาษาอังกฤษ รักงานมากเลย!" },
+    { q: "Where are you from originally?",                      qt: "คุณมาจากไหนครับ/ค่ะ?",                                         a: "I'm from Thailand, but I live here now.",               at: "ฉันมาจากประเทศไทย แต่ตอนนี้อาศัยอยู่ที่นี่แล้ว" },
+    { q: "Do you have any plans for the weekend?",              qt: "สุดสัปดาห์นี้มีแผนอะไรไหม?",                                   a: "I'm thinking of visiting a friend.",                    at: "คิดจะไปเยี่ยมเพื่อนอยู่" },
+    { q: "Have you lived here long?",                           qt: "อยู่ที่นี่นานแล้วหรือเปล่า?",                                  a: "About three years now, actually.",                      at: "ประมาณสามปีแล้วนะ" },
+    { q: "What's your favourite thing to do after work?",       qt: "ชอบทำอะไรหลังเลิกงาน?",                                       a: "I love cooking and watching movies.",                   at: "ชอบทำอาหารและดูหนัง" },
+    { q: "Do you have any brothers or sisters?",                qt: "มีพี่น้องไหม?",                                                 a: "Yes, I have two younger sisters.",                      at: "มีค่ะ มีน้องสาวสองคน" },
+    { q: "What kind of music do you like?",                     qt: "ชอบฟังเพลงแนวไหน?",                                            a: "I'm really into pop and R&B these days.",               at: "ช่วงนี้ชอบเพลงป็อปกับ R&B มาก" },
+    { q: "Have you travelled much?",                            qt: "เคยเดินทางไปหลายที่ไหม?",                                      a: "Quite a bit — I've been to about ten countries.",       at: "ไปมาพอสมควร เคยไปประมาณสิบประเทศแล้ว" },
+    { q: "Are you a morning person or a night owl?",            qt: "ชอบตื่นเช้าหรือนอนดึก?",                                       a: "Definitely a night owl — I can't wake up early!",      at: "นอนดึกแน่นอน ตื่นเช้าไม่ค่อยไหว!" },
+  ],
+  "At a Restaurant": [
+    { q: "Are you ready to order?",                             qt: "พร้อมสั่งอาหารแล้วหรือยัง?",                                  a: "Yes please — I'll have the chicken salad.",             at: "พร้อมแล้วครับ ขอสลัดไก่เลย" },
+    { q: "Would you like anything to drink?",                   qt: "จะสั่งอะไรดื่มไหม?",                                           a: "Just water for now, thank you.",                        at: "แค่น้ำเปล่าก่อนนะ ขอบคุณ" },
+    { q: "How would you like your steak cooked?",               qt: "จะให้ทำสเต็กสุกแค่ไหนครับ?",                                  a: "Medium, please.",                                       at: "ขอสุกปานกลางนะ" },
+    { q: "Is everything okay with your meal?",                  qt: "อาหารโอเคไหมครับ/ค่ะ?",                                       a: "It's delicious, thank you!",                            at: "อร่อยมากเลย ขอบคุณนะ!" },
+    { q: "Can I get you the bill?",                             qt: "จะให้เรียกเก็บเงินไหม?",                                       a: "Yes, and could we split it please?",                    at: "ได้เลย แล้วช่วยแยกบิลได้ไหม?" },
+    { q: "Do you have any allergies I should know about?",      qt: "มีอาหารที่แพ้ไหมที่ควรจะรู้?",                                 a: "I'm allergic to peanuts, actually.",                    at: "จริงๆ แล้วแพ้ถั่วลิสง" },
+    { q: "Would you like to see the dessert menu?",             qt: "อยากดูเมนูของหวานไหม?",                                        a: "Why not — I'll take a quick look!",                     at: "งั้นก็ดูหน่อยก็ได้!" },
+    { q: "Is this your first time dining with us?",             qt: "มาทานที่นี่ครั้งแรกไหม?",                                      a: "Yes it is — a friend recommended this place.",          at: "ใช่ค่ะ เพื่อนแนะนำมา" },
+    { q: "Can I get you anything else?",                        qt: "จะสั่งอะไรเพิ่มอีกไหม?",                                       a: "No thank you, we're all good.",                         at: "ไม่ต้องแล้ว ขอบคุณนะ" },
+    { q: "How was everything this evening?",                    qt: "คืนนี้ทุกอย่างเป็นยังไงบ้าง?",                                 a: "Wonderful — we'll definitely be back!",                 at: "ดีมากเลย จะกลับมาอีกแน่นอน!" },
+  ],
+  "At Work": [
+    { q: "Can you finish this by Friday?",                      qt: "ทำเสร็จก่อนวันศุกร์ได้ไหม?",                                  a: "Sure, I'll get it done by Thursday to be safe.",        at: "ได้เลย จะทำให้เสร็จวันพฤหัสฯ เพื่อความแน่ใจ" },
+    { q: "I need to reschedule our meeting.",                   qt: "ต้องเลื่อนการประชุมของเรา",                                    a: "No problem — when works for you?",                      at: "ไม่เป็นไร แล้วสะดวกวันไหน?" },
+    { q: "Could you explain this part again?",                  qt: "ช่วยอธิบายส่วนนี้อีกทีได้ไหม?",                               a: "Of course! Let me break it down differently.",          at: "ได้เลย ลองอธิบายอีกแบบให้ฟัง" },
+    { q: "What do you think of the new project?",               qt: "คิดยังไงกับโปรเจกต์ใหม่?",                                     a: "I think it's a great opportunity for the team.",        at: "คิดว่าเป็นโอกาสที่ดีมากสำหรับทีม" },
+    { q: "I made a mistake in the report.",                     qt: "ฉันทำผิดพลาดในรายงาน",                                         a: "Don't worry — let's fix it together.",                  at: "ไม่เป็นไร มาแก้ไขด้วยกัน" },
+    { q: "Do you have a minute to chat?",                       qt: "มีเวลาคุยสักพักไหม?",                                          a: "Sure, what's on your mind?",                            at: "ได้เลย มีอะไรอยู่ในใจอยู่หรือ?" },
+    { q: "Can you cover for me this afternoon?",                qt: "บ่ายนี้ช่วยรับงานแทนฉันได้ไหม?",                              a: "Of course — I'll handle it.",                           at: "ได้เลย ฉันจัดการให้เอง" },
+    { q: "How's the presentation coming along?",                qt: "งานพรีเซนเทชันเป็นยังไงบ้าง?",                                 a: "Almost done — just polishing the last few slides.",     at: "เกือบเสร็จแล้ว แค่ปรับสไลด์สุดท้ายนิดหน่อย" },
+    { q: "We need to cut costs next quarter.",                  qt: "ไตรมาสหน้าต้องลดค่าใช้จ่าย",                                  a: "Understood. I'll look at where we can save.",           at: "เข้าใจแล้ว จะดูว่าสามารถประหยัดที่ไหนได้บ้าง" },
+    { q: "Great work on the client report!",                    qt: "ทำรายงานลูกค้าได้ดีมากเลย!",                                   a: "Thank you — I really put a lot into it.",               at: "ขอบคุณ ทุ่มเทกับมันมากเลย" },
+  ],
+  "Making Plans": [
+    { q: "Are you free this Saturday?",                         qt: "วันเสาร์นี้ว่างไหม?",                                          a: "I should be — what did you have in mind?",              at: "น่าจะว่างนะ มีอะไรคิดไว้อยู่?" },
+    { q: "Do you want to grab lunch sometime?",                 qt: "ว่างไปกินข้าวกลางวันด้วยกันบ้างไหม?",                          a: "That sounds great! How about Tuesday?",                 at: "ฟังดูดีมาก แล้ววันอังคารล่ะ?" },
+    { q: "What time should we meet?",                           qt: "จะนัดกันกี่โมงดี?",                                             a: "How about 2 o'clock at the café?",                      at: "บ่ายสองที่คาเฟ่เป็นยังไง?" },
+    { q: "Should I bring anything?",                            qt: "ต้องเอาอะไรไปด้วยไหม?",                                        a: "Just yourself — we've got everything covered!",         at: "แค่ตัวคุณคนเดียวพอ เราจัดเตรียมไว้ให้หมดแล้ว!" },
+    { q: "I might be a little late.",                           qt: "ฉันอาจจะมาสายนิดหน่อย",                                        a: "That's fine, just text me when you're on your way.",    at: "ไม่เป็นไร แค่ส่งข้อความบอกตอนออกจากบ้านนะ" },
+    { q: "Can we change the plan a bit?",                       qt: "ขอเปลี่ยนแผนนิดหน่อยได้ไหม?",                                  a: "Of course — what would work better for you?",           at: "ได้เลย แล้วแบบไหนจะสะดวกกว่าสำหรับคุณ?" },
+    { q: "Where should we go for dinner?",                      qt: "เราจะไปกินข้าวเย็นที่ไหนดี?",                                  a: "How about that new Thai place downtown?",               at: "ร้านไทยใหม่ในตัวเมืองเป็นยังไง?" },
+    { q: "Do you want to invite anyone else?",                  qt: "จะชวนคนอื่นไปด้วยไหม?",                                        a: "Sure — let's ask Mei and Tom as well.",                 at: "ได้เลย ชวน เหมย กับ ทอม ด้วยเลย" },
+    { q: "What if the weather is bad?",                         qt: "ถ้าอากาศไม่ดีล่ะ?",                                             a: "We can always move it indoors — no problem.",           at: "เราย้ายไปข้างในได้เสมอ ไม่เป็นไรหรอก" },
+    { q: "Are we still on for tomorrow?",                       qt: "พรุ่งนี้ยังไปตามนัดใช่ไหม?",                                   a: "Absolutely — looking forward to it!",                   at: "แน่นอน รอคอยอยู่เลย!" },
+  ],
+  "Opinions": [
+    { q: "What do you think about online learning?",            qt: "คิดยังไงกับการเรียนออนไลน์?",                                  a: "I think it's very convenient if you're disciplined.",   at: "คิดว่าสะดวกมากถ้ามีวินัยพอ" },
+    { q: "Do you prefer working from home or the office?",      qt: "ชอบทำงานที่บ้านหรือที่ออฟฟิศมากกว่า?",                        a: "I like working from home — it's easier to focus.",      at: "ชอบทำงานที่บ้าน มีสมาธิกว่า" },
+    { q: "What's your opinion on social media?",                qt: "คิดเห็นยังไงกับโซเชียลมีเดีย?",                                a: "It's useful, but I try not to use it too much.",        at: "มีประโยชน์ แต่พยายามไม่ใช้มากเกินไป" },
+    { q: "Don't you think learning English is hard?",           qt: "คิดว่าการเรียนภาษาอังกฤษยากไหม?",                              a: "It can be, but it gets easier with practice.",          at: "อาจยาก แต่ยิ่งฝึกยิ่งง่ายขึ้น" },
+    { q: "How do you feel about living abroad?",                qt: "รู้สึกยังไงกับการใช้ชีวิตในต่างประเทศ?",                       a: "It's challenging but really rewarding.",                at: "ท้าทายแต่คุ้มค่ามากเลย" },
+    { q: "What do you think is the best way to learn English?", qt: "คิดว่าวิธีเรียนภาษาอังกฤษที่ดีที่สุดคืออะไร?",                a: "Speaking with real people every day, for sure!",        at: "พูดกับคนจริงๆ ทุกวัน แน่นอนเลย!" },
+    { q: "Are you worried about the future?",                   qt: "กังวลเรื่องอนาคตไหม?",                                         a: "A little, but I try to stay positive and plan ahead.",  at: "นิดหน่อย แต่พยายามคิดบวกและวางแผนไว้ล่วงหน้า" },
+    { q: "What makes you feel most motivated?",                 qt: "อะไรทำให้คุณรู้สึกมีแรงบันดาลใจมากที่สุด?",                   a: "Seeing real progress — even small wins help a lot.",    at: "การเห็นความก้าวหน้าจริงๆ แม้แต่ชัยชนะเล็กๆ ก็ช่วยได้มาก" },
+    { q: "Do you think travel changes a person?",               qt: "คิดว่าการท่องเที่ยวเปลี่ยนคนได้ไหม?",                          a: "Absolutely — it opens your mind to new perspectives.",  at: "แน่นอน มันเปิดใจให้เห็นมุมมองใหม่ๆ" },
+    { q: "How do you handle stressful situations?",             qt: "จัดการกับสถานการณ์ที่กดดันยังไง?",                             a: "I take deep breaths and focus on one thing at a time.", at: "หายใจลึกๆ แล้วโฟกัสทีละอย่าง" },
+  ],
+  "Apologising": [
+    { q: "I'm so sorry I'm late!",                              qt: "ขอโทษมากที่มาสาย!",                                            a: "No worries at all — I just arrived myself.",            at: "ไม่เป็นไรเลย ฉันก็เพิ่งมาเองเหมือนกัน" },
+    { q: "Could you speak a little more slowly, please?",       qt: "ช่วยพูดช้าลงนิดได้ไหม?",                                       a: "Of course! Sorry about that — is this better?",         at: "ได้เลย ขอโทษด้วยนะ แบบนี้ดีขึ้นไหม?" },
+    { q: "I'm sorry, I didn't catch your name.",                qt: "ขอโทษ ฉันไม่ได้ยินชื่อคุณ",                                   a: "No problem — I'm Lewis. Nice to meet you!",             at: "ไม่เป็นไร ฉันชื่อลูอิส ยินดีที่ได้รู้จัก!" },
+    { q: "Do you mind if I open the window?",                   qt: "ไม่ว่าอะไรถ้าจะเปิดหน้าต่างนะ?",                              a: "Not at all — please go ahead.",                         at: "ไม่ว่าเลย เชิญเลย" },
+    { q: "Would you mind waiting a moment?",                    qt: "ช่วยรอสักครู่ได้ไหม?",                                         a: "Sure, take your time — no rush.",                       at: "ได้เลย ไม่รีบหรอก" },
+    { q: "I accidentally sent you the wrong file.",             qt: "ฉันส่งไฟล์ผิดให้คุณโดยไม่ตั้งใจ",                             a: "That's okay — just send the right one when you can.",   at: "ไม่เป็นไร ส่งไฟล์ที่ถูกมาตอนสะดวกได้เลย" },
+    { q: "I'm afraid I can't make it tonight.",                 qt: "เสียใจด้วย คืนนี้ไปไม่ได้แล้ว",                               a: "That's a shame! We'll catch up another time.",          at: "เสียดายจัง ไว้คราวหน้านะ" },
+    { q: "Could I borrow your pen for a second?",               qt: "ขอยืมปากกาสักครู่ได้ไหม?",                                     a: "Of course — here you go!",                              at: "ได้เลย นี่เลย!" },
+    { q: "Sorry, is this seat taken?",                          qt: "ขอโทษนะ ที่นั่งนี้มีคนนั่งไหม?",                              a: "No, it's free — please sit down.",                      at: "ว่างอยู่ นั่งได้เลย" },
+    { q: "I hope I'm not bothering you.",                       qt: "หวังว่าจะไม่รบกวนนะ",                                          a: "Not at all — what can I do for you?",                   at: "ไม่รบกวนเลย มีอะไรให้ช่วยไหม?" },
+  ],
+};
+
+let currentTopic = "Small Talk";
+let selectedQ = null;
+let selectedA = null;
+let matchCount = 0;
+let missCount = 0;
+let pairs = [];
+let thaiOn = false;
+
+function toggleThai() {
+  thaiOn = !thaiOn;
+  document.body.classList.toggle('thai-on', thaiOn);
+  const btn = document.getElementById('thaiToggle');
+  btn.classList.toggle('on', thaiOn);
+  btn.textContent = thaiOn ? '🇹🇭 Hide Thai' : '🇹🇭 Show Thai';
+}
+
+function toggleTileThai(event, button) {
+  event.stopPropagation();
+  const tile = button.closest('.tile');
+  tile.classList.toggle('thai-revealed');
+  button.textContent = tile.classList.contains('thai-revealed') ? '🇹🇭✓' : '🇹🇭';
+}
+
+function buildTopicBar() {
+  const bar = document.getElementById('topicBar');
+  bar.innerHTML = '';
+  Object.keys(TOPICS).forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'topic-btn' + (t === currentTopic ? ' active' : '');
+    b.textContent = t;
+    b.onclick = () => { currentTopic = t; buildTopicBar(); shuffleAndReset(); };
+    bar.appendChild(b);
+  });
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function shuffleAndReset() {
+  selectedQ = null;
+  selectedA = null;
+  matchCount = 0;
+  missCount = 0;
+  document.getElementById('matchCount').textContent = 0;
+  document.getElementById('missCount').textContent = 0;
+  document.getElementById('winOverlay').classList.remove('show');
+  document.getElementById('hintBar').textContent = '';
+
+  pairs = TOPICS[currentTopic];
+  document.getElementById('totalCount').textContent = pairs.length;
+
+  const qOrder = shuffle(pairs.map((_, i) => i));
+  const aOrder = shuffle(pairs.map((_, i) => i));
+
+  buildGrid('questionsGrid', qOrder, 'question');
+  buildGrid('answersGrid',   aOrder, 'answer');
+}
+
+function buildGrid(id, order, type) {
+  const grid = document.getElementById(id);
+  grid.innerHTML = '';
+  order.forEach((pairIdx, pos) => {
+    const tile = document.createElement('div');
+    tile.className = `tile ${type}`;
+    tile.dataset.idx = pairIdx;
+    const engText = type === 'question' ? pairs[pairIdx].q : pairs[pairIdx].a;
+    const thaiText = type === 'question' ? pairs[pairIdx].qt : pairs[pairIdx].at;
+    tile.innerHTML = `
+      <span class="tile-num">${pos + 1}</span>
+      <button class="tile-thai-toggle" onclick="toggleTileThai(event, this)">🇹🇭</button>
+      <span class="tile-text">${engText}</span>
+      <span class="tile-thai">${thaiText}</span>
+    `;
+    tile.onclick = (e) => {
+      if (!e.target.classList.contains('tile-thai-toggle')) {
+        onTileClick(tile, type, pairIdx);
+      }
+    };
+    grid.appendChild(tile);
+  });
+}
+
+function onTileClick(tile, type, idx) {
+  if (tile.classList.contains('matched')) return;
+  if (type === 'question') {
+    if (selectedQ) selectedQ.tile.classList.remove('selected');
+    selectedQ = { tile, idx };
+    tile.classList.add('selected');
+  } else {
+    if (selectedA) selectedA.tile.classList.remove('selected');
+    selectedA = { tile, idx };
+    tile.classList.add('selected');
+  }
+  if (selectedQ && selectedA) checkMatch();
+}
+
+function checkMatch() {
+  const { tile: qTile, idx: qIdx } = selectedQ;
+  const { tile: aTile, idx: aIdx } = selectedA;
+
+  if (qIdx === aIdx) {
+    qTile.classList.remove('selected');
+    aTile.classList.remove('selected');
+    qTile.classList.add('matched');
+    aTile.classList.add('matched');
+    matchCount++;
+    document.getElementById('matchCount').textContent = matchCount;
+    document.getElementById('hintBar').textContent = '';
+    selectedQ = null;
+    selectedA = null;
+
+    if (matchCount === pairs.length) {
+      setTimeout(() => {
+        const stars = missCount === 0 ? '⭐⭐⭐' : missCount <= 3 ? '⭐⭐' : '⭐';
+        document.getElementById('winStars').textContent = stars;
+        document.getElementById('winSub').textContent =
+          `All ${pairs.length} pairs matched with ${missCount} mistake${missCount !== 1 ? 's' : ''}. ${missCount === 0 ? 'Perfect score! 🥳' : 'Great effort — keep practising!'}`;
+        document.getElementById('winOverlay').classList.add('show');
+      }, 400);
+    }
+  } else {
+    missCount++;
+    document.getElementById('missCount').textContent = missCount;
+    qTile.classList.add('wrong');
+    aTile.classList.add('wrong');
+    const hints = [
+      "Not quite — think about the context! 🤔",
+      "Those don't match — keep going!",
+      "Try again — you're getting closer! 💪",
+      "Hmm, not right. What would feel natural to say?",
+      "Nearly! Read both tiles carefully.",
+    ];
+    document.getElementById('hintBar').textContent = hints[Math.floor(Math.random() * hints.length)];
+    setTimeout(() => {
+      qTile.classList.remove('wrong', 'selected');
+      aTile.classList.remove('wrong', 'selected');
+      selectedQ = null;
+      selectedA = null;
+    }, 750);
+  }
+}
+
+buildTopicBar();
+shuffleAndReset();
+</script>
+</body>
+</html>

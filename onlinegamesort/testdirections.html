@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Directions Adventure! 🧭 การผจญภัย!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #5BC8F5; --sun: #FFD93D; --grass: #6BCB77; --earth: #4D9A5A;
+    --red: #FF6B6B; --orange: #FF9F43; --purple: #A29BFE; --dark: #2D3436;
+    --card-bg: rgba(255,255,255,0.95);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(180deg, var(--sky) 0%, #A8E6CF 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  #app { max-width: 800px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* HEADER */
+  .header { text-align: center; color: white; margin-bottom: 20px; }
+  .header h1 { font-family: 'Fredoka One'; font-size: 2.5rem; text-shadow: 2px 2px 0 rgba(0,0,0,0.1); }
+
+  /* TABS */
+  .tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab-btn {
+    background: rgba(255,255,255,0.3); border: 2px solid white; border-radius: 50px;
+    padding: 8px 16px; font-family: 'Fredoka One'; color: white; cursor: pointer;
+  }
+  .tab-btn.active { background: white; color: var(--sky); transform: scale(1.1); }
+
+  /* SECTIONS */
+  .section { display: none; animation: fadeIn 0.5s; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* LEARN CARDS */
+  .direction-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+  .dir-card {
+    background: var(--card-bg); border-radius: 20px; padding: 20px; text-align: center;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1); cursor: pointer; transition: 0.2s;
+    border-bottom: 5px solid var(--c);
+  }
+  .dir-card:hover { transform: translateY(-5px); }
+  .dir-card .arrow { font-size: 3rem; display: block; }
+  .dir-card .en { font-family: 'Fredoka One'; font-size: 1.2rem; color: var(--c); }
+  .dir-card .th { font-size: 1rem; color: #636e72; font-weight: 700; }
+
+  /* MAZE STYLES */
+  .maze-grid { 
+    display: grid; gap: 4px; background: #2d3436; padding: 8px; 
+    border-radius: 15px; margin: 20px auto; width: fit-content;
+  }
+  .cell { 
+    width: 50px; height: 50px; background: white; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+  }
+  .cell.wall { background: #636e72; color: #2d3436; }
+  .cell.robot { background: #e8f5ff; }
+  .cell.goal { background: #fff9db; }
+
+  .controls { display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; justify-content: center; margin-top: 20px; }
+  .btn-move { 
+    height: 60px; border: none; border-radius: 15px; font-size: 1.5rem; 
+    color: white; cursor: pointer; font-family: 'Fredoka One';
+  }
+  .up { background: var(--red); grid-column: 2; }
+  .left { background: var(--sky); grid-column: 1; }
+  .right { background: var(--purple); grid-column: 3; }
+  .down { background: var(--grass); grid-column: 2; }
+
+  /* UI ELEMENTS */
+  .box { background: var(--card-bg); padding: 20px; border-radius: 24px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+  .feedback { font-family: 'Fredoka One'; font-size: 1.5rem; margin-top: 15px; height: 30px; }
+  .score { font-family: 'Fredoka One'; color: var(--earth); margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="header">
+    <h1>🧭 Directions!</h1>
+    <p>Let's go! / ไปกันเลย!</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showSection('learn')">📖 Learn (เรียน)</button>
+    <button class="tab-btn" onclick="showSection('game-maze')">🤖 Robot (หุ่นยนต์)</button>
+    <button class="tab-btn" onclick="showSection('game-quiz')">🎯 Quiz (ทาย)</button>
+  </div>
+
+  <div id="learn" class="section active">
+    <div class="box" style="margin-bottom:20px;">
+      <h2>Click to Listen! (คลิกเพื่อฟัง)</h2>
+    </div>
+    <div class="direction-grid">
+      <div class="dir-card" style="--c:var(--red)" onclick="speak('Up')"><span class="arrow">⬆️</span><div class="en">UP</div><div class="th">ขึ้น</div></div>
+      <div class="dir-card" style="--c:var(--grass)" onclick="speak('Down')"><span class="arrow">⬇️</span><div class="en">DOWN</div><div class="th">ลง</div></div>
+      <div class="dir-card" style="--c:var(--sky)" onclick="speak('Left')"><span class="arrow">⬅️</span><div class="en">LEFT</div><div class="th">ซ้าย</div></div>
+      <div class="dir-card" style="--c:var(--purple)" onclick="speak('Right')"><span class="arrow">➡️</span><div class="en">RIGHT</div><div class="th">ขวา</div></div>
+    </div>
+  </div>
+
+  <div id="game-maze" class="section">
+    <div class="box">
+      <div class="score">⭐ Level: <span id="lvl">1</span></div>
+      <p>Help the robot to the star! (พาหุ่นยนต์ไปหาดาว!)</p>
+      <div id="maze" class="maze-grid"></div>
+      <div class="controls">
+        <button class="btn-move up" onclick="move(0, -1)">⬆️</button>
+        <button class="btn-move left" onclick="move(-1, 0)">⬅️</button>
+        <button class="btn-move right" onclick="move(1, 0)">➡️</button>
+        <button class="btn-move down" onclick="move(0, 1)">⬇️</button>
+      </div>
+      <div id="maze-feedback" class="feedback"></div>
+    </div>
+  </div>
+
+  <div id="game-quiz" class="section">
+    <div class="box">
+      <h2>Listen & Pick!</h2>
+      <button onclick="playQuizSound()" style="padding:15px; margin:20px; border-radius:15px; border:none; background:var(--sky); color:white; font-family:'Fredoka One'; cursor:pointer;">🔊 Push to Hear</button>
+      <div class="direction-grid" id="quiz-options"></div>
+      <div id="quiz-feedback" class="feedback"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // SHARED
+  function speak(text) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = 0.8;
+    window.speechSynthesis.speak(u);
+  }
+
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+    if(id === 'game-maze') initMaze();
+    if(id === 'game-quiz') initQuiz();
+  }
+
+  // MAZE LOGIC
+  let robotPos = {x:0, y:0};
+  let goalPos = {x:4, y:4};
+  const walls = ["1,1", "1,2", "3,1", "2,3", "0,3"];
+
+  function initMaze() {
+    robotPos = {x:0, y:0};
+    renderMaze();
+  }
+
+  function renderMaze() {
+    const maze = document.getElementById('maze');
+    maze.style.gridTemplateColumns = "repeat(5, 50px)";
+    maze.innerHTML = "";
+    for(let y=0; y<5; y++) {
+      for(let x=0; x<5; x++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        if(x===robotPos.x && y===robotPos.y) { cell.textContent = "🤖"; cell.classList.add('robot'); }
+        else if(x===goalPos.x && y===goalPos.y) { cell.textContent = "⭐"; cell.classList.add('goal'); }
+        else if(walls.includes(`${x},${y}`)) { cell.textContent = "🧱"; cell.classList.add('wall'); }
+        maze.appendChild(cell);
+      }
+    }
+  }
+
+  function move(dx, dy) {
+    let nx = robotPos.x + dx;
+    let ny = robotPos.y + dy;
+    if(nx >=0 && nx < 5 && ny >= 0 && ny < 5 && !walls.includes(`${nx},${ny}`)) {
+      robotPos = {x:nx, y:ny};
+      const dir = dx === 1 ? 'Right' : dx === -1 ? 'Left' : dy === 1 ? 'Down' : 'Up';
+      speak(dir);
+      renderMaze();
+      if(nx === goalPos.x && ny === goalPos.y) {
+        document.getElementById('maze-feedback').innerHTML = "🎉 YAY! You did it! (เก่งมาก!)";
+        speak("You found the star!");
+        setTimeout(initMaze, 2000);
+      }
+    }
+  }
+
+  // QUIZ LOGIC
+  let currentWord = "";
+  const words = [
+    {en: "Up", th: "ขึ้น", emoji: "⬆️"},
+    {en: "Down", th: "ลง", emoji: "⬇️"},
+    {en: "Left", th: "ซ้าย", emoji: "⬅️"},
+    {en: "Right", th: "ขวา", emoji: "➡️"}
+  ];
+
+  function initQuiz() {
+    const options = document.getElementById('quiz-options');
+    options.innerHTML = "";
+    document.getElementById('quiz-feedback').textContent = "";
+    currentWord = words[Math.floor(Math.random()*words.length)];
+    
+    words.forEach(w => {
+      const btn = document.createElement('div');
+      btn.className = "dir-card";
+      btn.style.setProperty('--c', 'var(--sky)');
+      btn.innerHTML = `<span class="arrow">${w.emoji}</span>`;
+      btn.onclick = () => {
+        if(w.en === currentWord.en) {
+          document.getElementById('quiz-feedback').innerHTML = "⭐ Correct! (ถูกต้อง!)";
+          speak("Correct!");
+          setTimeout(initQuiz, 1500);
+        } else {
+          document.getElementById('quiz-feedback').innerHTML = "❌ Try again!";
+        }
+      };
+      options.appendChild(btn);
+    });
+    playQuizSound();
+  }
+
+  function playQuizSound() { speak(currentWord.en); }
+</script>
+
+</body>
+</html>

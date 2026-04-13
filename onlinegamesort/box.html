@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESL Live — Dots & Boxes</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito', sans-serif; background: #1a0533; }
+  .screen { position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .screen.hidden { display: none; }
+  .head-bubble { position: fixed; top: 58px; right: 14px; width: 96px; height: 96px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 3px solid rgba(255,255,255,0.35); z-index: 999; outline: 3px dashed rgba(180,100,255,0.35); outline-offset: 4px; }
+  .top-bar { background: #111; padding: 11px 18px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; padding-right: 128px; }
+  .top-bar-title { color: white; font-size: 16px; font-weight: 800; }
+  .live-badge { background: #ff3b5c; color: white; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 5px; }
+  .tiktok-bottom { background: #111; padding: 8px 20px 12px; display: flex; justify-content: space-around; align-items: center; flex-shrink: 0; }
+  .tb-icon { color: #ffffff44; font-size: 20px; }
+  @keyframes popIn { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+  @keyframes bounce { from{transform:scale(0.2)} to{transform:scale(1)} }
+  @keyframes wiggle { 0%,100%{transform:rotate(-1deg) scale(1)} 25%{transform:rotate(1deg) scale(1.02)} 50%{transform:rotate(-0.5deg) scale(1.03)} 75%{transform:rotate(1deg) scale(1.01)} }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+  /* SETUP */
+  #screenSetup { background: linear-gradient(170deg,#1a0533 0%,#0d1b4a 100%); }
+  .setup-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px; gap:16px; width:100%; }
+  .setup-title { color:white; font-size:24px; font-weight:900; text-align:center; }
+  .setup-sub { color:rgba(255,255,255,0.5); font-size:13px; font-weight:700; text-align:center; }
+  .player-card { background:rgba(255,255,255,0.07); border:2px solid rgba(255,255,255,0.15); border-radius:18px; padding:14px; width:100%; }
+  .player-card-title { color:rgba(255,255,255,0.5); font-size:11px; font-weight:900; letter-spacing:2px; margin-bottom:9px; }
+  .player-name-row { display:flex; align-items:center; gap:10px; }
+  .player-emoji-lbl { font-size:30px; }
+  .name-input { flex:1; background:rgba(255,255,255,0.1); border:2px solid rgba(255,255,255,0.2); border-radius:11px; padding:9px 12px; color:white; font-family:'Nunito',sans-serif; font-size:17px; font-weight:800; outline:none; }
+  .name-input::placeholder { color:rgba(255,255,255,0.3); }
+  .color-row { display:flex; gap:7px; margin-top:9px; }
+  .color-dot { width:26px; height:26px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:transform 0.15s; }
+  .color-dot.selected { border-color:white; transform:scale(1.18); }
+  .big-btn { width:100%; padding:16px; border-radius:18px; border:none; font-family:'Nunito',sans-serif; font-size:20px; font-weight:900; cursor:pointer; transition:transform 0.1s; }
+  .big-btn:active { transform:scale(0.96); }
+  .btn-green { background:#22c55e; color:white; box-shadow:0 5px 0 #15803d; }
+  .btn-red { background:#ef4444; color:white; box-shadow:0 5px 0 #b91c1c; }
+  .btn-purple { background:#7c3aed; color:white; box-shadow:0 5px 0 #5b21b6; }
+
+  /* SPIN */
+  #screenSpin { background: linear-gradient(170deg,#1a0533 0%,#0d1b4a 100%); }
+  .spin-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px; gap:14px; }
+  .scoreboard-mini { display:flex; gap:10px; width:100%; }
+  .mini-card { flex:1; border-radius:14px; padding:9px 10px; text-align:center; border:2px solid rgba(255,255,255,0.2); }
+  .mini-name { font-size:12px; font-weight:900; color:rgba(255,255,255,0.8); margin-bottom:2px; }
+  .mini-val { font-size:26px; font-weight:900; color:white; }
+  .mini-lbl { font-size:10px; font-weight:700; color:rgba(255,255,255,0.4); }
+  .turn-banner { border-radius:18px; padding:11px 18px; text-align:center; font-size:17px; font-weight:900; width:100%; }
+  .slot-machine { background:white; border-radius:22px; width:100%; padding:18px; text-align:center; box-shadow:0 8px 40px rgba(108,63,197,0.35); }
+  .slot-label { font-size:11px; font-weight:900; color:#c026d3; letter-spacing:2px; margin-bottom:9px; }
+  .slot-display { font-size:52px; min-height:64px; display:flex; align-items:center; justify-content:center; }
+  .slot-name { font-size:19px; font-weight:900; color:#2d1b6e; min-height:26px; margin-top:3px; }
+  .spin-btn { width:100%; margin-top:12px; padding:15px; border-radius:16px; border:none; font-family:'Nunito',sans-serif; font-size:19px; font-weight:900; cursor:pointer; background:#ff3b5c; color:white; box-shadow:0 5px 0 #c41230; }
+  .spin-btn:disabled { background:#aaa; box-shadow:0 3px 0 #888; cursor:default; }
+  .go-talk-btn { width:100%; padding:15px; border-radius:16px; border:none; font-family:'Nunito',sans-serif; font-size:19px; font-weight:900; cursor:pointer; background:#22c55e; color:white; box-shadow:0 5px 0 #15803d; display:none; margin-top:10px; animation:popIn 0.4s cubic-bezier(.34,1.56,.64,1); }
+  .go-talk-btn.visible { display:block; }
+
+  /* TALK */
+  #screenTalk { background: linear-gradient(170deg,#1a0533 0%,#0d1b4a 100%); }
+  .talk-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px; gap:14px; }
+  .talk-player-banner { border-radius:18px; padding:12px 18px; text-align:center; font-size:18px; font-weight:900; width:100%; }
+  .talk-topic-card { background:white; border-radius:22px; width:100%; padding:20px; text-align:center; box-shadow:0 8px 30px rgba(108,63,197,0.25); }
+  .talk-topic-emoji { font-size:56px; margin-bottom:8px; }
+  .talk-topic-name { font-size:24px; font-weight:900; color:#2d1b6e; margin-bottom:6px; }
+  .talk-topic-prompt { font-size:14px; font-weight:700; color:#9b6fc4; line-height:1.5; }
+  .countdown-wrap { position:relative; width:120px; height:120px; flex-shrink:0; display:none; }
+  .countdown-svg { width:120px; height:120px; transform:rotate(-90deg); }
+  .countdown-bg { fill:none; stroke:rgba(255,255,255,0.1); stroke-width:8; }
+  .countdown-fill { fill:none; stroke:#22c55e; stroke-width:8; stroke-linecap:round; stroke-dasharray:276.46; stroke-dashoffset:0; transition:stroke-dashoffset 1s linear, stroke 0.5s; }
+  .countdown-num { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:36px; font-weight:900; color:white; }
+  .judge-row { display:flex; gap:12px; width:100%; }
+  .judge-row.hidden { display:none; }
+  .judge-btn { flex:1; padding:18px 8px; border-radius:20px; border:none; font-family:'Nunito',sans-serif; font-size:16px; font-weight:900; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:5px; }
+  .judge-btn .j-emoji { font-size:36px; }
+  .judge-btn:active { transform:scale(0.94); }
+  .judge-pass { background:#22c55e; color:white; box-shadow:0 5px 0 #15803d; }
+  .judge-fail { background:#6b7280; color:white; box-shadow:0 4px 0 #4b5563; }
+  .start-talking-btn { width:100%; padding:16px; border-radius:18px; border:none; font-family:'Nunito',sans-serif; font-size:20px; font-weight:900; cursor:pointer; background:#ff3b5c; color:white; box-shadow:0 5px 0 #c41230; animation:wiggle 0.9s ease-in-out infinite; }
+  .start-talking-btn:active { animation:none; transform:scale(0.96); }
+
+  /* BOARD */
+  #screenBoard { background: linear-gradient(170deg,#1a0533 0%,#0d1b4a 100%); }
+  .board-top { padding:8px 14px 0; flex-shrink:0; }
+  .board-scores { display:flex; gap:10px; margin-bottom:6px; }
+  .bs-card { flex:1; border-radius:13px; padding:7px 10px; text-align:center; border:2px solid rgba(255,255,255,0.2); }
+  .bs-name { font-size:11px; font-weight:900; color:rgba(255,255,255,0.8); }
+  .bs-score { font-size:20px; font-weight:900; color:white; }
+  .bs-lbl { font-size:9px; color:rgba(255,255,255,0.4); font-weight:700; }
+  .board-turn-lbl { border-radius:12px; padding:7px 12px; text-align:center; font-size:13px; font-weight:900; margin-bottom:4px; }
+  .board-info-lbl { font-size:12px; font-weight:800; color:rgba(255,255,255,0.5); text-align:center; margin-bottom:4px; }
+  .board-wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:2px 8px; min-height:0; }
+  #boardSvg { width:100%; height:100%; }
+  .board-btn-area { padding:8px 14px 10px; flex-shrink:0; display:flex; gap:10px; }
+  .line-pick-wrap { display:flex; gap:8px; align-items:center; width:100%; }
+  .line-num-input { flex:1; background:rgba(255,255,255,0.12); border:2.5px solid rgba(255,255,255,0.3); border-radius:12px; padding:12px; color:white; font-family:'Nunito',sans-serif; font-size:22px; font-weight:900; outline:none; text-align:center; }
+  .line-num-input::placeholder { color:rgba(255,255,255,0.3); font-size:16px; }
+  .place-btn { padding:12px 18px; border-radius:12px; border:none; font-family:'Nunito',sans-serif; font-size:16px; font-weight:900; cursor:pointer; background:#f59e0b; color:white; box-shadow:0 4px 0 #b45309; white-space:nowrap; }
+  .place-btn:active { transform:scale(0.95); }
+  .place-btn:disabled { background:#666; box-shadow:none; cursor:default; }
+
+  /* RATING */
+  #screenRate { background:linear-gradient(170deg,#1a0533 0%,#0d1b4a 100%); }
+  .rate-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px; gap:12px; width:100%; }
+  .rate-title { color:white; font-size:22px; font-weight:900; text-align:center; }
+  .final-scores { display:flex; gap:10px; width:100%; }
+  .fs-card { flex:1; border-radius:16px; padding:13px; text-align:center; border:2.5px solid rgba(255,255,255,0.2); }
+  .fs-name { font-size:13px; font-weight:900; color:rgba(255,255,255,0.8); margin-bottom:3px; }
+  .fs-score { font-size:34px; font-weight:900; }
+  .fs-lbl { font-size:10px; color:rgba(255,255,255,0.45); font-weight:700; }
+  .winner-card { border-radius:22px; padding:18px; text-align:center; width:100%; }
+  .winner-emoji-lbl { font-size:50px; animation:bounce 0.5s cubic-bezier(.34,1.56,.64,1); }
+  .winner-name { font-size:24px; font-weight:900; margin-top:5px; }
+  .winner-sub { font-size:13px; font-weight:800; opacity:0.75; }
+  .rate-q { color:rgba(255,255,255,0.6); font-size:14px; font-weight:800; text-align:center; }
+  .thumbs-row { display:flex; gap:14px; width:100%; }
+  .thumb-btn { flex:1; padding:16px 8px; border-radius:18px; border:2.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.07); font-size:38px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .thumb-btn span { font-family:'Nunito',sans-serif; font-size:12px; font-weight:900; color:rgba(255,255,255,0.6); }
+  .thumb-btn.picked-up { background:rgba(34,197,94,0.25); border-color:#22c55e; }
+  .thumb-btn.picked-down { background:rgba(239,68,68,0.25); border-color:#ef4444; }
+  .rate-result { font-size:17px; font-weight:900; color:white; text-align:center; min-height:24px; }
+
+  .confetti-container { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:500; }
+  .confetti-piece { position:absolute; top:-10px; animation:fall linear forwards; }
+</style>
+</head>
+<body>
+<div class="confetti-container" id="confetti"></div>
+<div class="head-bubble"></div>
+
+<!-- SETUP -->
+<div class="screen" id="screenSetup">
+  <div class="top-bar"><div class="top-bar-title">⭐ ESL Dots &amp; Boxes</div><div class="live-badge">LIVE</div></div>
+  <div class="setup-body">
+    <div class="setup-title">🎮 2 Player Setup</div>
+    <div class="setup-sub">Talk about a topic → earn a line → claim boxes!</div>
+    <div class="player-card">
+      <div class="player-card-title">PLAYER 1</div>
+      <div class="player-name-row"><span class="player-emoji-lbl" id="p1emoji">🔴</span><input class="name-input" id="p1name" type="text" placeholder="Player 1 name" maxlength="12"></div>
+      <div class="color-row" id="p1colors"></div>
+    </div>
+    <div class="player-card">
+      <div class="player-card-title">PLAYER 2</div>
+      <div class="player-name-row"><span class="player-emoji-lbl" id="p2emoji">🔵</span><input class="name-input" id="p2name" type="text" placeholder="Player 2 name" maxlength="12"></div>
+      <div class="color-row" id="p2colors"></div>
+    </div>
+    <button class="big-btn btn-green" onclick="beginGame()">🎮 START GAME!</button>
+  </div>
+  <div class="tiktok-bottom"><div class="tb-icon">☰</div><div class="tb-icon" style="color:white">❄</div><div class="tb-icon">＋</div><div class="tb-icon">✉</div><div class="tb-icon">☞</div></div>
+</div>
+
+<!-- SPIN -->
+<div class="screen hidden" id="screenSpin">
+  <div class="top-bar"><div class="top-bar-title">🎰 Pick a Topic</div><div class="live-badge">LIVE</div></div>
+  <div class="spin-body">
+    <div class="scoreboard-mini" id="scoreMini"></div>
+    <div class="turn-banner" id="turnBanner"></div>
+    <div class="slot-machine">
+      <div class="slot-label">🎰 SPINNING FOR TOPIC</div>
+      <div class="slot-display" id="slotEmoji">❓</div>
+      <div class="slot-name" id="slotName">Press spin!</div>
+      <button class="spin-btn" id="spinBtn" onclick="doSpin()">🎰 SPIN!</button>
+      <button class="go-talk-btn" id="goTalkBtn" onclick="goToTalk()">🗣️ START TALKING!</button>
+    </div>
+  </div>
+  <div class="tiktok-bottom"><div class="tb-icon">☰</div><div class="tb-icon" style="color:white">❄</div><div class="tb-icon">＋</div><div class="tb-icon">✉</div><div class="tb-icon">☞</div></div>
+</div>
+
+<!-- TALK -->
+<div class="screen hidden" id="screenTalk">
+  <div class="top-bar"><div class="top-bar-title" id="talkTitle">🗣️ Talk!</div><div class="live-badge">LIVE</div></div>
+  <div class="talk-body">
+    <div class="talk-player-banner" id="talkPlayerBanner"></div>
+    <div class="talk-topic-card">
+      <div class="talk-topic-emoji" id="talkEmoji">🎬</div>
+      <div class="talk-topic-name" id="talkName">Topic</div>
+      <div class="talk-topic-prompt" id="talkPrompt"></div>
+    </div>
+    <div class="countdown-wrap" id="countdownWrap">
+      <svg class="countdown-svg" viewBox="0 0 100 100">
+        <circle class="countdown-bg" cx="50" cy="50" r="44"/>
+        <circle class="countdown-fill" id="countdownRing" cx="50" cy="50" r="44"/>
+      </svg>
+      <div class="countdown-num" id="countdownNum">60</div>
+    </div>
+    <div class="judge-row hidden" id="judgeRow">
+      <button class="judge-btn judge-pass" onclick="judge(true)"><span class="j-emoji">👍</span>Place a Line!</button>
+      <button class="judge-btn judge-fail" onclick="judge(false)"><span class="j-emoji">👎</span>No Line</button>
+    </div>
+    <button class="start-talking-btn" id="startTalkBtn" onclick="startTalking()">⏱️ START TIMER!</button>
+  </div>
+  <div class="tiktok-bottom"><div class="tb-icon">☰</div><div class="tb-icon" style="color:white">❄</div><div class="tb-icon">＋</div><div class="tb-icon">✉</div><div class="tb-icon">☞</div></div>
+</div>
+
+<!-- BOARD -->
+<div class="screen hidden" id="screenBoard">
+  <div class="top-bar"><div class="top-bar-title">📦 Dots &amp; Boxes</div><div class="live-badge">LIVE</div></div>
+  <div class="board-top">
+    <div class="board-scores" id="boardScores"></div>
+    <div class="board-turn-lbl" id="boardTurnLbl"></div>
+    <div class="board-info-lbl" id="boardInfoLbl"></div>
+  </div>
+  <div class="board-wrap"><svg id="boardSvg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <div class="board-btn-area" id="boardBtnArea">
+    <div class="line-pick-wrap" id="linePickWrap" style="display:none">
+      <input class="line-num-input" id="lineNumInput" type="number" min="1" placeholder="Line #" inputmode="numeric">
+      <button class="place-btn" id="placeBtn" onclick="placeLineByNumber()">Place!</button>
+    </div>
+    <button class="big-btn btn-purple" id="nextTurnBtn" onclick="handleNextTurn()" style="display:none;width:100%">➡️ Next Player's Turn</button>
+  </div>
+  <div class="tiktok-bottom"><div class="tb-icon">☰</div><div class="tb-icon" style="color:white">❄</div><div class="tb-icon">＋</div><div class="tb-icon">✉</div><div class="tb-icon">☞</div></div>
+</div>
+
+<!-- RATING -->
+<div class="screen hidden" id="screenRate">
+  <div class="top-bar"><div class="top-bar-title">🏁 Game Over!</div><div class="live-badge">LIVE</div></div>
+  <div class="rate-body">
+    <div class="rate-title">🎉 Final Results!</div>
+    <div class="final-scores" id="finalScores"></div>
+    <div class="winner-card" id="winnerCard"></div>
+    <div class="rate-q">How did the class do? 👇</div>
+    <div class="thumbs-row">
+      <button class="thumb-btn" id="thumbUp" onclick="ratePick('up')">👍<span>Amazing!</span></button>
+      <button class="thumb-btn" id="thumbDown" onclick="ratePick('down')">👎<span>Keep trying!</span></button>
+    </div>
+    <div class="rate-result" id="rateResult"></div>
+    <button class="big-btn btn-red" id="againBtn" style="display:none;margin-top:4px" onclick="resetAll()">🎮 Play Again!</button>
+  </div>
+  <div class="tiktok-bottom"><div class="tb-icon">☰</div><div class="tb-icon" style="color:white">❄</div><div class="tb-icon">＋</div><div class="tb-icon">✉</div><div class="tb-icon">☞</div></div>
+</div>
+
+<script>
+const allTopics = [
+  // ── ORIGINAL 16 ──
+  { name:"Favourite Day", emoji:"📅", prompts:["What is your favourite day of the week and why?","What do you usually do on your favourite day?","Describe your perfect day from start to finish!"] },
+  { name:"Favourite Movies", emoji:"🎬", prompts:["What is your favourite movie? Tell us everything about it!","Who is your favourite movie character and why?","What type of movies do you love — action, comedy, horror?"] },
+  { name:"Favourite Food", emoji:"🍔", prompts:["What is your absolute favourite food? Describe the taste!","What do you eat every single day?","What food would you NEVER eat and why?"] },
+  { name:"My Family", emoji:"👨‍👩‍👧", prompts:["Describe your family — who is in it?","Who are you closest to in your family and why?","What does your family love doing together?"] },
+  { name:"My Hobbies", emoji:"🎨", prompts:["What hobbies do you enjoy and why?","How much time do you spend on your hobbies each week?","What new hobby would you love to try?"] },
+  { name:"My School Day", emoji:"🏫", prompts:["Describe your whole school day from start to finish!","What is your favourite subject and why?","What is the best and worst thing about school?"] },
+  { name:"My Weekend", emoji:"🎉", prompts:["What did you do last weekend? Tell us everything!","Describe your perfect weekend — every detail!","Do you prefer staying in or going out at weekends?"] },
+  { name:"Places to Visit", emoji:"✈️", prompts:["What country would you most like to visit and why?","Describe a place you have already been to!","Beach, mountains or city — which do you prefer and why?"] },
+  { name:"Favourite Season", emoji:"🌸", prompts:["What is your favourite season and why?","What do you love doing in summer or winter?","Describe the weather where you live right now!"] },
+  { name:"Likes & Dislikes", emoji:"👍", prompts:["Tell us 3 things you absolutely love and WHY!","Tell us 3 things you really can't stand and why!","What is something you used to hate but now enjoy?"] },
+  { name:"My Favourite Animal", emoji:"🐾", prompts:["What is your favourite animal and why do you love it?","Do you have a pet? Describe it — personality and all!","If you could be any animal for one day, which would you choose?"] },
+  { name:"Technology", emoji:"📱", prompts:["How much time do you spend on your phone each day?","What apps do you use the most and why?","Is technology good or bad for young people? Give reasons!"] },
+  { name:"Sport & Exercise", emoji:"⚽", prompts:["Do you play any sports? Describe what you do!","What is your favourite sport to watch and why?","Why is exercise important? How do you stay active?"] },
+  { name:"Music", emoji:"🎵", prompts:["What music do you love? Who is your favourite artist?","Can you play any instruments? Which would you like to learn?","Does listening to music help you study or relax?"] },
+  { name:"Dreams & Ambitions", emoji:"🌟", prompts:["What job would you love to do when you grow up?","Where do you want to live in the future and why?","What is your biggest dream in life?"] },
+  { name:"Describe Yourself", emoji:"🪞", prompts:["Describe your personality — what are you like?","What are you really good at? What are you working on?","How would your best friend describe you?"] },
+
+  // ── NEW FUN ONES ──
+  { name:"Superpowers", emoji:"🦸", prompts:["If you could have any superpower, what would it be and why?","What would you do first if you woke up with superpowers?","Would you be a hero or a villain? Explain your choice!"] },
+  { name:"Desert Island", emoji:"🏝️", prompts:["You're stuck on a desert island — what 3 things do you bring?","Who would you want with you on a desert island and why?","What would your daily routine be on a desert island?"] },
+  { name:"Time Travel", emoji:"⏰", prompts:["If you could travel to any time in history, when would you go?","Would you go to the past or the future? Why?","What would you change about history if you could?"] },
+  { name:"My Dream House", emoji:"🏠", prompts:["Describe your dream house — where is it and what does it look like?","What crazy rooms would your dream house have?","Would you live alone or with friends and family?"] },
+  { name:"If I Were Famous", emoji:"⭐", prompts:["If you were famous, what would you be famous for?","What would a day in your life look like if you were a celebrity?","What would be the best and worst thing about being famous?"] },
+  { name:"Zombie Apocalypse", emoji:"🧟", prompts:["The zombies are coming — what is your survival plan?","Who would be in your zombie survival team and why?","What would you miss most if zombies took over the world?"] },
+  { name:"If I Were a Teacher", emoji:"👩‍🏫", prompts:["If you were a teacher, what rules would you make?","What subject would you teach and how would your lessons be different?","What would you do if a student was misbehaving?"] },
+  { name:"Weird & Wacky Food", emoji:"🍣", prompts:["What is the weirdest food you have ever eaten?","Would you eat insects for 1 million dollars? Why or why not?","Invent a new disgusting food combination — describe it!"] },
+  { name:"Celebrity for a Day", emoji:"🎤", prompts:["Which celebrity would you swap lives with for one day?","What would you do with all that money and fame?","What would be the most fun thing about being that celebrity?"] },
+  { name:"Favourite Childhood Memory", emoji:"🧸", prompts:["What is your happiest memory from when you were young?","Describe your favourite toy or game as a child!","What do you miss most about being younger?"] },
+  { name:"My Biggest Fear", emoji:"😱", prompts:["What is your biggest fear and where did it come from?","How does your body feel when you are scared?","Have you ever faced a fear? What happened?"] },
+  { name:"Aliens & Space", emoji:"👽", prompts:["Do you believe in aliens? Why or why not?","If aliens visited Earth, what would you say to them?","Would you travel to space if you had the chance? Why?"] },
+  { name:"Money & Shopping", emoji:"💰", prompts:["If you had £1000 to spend right now, what would you buy?","Are you a spender or a saver? Explain!","What is the best thing you have ever bought with your own money?"] },
+  { name:"Food I Could Eat Every Day", emoji:"🍕", prompts:["What one food could you eat every single day for a year?","What is your ultimate comfort food and why?","Describe your perfect meal — starter, main and dessert!"] },
+  { name:"My Secret Talent", emoji:"🎪", prompts:["Do you have a secret or unusual talent? Tell us about it!","What talent do you wish you had and why?","If you had to perform on stage right now, what would you do?"] },
+  { name:"School Subjects Reimagined", emoji:"📐", prompts:["If you could invent a brand new school subject, what would it be?","Which school subject should be removed and why?","How would you make your least favourite subject more fun?"] },
+  { name:"My Favourite App or Game", emoji:"🎮", prompts:["What is your favourite app or video game right now?","How much time do you spend playing it each week?","Would you want to design your own game? What would it be like?"] },
+  { name:"The Best Invention Ever", emoji:"💡", prompts:["What do you think is the greatest invention of all time and why?","What invention does the world still need that hasn't been made yet?","If you could uninvent one thing, what would it be?"] },
+  { name:"Animals vs Humans", emoji:"🐒", prompts:["Which animal is most similar to humans and why?","If animals could talk, which one do you think would be the funniest?","Would you rather live like a wild animal or a pet for one week?"] },
+  { name:"My Worst Ever Day", emoji:"😬", prompts:["Tell us about the most embarrassing thing that has ever happened to you!","What was the worst day you have ever had at school?","What went hilariously wrong for you recently?"] },
+  { name:"Holidays & Celebrations", emoji:"🎄", prompts:["What is your favourite holiday or celebration of the year?","Describe exactly how you celebrate it with family!","Invent a brand new holiday — what would people do?"] },
+  { name:"Books & Reading", emoji:"📚", prompts:["Do you like reading? What is your favourite book?","Would you rather watch the film or read the book? Why?","If you could write a book, what would it be about?"] },
+  { name:"Social Media", emoji:"📸", prompts:["Which social media platform do you use most and why?","What kind of content do you post or watch online?","What are the dangers of social media for young people?"] },
+  { name:"The Future", emoji:"🚀", prompts:["What do you think the world will look like in 50 years?","What jobs do you think will exist in the future that don't exist now?","What is one thing you hope changes and one thing you hope stays the same?"] },
+  { name:"If I Had a Robot", emoji:"🤖", prompts:["If you had your own personal robot, what would you make it do?","Would a robot be a good friend? Why or why not?","What is one thing a robot could NEVER replace about humans?"] },
+  { name:"Languages & Culture", emoji:"🌍", prompts:["What languages can you speak or would you like to learn?","What do you know about British culture? How is it different from yours?","What is the most interesting cultural tradition you have?"] },
+  { name:"Fashion & Style", emoji:"👗", prompts:["How would you describe your personal style?","What is the most ridiculous fashion trend you have seen?","If you could design your own clothing brand, what would it be like?"] },
+  { name:"The Best & Worst Jobs", emoji:"👷", prompts:["What do you think is the best job in the world and why?","What do you think is the worst job in the world?","Would you rather have a job you love that pays little or hate that pays a lot?"] },
+  { name:"Random Acts of Kindness", emoji:"💝", prompts:["Tell us about a time someone was really kind to you!","What is the nicest thing you have ever done for someone else?","How could you make someone's day better right now?"] },
+  { name:"Imagine You're an Animal", emoji:"🦁", prompts:["Imagine you woke up as an animal this morning — which one are you?","Describe your day as that animal — what do you do?","What is the best and worst thing about being that animal?"] }
+];
+
+const COLORS = [
+  {bg:'#ef4444',shadow:'#b91c1c',light:'rgba(239,68,68,0.18)',emoji:'🔴',svg:'#ef4444'},
+  {bg:'#3b82f6',shadow:'#1d4ed8',light:'rgba(59,130,246,0.18)',emoji:'🔵',svg:'#3b82f6'},
+  {bg:'#22c55e',shadow:'#15803d',light:'rgba(34,197,94,0.18)',emoji:'🟢',svg:'#22c55e'},
+  {bg:'#f59e0b',shadow:'#b45309',light:'rgba(245,158,11,0.18)',emoji:'🟡',svg:'#f59e0b'},
+  {bg:'#a855f7',shadow:'#7e22ce',light:'rgba(168,85,247,0.18)',emoji:'🟣',svg:'#a855f7'},
+  {bg:'#f97316',shadow:'#c2410c',light:'rgba(249,115,22,0.18)',emoji:'🟠',svg:'#f97316'}
+];
+
+const GRID=3, TOTAL=GRID*GRID, PAD=18, CELL=38;
+let lineMap={}, lineCount=0;
+let hLines,vLines,boxes;
+let p1={name:'P1',colorIdx:0,boxes:0};
+let p2={name:'P2',colorIdx:1,boxes:0};
+let currentPlayer=0, selectedTopic=null, earnedLine=false, talkTimer=null;
+let nextTurnIsExtra=false;
+const confCols=['#ff3b5c','#ffd600','#43e97b','#40c4ff','#e040fb','#ff9100','#00bcd4'];
+
+function $(id){return document.getElementById(id);}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));$(id).classList.remove('hidden');}
+function getP(i){return i===0?p1:p2;}
+function getC(i){return COLORS[getP(i).colorIdx];}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=~~(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function launchConfetti(){
+  const c=$('confetti');c.innerHTML='';
+  for(let i=0;i<65;i++){
+    const p=document.createElement('div');p.className='confetti-piece';
+    const sz=7+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${confCols[~~(Math.random()*confCols.length)]};border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${1.2+Math.random()*1.3}s;animation-delay:${Math.random()*.5}s`;
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.innerHTML='',3500);
+}
+
+// SETUP
+function initSetup(){
+  [0,1].forEach(pi=>{
+    const row=$('p'+(pi+1)+'colors');row.innerHTML='';
+    COLORS.forEach((col,ci)=>{
+      const d=document.createElement('div');
+      d.className='color-dot'+(ci===(pi===0?0:1)?' selected':'');
+      d.style.background=col.bg;
+      d.onclick=()=>pickColor(pi,ci);
+      row.appendChild(d);
+    });
+  });
+}
+
+function pickColor(pi,ci){
+  const p=pi===0?p1:p2;p.colorIdx=ci;
+  $('p'+(pi+1)+'emoji').textContent=COLORS[ci].emoji;
+  $('p'+(pi+1)+'colors').querySelectorAll('.color-dot').forEach((d,i)=>d.classList.toggle('selected',i===ci));
+}
+
+function beginGame(){
+  p1.name=$('p1name').value.trim()||'Player 1';
+  p2.name=$('p2name').value.trim()||'Player 2';
+  p1.boxes=0;p2.boxes=0;currentPlayer=0;
+  initBoard();goToSpin();
+}
+
+function initBoard(){
+  hLines=Array.from({length:GRID+1},()=>Array(GRID).fill(-1));
+  vLines=Array.from({length:GRID},()=>Array(GRID+1).fill(-1));
+  boxes=Array.from({length:GRID},()=>Array(GRID).fill(-1));
+  lineCount=0;lineMap={};
+  for(let r=0;r<=GRID;r++)for(let c=0;c<GRID;c++){lineCount++;lineMap[lineCount]={type:'h',r,c};}
+  for(let r=0;r<GRID;r++)for(let c=0;c<=GRID;c++){lineCount++;lineMap[lineCount]={type:'v',r,c};}
+}
+
+// SPIN
+function goToSpin(){
+  buildMiniScores();buildTurnBanner();
+  $('slotEmoji').textContent='❓';$('slotName').textContent='Press spin!';
+  $('spinBtn').disabled=false;$('goTalkBtn').classList.remove('visible');
+  selectedTopic=null;showScreen('screenSpin');
+}
+
+function buildMiniScores(){
+  const el=$('scoreMini');el.innerHTML='';
+  [p1,p2].forEach(p=>{
+    const c=COLORS[p.colorIdx];
+    const d=document.createElement('div');d.className='mini-card';
+    d.style.background=c.light;d.style.borderColor=c.bg;
+    d.innerHTML=`<div class="mini-name">${COLORS[p.colorIdx].emoji} ${p.name}</div><div class="mini-val">${p.boxes}</div><div class="mini-lbl">boxes</div>`;
+    el.appendChild(d);
+  });
+}
+
+function buildTurnBanner(){
+  const cp=getP(currentPlayer),c=getC(currentPlayer);
+  const el=$('turnBanner');
+  el.style.background=c.light;el.style.border='2.5px solid '+c.bg;el.style.color=c.bg;
+  el.textContent=COLORS[cp.colorIdx].emoji+' '+cp.name+"'s turn — spin for a topic!";
+}
+
+function doSpin(){
+  $('spinBtn').disabled=true;$('goTalkBtn').classList.remove('visible');
+  const pool=shuffle([...allTopics]);
+  let idx=0,spins=0,total=18+~~(Math.random()*12);
+  const iv=setInterval(()=>{
+    idx=(idx+1)%pool.length;
+    $('slotEmoji').textContent=pool[idx].emoji;
+    $('slotName').textContent=pool[idx].name;
+    spins++;
+    if(spins>=total){
+      clearInterval(iv);selectedTopic=pool[idx];
+      $('spinBtn').disabled=false;$('goTalkBtn').classList.add('visible');
+      launchConfetti();
+    }
+  },spins<total*0.6?70:120);
+}
+
+// TALK
+function goToTalk(){
+  if(!selectedTopic)return;
+  const cp=getP(currentPlayer),c=getC(currentPlayer);
+  $('talkTitle').textContent=selectedTopic.emoji+' '+selectedTopic.name;
+  const pb=$('talkPlayerBanner');
+  pb.style.background=c.light;pb.style.border='2.5px solid '+c.bg;pb.style.color=c.bg;
+  pb.textContent=COLORS[cp.colorIdx].emoji+' '+cp.name+' — get ready to talk!';
+  $('talkEmoji').textContent=selectedTopic.emoji;
+  $('talkName').textContent=selectedTopic.name;
+  const prompt=selectedTopic.prompts[~~(Math.random()*selectedTopic.prompts.length)];
+  $('talkPrompt').textContent='💬 '+prompt;
+  $('countdownWrap').style.display='none';
+  $('judgeRow').classList.add('hidden');
+  $('startTalkBtn').style.display='block';
+  $('countdownRing').style.stroke='#22c55e';
+  $('countdownRing').style.strokeDashoffset='0';
+  $('countdownNum').textContent='30';
+  clearInterval(talkTimer);
+  showScreen('screenTalk');
+}
+
+function startTalking(){
+  $('startTalkBtn').style.display='none';
+  $('countdownWrap').style.display='flex';
+  $('judgeRow').classList.add('hidden');
+  let t=30;
+  const circ=2*Math.PI*44;
+  $('countdownRing').style.strokeDasharray=circ;
+  $('countdownRing').style.strokeDashoffset=0;
+  updateRing(t,circ);
+  talkTimer=setInterval(()=>{
+    t--;
+    $('countdownNum').textContent=t;
+    updateRing(t,circ);
+    if(t<=10)$('countdownRing').style.stroke='#ef4444';
+    else if(t<=20)$('countdownRing').style.stroke='#f59e0b';
+    if(t<=0){clearInterval(talkTimer);timerDone();}
+  },1000);
+}
+
+function updateRing(t,circ){
+  $('countdownRing').style.strokeDashoffset=circ-(t/30)*circ;
+}
+
+function timerDone(){
+  $('countdownNum').textContent='⏰';
+  $('judgeRow').classList.remove('hidden');
+}
+
+function judge(passed){
+  clearInterval(talkTimer);
+  if(passed){showBoardScreen(true);}
+  else{currentPlayer=currentPlayer===0?1:0;goToSpin();}
+}
+
+// BOARD
+function showBoardScreen(canPlace){
+  buildBoardScores();
+  const cp=getP(currentPlayer),c=getC(currentPlayer);
+  const tl=$('boardTurnLbl');
+  tl.style.background=c.light;tl.style.border='2px solid '+c.bg;tl.style.color=c.bg;
+  if(canPlace){
+    tl.textContent=COLORS[cp.colorIdx].emoji+' '+cp.name+' — shout a line number!';
+    $('boardInfoLbl').textContent='Ask '+cp.name+' to pick a number from the board!';
+    $('linePickWrap').style.display='flex';
+    $('nextTurnBtn').style.display='none';
+    $('lineNumInput').value='';
+    $('placeBtn').disabled=false;
+  }
+  drawBoard();showScreen('screenBoard');
+}
+
+function buildBoardScores(){
+  const el=$('boardScores');el.innerHTML='';
+  [p1,p2].forEach(p=>{
+    const c=COLORS[p.colorIdx];
+    const d=document.createElement('div');d.className='bs-card';
+    d.style.background=c.light;d.style.borderColor=c.bg;
+    d.innerHTML=`<div class="bs-name">${COLORS[p.colorIdx].emoji} ${p.name}</div><div class="bs-score" style="color:${c.bg}">${p.boxes}</div><div class="bs-lbl">boxes</div>`;
+    el.appendChild(d);
+  });
+}
+
+function dotX(c){return PAD+c*CELL;}
+function dotY(r){return PAD+r*CELL;}
+
+function drawBoard(){
+  const svg=$('boardSvg');
+  const size=PAD*2+GRID*CELL;
+  svg.setAttribute('viewBox',`0 0 ${size} ${size}`);
+  svg.innerHTML='';
+
+  // Box fills
+  for(let r=0;r<GRID;r++)for(let c=0;c<GRID;c++){
+    if(boxes[r][c]>=0){
+      const col=COLORS[boxes[r][c]];
+      svg.appendChild(ms('rect',{x:dotX(c)+3,y:dotY(r)+3,width:CELL-6,height:CELL-6,fill:col.svg,opacity:'0.3',rx:'4'}));
+      const t=ms('text',{'x':dotX(c)+CELL/2,'y':dotY(r)+CELL/2+6,'text-anchor':'middle','font-size':'16','fill':col.svg,'font-weight':'900','font-family':'Nunito,sans-serif'});
+      t.textContent=col.emoji;svg.appendChild(t);
+    }
+  }
+
+  // H lines
+  for(let r=0;r<=GRID;r++)for(let c=0;c<GRID;c++){
+    const num=getNum('h',r,c),taken=hLines[r][c];
+    const x1=dotX(c)+7,x2=dotX(c+1)-7,y=dotY(r),mx=(x1+x2)/2;
+    if(taken>=0){
+      svg.appendChild(ms('line',{x1,y1:y,x2,y2:y,stroke:COLORS[taken].svg,'stroke-width':'6','stroke-linecap':'round'}));
+    } else {
+      svg.appendChild(ms('line',{x1,y1:y,x2,y2:y,stroke:'rgba(255,255,255,0.15)','stroke-width':'5','stroke-linecap':'round','stroke-dasharray':'4 4'}));
+      svg.appendChild(ms('rect',{x:mx-10,y:y-9,width:20,height:18,rx:'4',fill:'#1a0a3a'}));
+      const t=ms('text',{'x':mx,'y':y+5,'text-anchor':'middle','font-size':'11','fill':'rgba(255,255,255,0.85)','font-weight':'900','font-family':'Nunito,sans-serif'});
+      t.textContent=num;svg.appendChild(t);
+    }
+  }
+
+  // V lines
+  for(let r=0;r<GRID;r++)for(let c=0;c<=GRID;c++){
+    const num=getNum('v',r,c),taken=vLines[r][c];
+    const x=dotX(c),y1=dotY(r)+7,y2=dotY(r+1)-7,my=(y1+y2)/2;
+    if(taken>=0){
+      svg.appendChild(ms('line',{x1:x,y1,x2:x,y2,stroke:COLORS[taken].svg,'stroke-width':'6','stroke-linecap':'round'}));
+    } else {
+      svg.appendChild(ms('line',{x1:x,y1,x2:x,y2,stroke:'rgba(255,255,255,0.15)','stroke-width':'5','stroke-linecap':'round','stroke-dasharray':'4 4'}));
+      svg.appendChild(ms('rect',{x:x-10,y:my-9,width:20,height:18,rx:'4',fill:'#1a0a3a'}));
+      const t=ms('text',{'x':x,'y':my+5,'text-anchor':'middle','font-size':'11','fill':'rgba(255,255,255,0.85)','font-weight':'900','font-family':'Nunito,sans-serif'});
+      t.textContent=num;svg.appendChild(t);
+    }
+  }
+
+  // Dots
+  for(let r=0;r<=GRID;r++)for(let c=0;c<=GRID;c++){
+    svg.appendChild(ms('circle',{cx:dotX(c),cy:dotY(r),r:'5',fill:'white'}));
+  }
+}
+
+function ms(tag,attrs){
+  const el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(const[k,v]of Object.entries(attrs))el.setAttribute(k,v);
+  return el;
+}
+
+function getNum(type,r,c){
+  for(const[n,l]of Object.entries(lineMap)){if(l.type===type&&l.r===r&&l.c===c)return parseInt(n);}
+  return '?';
+}
+
+function placeLineByNumber(){
+  const val=parseInt($('lineNumInput').value);
+  if(!val||!lineMap[val]){alert('Please enter a valid line number!');return;}
+  const line=lineMap[val];
+  if(line.type==='h'){
+    if(hLines[line.r][line.c]>=0){alert('That line is already taken! Choose another.');return;}
+    hLines[line.r][line.c]=currentPlayer;
+  } else {
+    if(vLines[line.r][line.c]>=0){alert('That line is already taken! Choose another.');return;}
+    vLines[line.r][line.c]=currentPlayer;
+  }
+  $('placeBtn').disabled=true;$('lineNumInput').value='';
+  const claimed=checkBoxes();
+  buildBoardScores();
+  if(p1.boxes+p2.boxes>=TOTAL){drawBoard();setTimeout(()=>showRating(),600);return;}
+  if(claimed>0){
+    launchConfetti();drawBoard();
+    $('boardTurnLbl').textContent='🎉 '+getP(currentPlayer).name+' claimed '+claimed+' box'+(claimed>1?'es':'')+' — EXTRA TURN!';
+    $('boardInfoLbl').textContent='Complete a box = go again! 🔥';
+    $('linePickWrap').style.display='none';
+    nextTurnIsExtra=true;
+    $('nextTurnBtn').textContent='🎰 Spin Again! (Extra Turn!)';
+    $('nextTurnBtn').style.display='block';
+  } else {
+    drawBoard();
+    $('boardInfoLbl').textContent='No box completed — switching player!';
+    $('linePickWrap').style.display='none';
+    nextTurnIsExtra=false;
+    $('nextTurnBtn').textContent='➡️ Next Player\'s Turn';
+    $('nextTurnBtn').style.display='block';
+  }
+}
+
+function handleNextTurn(){
+  if(!nextTurnIsExtra) currentPlayer=currentPlayer===0?1:0;
+  goToSpin();
+}
+
+function checkBoxes(){
+  let claimed=0;
+  for(let r=0;r<GRID;r++)for(let c=0;c<GRID;c++){
+    if(boxes[r][c]<0&&hLines[r][c]>=0&&hLines[r+1][c]>=0&&vLines[r][c]>=0&&vLines[r][c+1]>=0){
+      boxes[r][c]=currentPlayer;getP(currentPlayer).boxes++;claimed++;
+    }
+  }
+  return claimed;
+}
+
+function showRating(){
+  const fs=$('finalScores');fs.innerHTML='';
+  [p1,p2].forEach(p=>{
+    const c=COLORS[p.colorIdx];
+    const d=document.createElement('div');d.className='fs-card';
+    d.style.background=c.light;d.style.borderColor=c.bg;
+    d.innerHTML=`<div class="fs-name">${COLORS[p.colorIdx].emoji} ${p.name}</div><div class="fs-score" style="color:${c.bg}">${p.boxes}</div><div class="fs-lbl">boxes</div>`;
+    fs.appendChild(d);
+  });
+  const wc=$('winnerCard');
+  let winner,wColor;
+  if(p1.boxes>p2.boxes){winner=p1;wColor=COLORS[p1.colorIdx];}
+  else if(p2.boxes>p1.boxes){winner=p2;wColor=COLORS[p2.colorIdx];}
+  if(winner){
+    wc.style.background=wColor.light;wc.style.border='3px solid '+wColor.bg;
+    wc.innerHTML=`<div class="winner-emoji-lbl">🏆</div><div class="winner-name" style="color:${wColor.bg}">${COLORS[winner.colorIdx].emoji} ${winner.name} wins!</div><div class="winner-sub" style="color:${wColor.bg}">${winner.boxes} boxes to ${winner===p1?p2.boxes:p1.boxes}!</div>`;
+    launchConfetti();
+  } else {
+    wc.style.background='rgba(255,255,255,0.07)';wc.style.border='3px solid rgba(255,255,255,0.2)';
+    wc.innerHTML=`<div class="winner-emoji-lbl">🤝</div><div class="winner-name" style="color:white">It's a draw!</div><div class="winner-sub" style="color:rgba(255,255,255,0.6)">${p1.boxes} boxes each!</div>`;
+  }
+  $('rateResult').textContent='';$('againBtn').style.display='none';
+  $('thumbUp').className='thumb-btn';$('thumbDown').className='thumb-btn';
+  showScreen('screenRate');
+}
+
+function ratePick(dir){
+  $('thumbUp').className='thumb-btn'+(dir==='up'?' picked-up':'');
+  $('thumbDown').className='thumb-btn'+(dir==='down'?' picked-down':'');
+  const msgs={up:["🔥 The class is on fire!","🌟 Incredible work today!","🎉 Amazing class!"],down:["💪 Keep going!","📚 Practice makes perfect!","🌱 Every mistake helps!"]};
+  $('rateResult').textContent=msgs[dir][~~(Math.random()*3)];
+  $('againBtn').style.display='block';
+  if(dir==='up')launchConfetti();
+}
+
+function resetAll(){
+  p1.boxes=0;p2.boxes=0;currentPlayer=0;
+  initBoard();goToSpin();
+}
+
+initSetup();
+showScreen('screenSetup');
+</script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect 4 – Everyday English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --p1: #ff4757;
+            --p2: #ffa502;
+            --board: #1e90ff;
+            --bg: #e8f4fd;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg);
+            margin: 0;
+            padding: 20px 10px 40px;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: #1e3a5f;
+            margin: 0 0 14px;
+            letter-spacing: 1px;
+        }
+
+        .status-bar {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.6rem;
+            padding: 10px 36px;
+            border-radius: 50px;
+            margin-bottom: 18px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+            transition: all 0.3s;
+        }
+        .p1-turn { color: var(--p1); border: 4px solid var(--p1); }
+        .p2-turn { color: var(--p2); border: 4px solid var(--p2); }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: var(--board);
+            padding: 12px;
+            border-radius: 20px;
+            gap: 8px;
+            box-shadow: 0 10px 0 #0972d4, 0 12px 30px rgba(0,0,0,0.2);
+        }
+
+        .board-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .column-numbers {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            padding: 0 12px;
+            margin-bottom: 6px;
+            width: 100%;
+        }
+
+        .col-num {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.6rem;
+            color: #1e3a5f;
+            text-align: center;
+            background: white;
+            border-radius: 12px;
+            padding: 4px 0;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            line-height: 1.2;
+            transition: transform 0.15s, background 0.15s;
+            cursor: pointer;
+            user-select: none;
+        }
+        .col-num:hover {
+            background: #fffbe6;
+            transform: translateY(-3px);
+        }
+        .col-num.full {
+            color: #ccc;
+            background: #f0f0f0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 8px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+        .column:hover { background: rgba(255,255,255,0.15); }
+
+        .slot {
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            background: #d6eaff;
+            border: 3px solid rgba(0,0,0,0.08);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.15);
+        }
+
+        .slot.red   { background: var(--p1) !important; box-shadow: 0 0 12px rgba(255,71,87,0.6), inset 0 -3px 6px rgba(0,0,0,0.2); }
+        .slot.yellow{ background: var(--p2) !important; box-shadow: 0 0 12px rgba(255,165,2,0.6), inset 0 -3px 6px rgba(0,0,0,0.2); }
+
+        /* Overlay */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,20,50,0.88);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        #q-card {
+            background: white;
+            padding: 36px 40px 32px;
+            border-radius: 28px;
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+            border: 6px solid var(--board);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.7); opacity: 0; }
+            to   { transform: scale(1);   opacity: 1; }
+        }
+
+        .player-badge {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1rem;
+            padding: 4px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 14px;
+            color: white;
+        }
+        .badge-red    { background: var(--p1); }
+        .badge-yellow { background: var(--p2); }
+
+        #q-text {
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #1e3a5f;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        #q-translation {
+            font-size: 1.15rem;
+            color: #5a7a9a;
+            margin-bottom: 22px;
+            min-height: 28px;
+            font-style: italic;
+            transition: opacity 0.3s;
+        }
+
+        .translate-btn {
+            background: none;
+            border: 2px solid #aac4e0;
+            color: #4a7aaa;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 24px;
+            transition: all 0.2s;
+        }
+        .translate-btn:hover { background: #e8f4fd; border-color: #1e90ff; color: #1e90ff; }
+
+        .judge-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+        .btn {
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 800;
+            font-family: 'Nunito', sans-serif;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+        }
+        .btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(0,0,0,0.15); }
+        .btn:active { transform: translateY(2px);  box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
+        .btn-yes { background: #2ecc71; color: white; }
+        .btn-no  { background: #e0e0e0; color: #555; }
+
+        /* Win overlay */
+        #win-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,20,50,0.92);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        #win-card {
+            background: white;
+            padding: 50px 60px;
+            border-radius: 30px;
+            text-align: center;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #win-card h2 { font-family: 'Fredoka One', cursive; font-size: 3rem; margin: 0 0 10px; }
+        #win-card p  { font-size: 1.3rem; color: #555; margin-bottom: 30px; }
+        .btn-restart { background: var(--board); color: white; padding: 16px 40px; font-size: 1.2rem; }
+
+        .qr-sidebar {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            padding: 14px;
+            border-radius: 18px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+            text-align: center;
+            z-index: 100;
+        }
+        .qr-sidebar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+        }
+        .qr-sidebar p {
+            margin: 8px 0 0;
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.75rem;
+            color: #1e3a5f;
+        }
+
+        @media (max-width: 560px) {
+            .slot { width: 40px; height: 40px; }
+            .board { gap: 5px; padding: 8px; }
+            #q-text { font-size: 1.3rem; }
+            .qr-sidebar { position: static; transform: none; margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>🎮 Connect 4 – Everyday English</h1>
+
+<div id="status" class="status-bar p1-turn">🔴 Red Player's Turn</div>
+
+<div class="board-wrapper">
+    <div class="column-numbers" id="col-nums">
+        <div class="col-num" onclick="handleColumnClick(0)">1</div>
+        <div class="col-num" onclick="handleColumnClick(1)">2</div>
+        <div class="col-num" onclick="handleColumnClick(2)">3</div>
+        <div class="col-num" onclick="handleColumnClick(3)">4</div>
+        <div class="col-num" onclick="handleColumnClick(4)">5</div>
+        <div class="col-num" onclick="handleColumnClick(5)">6</div>
+        <div class="col-num" onclick="handleColumnClick(6)">7</div>
+    </div>
+    <div class="board" id="board"></div>
+</div>
+
+<!-- Question Overlay -->
+<div id="overlay">
+    <div id="q-card">
+        <div id="player-badge" class="player-badge badge-red">🔴 Red's Question</div>
+        <div id="q-text">Question goes here...</div>
+        <div id="q-translation"></div>
+        <button class="translate-btn" id="translate-btn" onclick="toggleTranslation()">🇹🇭 Show Thai Translation</button>
+        <div class="judge-btns">
+            <button class="btn btn-no"  onclick="handleJudge(false)">❌ Try Again</button>
+            <button class="btn btn-yes" onclick="handleJudge(true)">✅ Great Answer!</button>
+        </div>
+    </div>
+</div>
+
+<!-- Win Overlay -->
+<div id="win-overlay">
+    <div id="win-card">
+        <h2 id="win-title">🎉 Red Wins!</h2>
+        <p>Fantastic playing — well done!</p>
+        <button class="btn btn-restart" onclick="location.reload()">🔄 Play Again</button>
+    </div>
+</div>
+
+<div class="qr-sidebar">
+    <img src="../overlays/teacherlewis1-overlay/public/qrcode_preply.com.png" alt="Preply QR Code">
+    <p>Book a lesson!</p>
+</div>
+
+<script>
+    const ROWS = 6, COLS = 7;
+    let currentPlayer = 1;
+    let boardState = Array(COLS).fill(null).map(() => Array(ROWS).fill(null));
+    let activeCol = null;
+    let translationVisible = false;
+    let currentTranslation = '';
+
+    // ─── 30 EVERYDAY HABIT QUESTIONS + THAI TRANSLATIONS ─────────────────────
+    const allQuestions = [
+        { en: "How often do you go to the shopping mall?",                         th: "คุณไปห้างสรรพสินค้าบ่อยแค่ไหน?" },
+        { en: "When did you last go to the shopping mall? What did you buy?",       th: "คุณไปห้างครั้งล่าสุดเมื่อไหร่? ซื้ออะไรมาบ้าง?" },
+        { en: "Do you prefer shopping alone or with friends?",                      th: "คุณชอบไปช้อปปิ้งคนเดียวหรือไปกับเพื่อน?" },
+        { en: "What is your favorite shop or store? Why do you like it?",           th: "ร้านโปรดของคุณคือร้านไหน? ทำไมถึงชอบ?" },
+        { en: "How often do you eat at a restaurant?",                              th: "คุณกินข้าวนอกบ้านที่ร้านอาหารบ่อยแค่ไหน?" },
+        { en: "When did you last eat outside? What did you have?",                  th: "คุณกินข้าวนอกบ้านครั้งล่าสุดเมื่อไหร่? กินอะไร?" },
+        { en: "Do you cook at home? What is something easy you can make?",          th: "คุณทำอาหารที่บ้านไหม? ทำอะไรได้บ้าง?" },
+        { en: "How often do you exercise or play sport?",                           th: "คุณออกกำลังกายหรือเล่นกีฬาบ่อยแค่ไหน?" },
+        { en: "What did you do last weekend?",                                      th: "สุดสัปดาห์ที่แล้วคุณทำอะไรบ้าง?" },
+        { en: "How often do you watch TV or videos online?",                        th: "คุณดูทีวีหรือวิดีโอออนไลน์บ่อยแค่ไหน?" },
+        { en: "What is your favorite thing to do on a Sunday?",                     th: "กิจกรรมโปรดของคุณในวันอาทิตย์คืออะไร?" },
+        { en: "How often do you meet your friends?",                                th: "คุณเจอเพื่อนบ่อยแค่ไหน?" },
+        { en: "When did you last take a trip or holiday?",                          th: "คุณไปเที่ยวหรือพักร้อนครั้งล่าสุดเมื่อไหร่?" },
+        { en: "Do you drink coffee or tea? How many cups a day?",                   th: "คุณดื่มกาแฟหรือชาไหม? วันละกี่แก้ว?" },
+        { en: "How often do you clean your room or house?",                         th: "คุณทำความสะอาดห้องหรือบ้านบ่อยแค่ไหน?" },
+        { en: "When did you last buy new clothes?",                                 th: "คุณซื้อเสื้อผ้าใหม่ครั้งล่าสุดเมื่อไหร่?" },
+        { en: "How many hours a day do you use your phone?",                        th: "คุณใช้โทรศัพท์วันละกี่ชั่วโมง?" },
+        { en: "What time do you usually wake up in the morning?",                   th: "ปกติคุณตื่นนอนกี่โมงเช้า?" },
+        { en: "How often do you go to the market or supermarket?",                  th: "คุณไปตลาดหรือซูเปอร์มาร์เก็ตบ่อยแค่ไหน?" },
+        { en: "When did you last try a new food? What was it?",                     th: "คุณลองกินอาหารใหม่ครั้งล่าสุดเมื่อไหร่? กินอะไร?" },
+        { en: "Do you have a pet? How do you take care of it every day?",           th: "คุณมีสัตว์เลี้ยงไหม? ดูแลยังไงทุกวัน?" },
+        { en: "How often do you read a book or magazine?",                          th: "คุณอ่านหนังสือหรือนิตยสารบ่อยแค่ไหน?" },
+        { en: "When did you last go to a park or outdoor place?",                   th: "คุณไปสวนสาธารณะหรือที่โล่งแจ้งครั้งล่าสุดเมื่อไหร่?" },
+        { en: "How often do you listen to music? What kind do you like?",           th: "คุณฟังเพลงบ่อยแค่ไหน? ชอบเพลงแนวไหน?" },
+        { en: "What do you usually do after dinner?",                               th: "หลังอาหารเย็นปกติคุณทำอะไร?" },
+        { en: "How often do you call or message your family?",                      th: "คุณโทรหรือส่งข้อความหาครอบครัวบ่อยแค่ไหน?" },
+        { en: "When did you last watch a movie? What was it about?",                th: "คุณดูหนังครั้งล่าสุดเมื่อไหร่? เรื่องอะไร?" },
+        { en: "How often do you go out for coffee or a snack?",                     th: "คุณออกไปดื่มกาแฟหรือกินของว่างนอกบ้านบ่อยแค่ไหน?" },
+        { en: "Do you like to go for walks? How often do you walk?",                th: "คุณชอบเดินเล่นไหม? เดินบ่อยแค่ไหน?" },
+        { en: "When did you last do something new for the first time?",             th: "คุณทำสิ่งใหม่ครั้งแรกครั้งล่าสุดเมื่อไหร่?" },
+    ];
+
+    let deck = [...allQuestions];
+    function getNextQuestion() {
+        if (deck.length === 0) deck = [...allQuestions];
+        const i = Math.floor(Math.random() * deck.length);
+        return deck.splice(i, 1)[0];
+    }
+
+    // ─── AUDIO ────────────────────────────────────────────────────────────────
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        if (type === 'correct') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.15);
+        } else {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+        }
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    }
+
+    // ─── BOARD INIT ───────────────────────────────────────────────────────────
+    function init() {
+        const board = document.getElementById('board');
+        for (let c = 0; c < COLS; c++) {
+            const colDiv = document.createElement('div');
+            colDiv.className = 'column';
+            colDiv.onclick = () => handleColumnClick(c);
+            for (let r = 0; r < ROWS; r++) {
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                slot.id = `slot-${c}-${r}`;
+                colDiv.appendChild(slot);
+            }
+            board.appendChild(colDiv);
+        }
+    }
+
+    function updateColumnNumbers() {
+        const nums = document.querySelectorAll('.col-num');
+        nums.forEach((el, c) => {
+            if (boardState[c].indexOf(null) === -1) {
+                el.classList.add('full');
+            } else {
+                el.classList.remove('full');
+            }
+        });
+    }
+
+    function handleColumnClick(c) {
+        if (boardState[c].indexOf(null) === -1) return; // column full
+        activeCol = c;
+        translationVisible = false;
+        const q = getNextQuestion();
+        currentTranslation = q.th;
+        document.getElementById('q-text').innerText = q.en;
+        document.getElementById('q-translation').innerText = '';
+        document.getElementById('translate-btn').innerText = '🇹🇭 Show Thai Translation';
+        const badge = document.getElementById('player-badge');
+        badge.innerText = currentPlayer === 1 ? '🔴 Red\'s Question' : '🟡 Yellow\'s Question';
+        badge.className = 'player-badge ' + (currentPlayer === 1 ? 'badge-red' : 'badge-yellow');
+        document.getElementById('overlay').style.display = 'flex';
+    }
+
+    function toggleTranslation() {
+        translationVisible = !translationVisible;
+        document.getElementById('q-translation').innerText = translationVisible ? currentTranslation : '';
+        document.getElementById('translate-btn').innerText = translationVisible ? '🙈 Hide Translation' : '🇹🇭 Show Thai Translation';
+    }
+
+    function handleJudge(isCorrect) {
+        document.getElementById('overlay').style.display = 'none';
+        if (!isCorrect) {
+            playSound('wrong');
+            return; // turn stays with same player, they just don't place a piece
+        }
+        playSound('correct');
+        const r = boardState[activeCol].indexOf(null);
+        boardState[activeCol][r] = currentPlayer;
+        const slot = document.getElementById(`slot-${activeCol}-${r}`);
+        slot.className = `slot ${currentPlayer === 1 ? 'red' : 'yellow'}`;
+        updateColumnNumbers();
+
+        if (checkWin(activeCol, r)) {
+            setTimeout(() => showWin(currentPlayer), 300);
+            return;
+        }
+
+        currentPlayer = currentPlayer === 1 ? 2 : 1;
+        updateStatus();
+    }
+
+    function updateStatus() {
+        const s = document.getElementById('status');
+        s.innerText = currentPlayer === 1 ? '🔴 Red Player\'s Turn' : '🟡 Yellow Player\'s Turn';
+        s.className = `status-bar ${currentPlayer === 1 ? 'p1-turn' : 'p2-turn'}`;
+    }
+
+    function showWin(player) {
+        const title = document.getElementById('win-title');
+        title.innerText = player === 1 ? '🎉 Red Wins!' : '🎉 Yellow Wins!';
+        title.style.color = player === 1 ? '#ff4757' : '#ffa502';
+        document.getElementById('win-overlay').style.display = 'flex';
+    }
+
+    function checkWin(c, r) {
+        const p = boardState[c][r];
+        const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+        for (let [dc, dr] of dirs) {
+            let count = 1;
+            for (let i = 1; i < 4; i++) { if (boardState[c+dc*i]?.[r+dr*i] === p) count++; else break; }
+            for (let i = 1; i < 4; i++) { if (boardState[c-dc*i]?.[r-dr*i] === p) count++; else break; }
+            if (count >= 4) return true;
+        }
+        return false;
+    }
+
+    init();
+</script>
+</body>
+</html>

@@ -1,0 +1,580 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Dela+Gothic+One&family=VT323&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a0830;--panel:#26103d;--pink:#ff6eb4;--mint:#5de8c1;
+  --yellow:#ffe066;--lav:#c9b8ff;--text:#f0e8ff;--muted:#9d88c4;--dim:#4a3570;
+}
+body{background:transparent;font-family:'Nunito',sans-serif}
+
+.obs-frame{
+  width:900px;height:600px;
+  background:var(--bg);
+  border-radius:20px;
+  display:grid;
+  grid-template-columns:260px 1fr;
+  grid-template-rows:1fr;
+  gap:0;
+  overflow:hidden;
+  position:relative;
+}
+
+.esl-header-obs{
+  background:linear-gradient(135deg, #ff6eb4 0%, #5de8c1 100%);
+  padding:6px 16px;
+  text-align:center;
+  font-family:'Dela Gothic One',sans-serif;
+  font-size:14px;
+  color:#fff;
+  font-weight:900;
+  letter-spacing:1px;
+  text-shadow:1px 1px 2px rgba(0,0,0,0.3);
+  grid-column:1 / -1;
+}
+
+/* ── LEFT COLUMN ── */
+.left-col{
+  display:flex;flex-direction:column;
+  border-right:2px solid var(--dim);
+  background:#150626;
+}
+
+/* webcam circle area */
+.webcam-zone{
+  padding:18px 18px 10px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.webcam-ring{
+  width:180px;height:180px;border-radius:50%;
+  border:3px solid var(--pink);
+  background:#0d0520;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  flex-shrink:0;
+}
+.webcam-inner{
+  width:100%;height:100%;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%, #2a0a3e, #0d0520);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;
+}
+.cam-label{font-size:12px;color:var(--dim);letter-spacing:1px;font-weight:700}
+.cam-icon{font-size:36px}
+.live-ring{
+  position:absolute;inset:-3px;border-radius:50%;
+  border:3px solid transparent;
+  border-top-color:var(--pink);border-right-color:var(--pink);
+  animation:spin 3s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.live-dot-row{display:flex;align-items:center;gap:5px}
+.live-dot{width:7px;height:7px;background:#ff4466;border-radius:50%;animation:pip 1.4s ease-in-out infinite}
+@keyframes pip{0%,100%{opacity:1}50%{opacity:0.2}}
+.live-txt{font-size:9px;font-weight:900;color:#ff4466;letter-spacing:2px}
+
+.teacher-name-plate{
+  background:rgba(255,110,180,0.12);
+  border:1.5px solid rgba(255,110,180,0.35);
+  border-radius:10px;padding:5px 12px;text-align:center;width:100%;
+}
+.tnp-name{font-family:'Dela Gothic One',sans-serif;font-size:16px;color:#fff}
+.tnp-sub{font-size:11px;color:var(--pink);letter-spacing:1px;margin-top:1px}
+.esl-badge-obs{
+  background:linear-gradient(135deg, #ffe066, #ff9ecf);
+  border-radius:15px;
+  padding:3px 8px;
+  font-family:'Nunito',sans-serif;
+  font-size:9px;
+  font-weight:900;
+  color:#1a0830;
+  margin-top:4px;
+  text-align:center;
+}
+
+/* stat bars */
+.stat-section{padding:0 16px 10px}
+.stat-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.stat-icon{font-size:14px;width:20px;text-align:center}
+.stat-bar{flex:1;height:12px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)}
+.stat-fill{height:100%;border-radius:99px}
+.stat-val{font-size:11px;font-weight:700;min-width:32px;text-align:right}
+
+/* cefr badges */
+.cefr-section{padding:0 14px 10px}
+.cefr-label{font-size:8px;color:var(--muted);letter-spacing:1px;font-weight:700;margin-bottom:5px}
+.cefr-row{display:flex;gap:4px}
+.cb{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:4px 2px;text-align:center}
+.cb.on{background:rgba(255,110,180,0.15);border-color:var(--pink)}
+.cb-code{font-family:'Dela Gothic One',sans-serif;font-size:8px;color:rgba(255,255,255,0.3);display:block}
+.cb.on .cb-code{color:var(--pink)}
+.cb-name{font-size:6px;color:rgba(255,255,255,0.2);display:block}
+.cb.on .cb-name{color:rgba(255,110,180,0.6)}
+
+/* word learned */
+.word-box{
+  margin:0 14px 10px;
+  background:rgba(93,232,193,0.07);
+  border:1.5px solid rgba(93,232,193,0.25);
+  border-radius:10px;padding:8px 10px;
+}
+.wb-label{font-size:8px;color:var(--mint);letter-spacing:1px;font-weight:700;margin-bottom:3px}
+.wb-word{font-family:'Dela Gothic One',sans-serif;font-size:16px;color:#fff}
+.wb-def{font-size:12px;color:var(--muted);font-style:italic;margin-top:2px;line-height:1.4}
+.esl-progress-obs{
+  background:rgba(255,224,102,0.1);
+  border:1px solid rgba(255,224,102,0.3);
+  border-radius:6px;
+  padding:3px 6px;
+  margin-top:4px;
+  text-align:center;
+}
+.esl-progress-text-obs{
+  font-family:'Nunito',sans-serif;
+  font-size:8px;
+  font-weight:700;
+  color:var(--yellow);
+  letter-spacing:0.3px;
+}
+
+/* booking */
+.booking{
+  margin:0 14px;
+  background:rgba(255,110,180,0.1);
+  border:1.5px solid rgba(255,110,180,0.3);
+  border-radius:10px;padding:7px 10px;text-align:center;
+}
+.bk1{font-family:'Dela Gothic One',sans-serif;font-size:13px;color:var(--pink);letter-spacing:1px;display:block}
+.bk2{font-size:11px;color:rgba(255,110,180,0.5);display:block;margin-top:2px}
+
+/* ticker */
+.ticker{
+  margin-top:auto;
+  border-top:1px solid var(--dim);
+  padding:7px 14px;overflow:hidden;white-space:nowrap;
+}
+.tick-inner{
+  display:inline-block;
+  animation:tick 22s linear infinite;
+  font-size:8px;font-weight:700;color:rgba(255,224,102,0.7);letter-spacing:0.5px;
+}
+@keyframes tick{0%{transform:translateX(240px)}100%{transform:translateX(-100%)}}
+
+/* ── RIGHT COLUMN ── */
+.right-col{
+  display:flex;flex-direction:column;
+  background:var(--bg);
+}
+
+/* illustration panel */
+.illus-panel{
+  height:220px;background:#0d0520;
+  border-bottom:2px solid var(--dim);
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.illus-inner{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.illus-badge{
+  position:absolute;top:8px;left:10px;
+  background:rgba(201,184,255,0.12);border:1px solid var(--lav);
+  border-radius:7px;padding:3px 9px;
+  font-size:8px;font-weight:700;color:var(--lav);letter-spacing:1px;
+}
+.illus-caption{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(13,5,32,0.85);
+  padding:8px 16px;
+  font-size:12px;color:var(--muted);font-style:italic;text-align:center;
+  border-top:1px solid var(--dim);
+}
+
+/* story + choices */
+.story-col{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.story-scroll{
+  flex:1;overflow-y:auto;padding:12px 14px 6px;
+  scrollbar-width:thin;scrollbar-color:var(--dim) transparent;
+}
+.story-scroll::-webkit-scrollbar{width:3px}
+.story-scroll::-webkit-scrollbar-thumb{background:var(--dim);border-radius:99px}
+.sline{font-size:16px;line-height:1.65;color:var(--text);margin-bottom:10px}
+.sline.narrator{color:var(--muted);font-style:italic}
+.sline.player{color:var(--yellow);font-weight:700}
+.sline.sys{color:var(--mint);font-size:14px;font-weight:700;letter-spacing:0.5px}
+.cursor-b{display:inline-block;width:7px;height:12px;background:var(--pink);border-radius:2px;animation:blink 1s step-end infinite;vertical-align:middle}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.choices-row{
+  display:flex;gap:8px;padding:10px 16px;
+  border-top:1px solid var(--dim);flex-shrink:0;flex-wrap:wrap;
+  justify-content:center;
+}
+.cbtn{
+  flex:1;min-width:150px;
+  background:rgba(255,110,180,0.07);
+  border:2px solid rgba(255,110,180,0.25);
+  border-radius:12px;padding:12px 16px;
+  font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;
+  color:var(--text);cursor:pointer;display:flex;align-items:flex-start;gap:8px;
+  text-align:left;transition:all 0.12s;justify-content:center;
+  min-height:60px;
+}
+.cbtn:hover{background:rgba(255,110,180,0.18);border-color:var(--pink);color:#fff}
+.cbtn:active{transform:scale(0.97)}
+.ckey{font-family:'VT323',monospace;font-size:18px;color:var(--pink);line-height:1.1}
+
+.input-row{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 12px;border-top:1px solid var(--dim);flex-shrink:0;
+}
+.cmd-prompt{font-family:'VT323',monospace;font-size:24px;color:var(--pink)}
+.cmd-input{
+  flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--dim);
+  border-radius:8px;padding:8px 12px;outline:none;
+  font-family:'Nunito',sans-serif;font-size:14px;color:var(--text);font-weight:700;
+}
+.cmd-input:focus{border-color:var(--lav)}
+.cmd-input::placeholder{color:var(--dim)}
+.send-btn{
+  background:rgba(255,110,180,0.15);border:2px solid var(--pink);
+  border-radius:10px;padding:8px 16px;
+  font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;
+  color:var(--pink);cursor:pointer;white-space:nowrap;
+}
+.send-btn:hover{background:rgba(255,110,180,0.3)}
+
+.loading-txt{font-size:14px;color:var(--lav);font-style:italic;display:flex;align-items:center;gap:5px;padding:8px 12px}
+.dots span{animation:db 1.2s ease-in-out infinite;display:inline-block}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes db{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+</style>
+
+<div class="obs-frame">
+
+  <!-- ESL LESSON HEADER -->
+  <div class="esl-header-obs">🎓 ESL ENGLISH CLASS 🎓</div>
+
+  <!-- LEFT SIDEBAR -->
+  <div class="left-col">
+    <div class="webcam-zone">
+      <div class="webcam-ring">
+        <div class="webcam-inner">
+          <div class="cam-icon">🐰</div>
+          <div class="cam-label">WEBCAM HERE</div>
+        </div>
+        <div class="live-ring"></div>
+      </div>
+      <div class="live-dot-row">
+        <div class="live-dot"></div>
+        <span class="live-txt">LIVE</span>
+      </div>
+      <div class="teacher-name-plate">
+        <div class="tnp-name">Teacher Lewis ♡</div>
+        <div class="tnp-sub">English Quest Academy</div>
+        <div class="esl-badge-obs">ESL CERTIFIED</div>
+      </div>
+    </div>
+
+    <div class="stat-section">
+      <div class="stat-row">
+        <span class="stat-icon" style="color:#ff6eb4">♥</span>
+        <div class="stat-bar"><div class="stat-fill" id="hp-f" style="width:88%;background:#ff6eb4"></div></div>
+        <span class="stat-val" style="color:#ff6eb4">HP</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-icon" style="color:#5de8c1">★</span>
+        <div class="stat-bar"><div class="stat-fill" id="xp-f" style="width:35%;background:#5de8c1"></div></div>
+        <span class="stat-val" style="color:#5de8c1">XP</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-icon" style="color:#c9b8ff">✦</span>
+        <div class="stat-bar"><div class="stat-fill" id="mp-f" style="width:60%;background:#c9b8ff"></div></div>
+        <span class="stat-val" style="color:#c9b8ff">MP</span>
+      </div>
+    </div>
+
+    <div class="cefr-section">
+      <div class="cefr-label">CEFR LEVEL</div>
+      <div class="cefr-row">
+        <div class="cb"><span class="cb-code">A1</span><span class="cb-name">Beginner</span></div>
+        <div class="cb"><span class="cb-code">A2</span><span class="cb-name">Elem</span></div>
+        <div class="cb"><span class="cb-code">B1</span><span class="cb-name">Inter</span></div>
+        <div class="cb on"><span class="cb-code">B2</span><span class="cb-name">Upper</span></div>
+        <div class="cb"><span class="cb-code">C1</span><span class="cb-name">Adv</span></div>
+        <div class="cb"><span class="cb-code">C2</span><span class="cb-name">Master</span></div>
+      </div>
+    </div>
+
+    <div class="word-box">
+      <div class="wb-label">✦ WORD LEARNED</div>
+      <div class="wb-word" id="ww">PERSEVERE</div>
+      <div class="wb-def" id="wd">to keep going even when it's hard ♡</div>
+      <div class="esl-progress-obs">
+        <div class="esl-progress-text-obs">📚 ESL: 5 WORDS</div>
+      </div>
+    </div>
+
+    <div class="booking">
+      <span class="bk1">♡ BOOK A LESSON ♡</span>
+      <span class="bk2">calendly.com/teacherlewis</span>
+    </div>
+
+    <div class="ticker">
+      <span class="tick-inner">🎓 ESL ENGLISH LESSON 🎓 &nbsp;&nbsp; ♥ Learn English with Teacher Lewis ♥ &nbsp;&nbsp; 📚 Study English Online &nbsp;&nbsp; ★ Speak English Confidently ★ &nbsp;&nbsp;</span>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="right-col">
+
+    <!-- ILLUSTRATION PANEL -->
+    <div class="illus-panel">
+      <div class="illus-inner" id="illus-inner">
+        <div class="illus-badge" id="illus-badge">The Cherry Blossom Gate</div>
+
+        <!-- default scene art -->
+        <svg width="620" height="220" viewBox="0 0 620 220" id="scene-svg">
+          <rect width="620" height="220" fill="#0d0520"/>
+          <rect x="0" y="145" width="620" height="75" fill="#150628"/>
+          <!-- moon -->
+          <circle cx="540" cy="38" r="22" fill="#ffe066" opacity="0.9"/>
+          <circle cx="540" cy="38" r="18" fill="#fff8cc"/>
+          <!-- stars -->
+          <circle cx="30" cy="20" r="2" fill="#c9b8ff" opacity="0.7"/>
+          <circle cx="80" cy="10" r="1.5" fill="#c9b8ff" opacity="0.5"/>
+          <circle cx="200" cy="15" r="2" fill="#c9b8ff" opacity="0.6"/>
+          <circle cx="350" cy="8" r="1.5" fill="#c9b8ff" opacity="0.4"/>
+          <circle cx="450" cy="22" r="2" fill="#c9b8ff" opacity="0.7"/>
+          <circle cx="580" cy="12" r="1.5" fill="#c9b8ff" opacity="0.5"/>
+          <!-- torii gate -->
+          <rect x="255" y="55" width="14" height="110" fill="#8b1a2a"/>
+          <rect x="351" y="55" width="14" height="110" fill="#8b1a2a"/>
+          <rect x="240" y="50" width="140" height="16" fill="#c02030" rx="4"/>
+          <rect x="250" y="68" width="120" height="10" fill="#c02030" rx="3"/>
+          <rect x="236" y="47" width="10" height="24" fill="#8b1a2a" rx="3"/>
+          <rect x="374" y="47" width="10" height="24" fill="#8b1a2a" rx="3"/>
+          <!-- cherry trees left -->
+          <rect x="55" y="90" width="10" height="80" fill="#4a2030"/>
+          <circle cx="55" cy="78" r="35" fill="#6b1d45" opacity="0.9"/>
+          <circle cx="38" cy="68" r="28" fill="#7a2050"/>
+          <circle cx="72" cy="65" r="26" fill="#6b1d45"/>
+          <!-- cherry trees right -->
+          <rect x="555" y="90" width="10" height="80" fill="#4a2030"/>
+          <circle cx="560" cy="78" r="35" fill="#6b1d45" opacity="0.9"/>
+          <circle cx="543" cy="68" r="28" fill="#7a2050"/>
+          <circle cx="577" cy="65" r="26" fill="#6b1d45"/>
+          <!-- blossoms left -->
+          <g fill="#ffb8dc" opacity="0.85">
+            <ellipse cx="38" cy="58" rx="5" ry="3" transform="rotate(-20 38 58)"/>
+            <ellipse cx="55" cy="50" rx="5" ry="3" transform="rotate(15 55 50)"/>
+            <ellipse cx="30" cy="75" rx="4" ry="2.5" transform="rotate(30 30 75)"/>
+            <ellipse cx="70" cy="55" rx="4" ry="2.5" transform="rotate(-10 70 55)"/>
+            <ellipse cx="50" cy="90" rx="4" ry="2.5" transform="rotate(40 50 90)"/>
+          </g>
+          <!-- blossoms right -->
+          <g fill="#ffb8dc" opacity="0.85">
+            <ellipse cx="543" cy="58" rx="5" ry="3" transform="rotate(20 543 58)"/>
+            <ellipse cx="560" cy="50" rx="5" ry="3" transform="rotate(-15 560 50)"/>
+            <ellipse cx="535" cy="75" rx="4" ry="2.5" transform="rotate(-30 535 75)"/>
+            <ellipse cx="578" cy="55" rx="4" ry="2.5" transform="rotate(10 578 55)"/>
+            <ellipse cx="555" cy="90" rx="4" ry="2.5" transform="rotate(-40 555 90)"/>
+          </g>
+          <!-- falling petals -->
+          <g fill="#ffd6f0" opacity="0.6">
+            <ellipse cx="140" cy="40" rx="3.5" ry="2" transform="rotate(25 140 40)"/>
+            <ellipse cx="200" cy="60" rx="3" ry="1.8" transform="rotate(-15 200 60)"/>
+            <ellipse cx="310" cy="30" rx="3.5" ry="2" transform="rotate(40 310 30)"/>
+            <ellipse cx="420" cy="50" rx="3" ry="1.8" transform="rotate(10 420 50)"/>
+            <ellipse cx="480" cy="35" rx="3.5" ry="2" transform="rotate(-30 480 35)"/>
+            <ellipse cx="165" cy="100" rx="3" ry="1.8" transform="rotate(20 165 100)"/>
+            <ellipse cx="390" cy="80" rx="3.5" ry="2" transform="rotate(-20 390 80)"/>
+          </g>
+          <!-- ground path -->
+          <ellipse cx="310" cy="175" rx="80" ry="12" fill="#2a1040"/>
+          <ellipse cx="150" cy="180" rx="50" ry="8" fill="#1e0a35"/>
+          <ellipse cx="470" cy="178" rx="50" ry="8" fill="#1e0a35"/>
+          <!-- usagi-sensei sprite -->
+          <ellipse cx="310" cy="142" rx="18" ry="14" fill="#ffe0f2" stroke="#ff6eb4" stroke-width="1.5"/>
+          <ellipse cx="310" cy="126" rx="14" ry="14" fill="#fff0f8" stroke="#ff6eb4" stroke-width="1.5"/>
+          <ellipse cx="298" cy="116" rx="5" ry="9" fill="#ffb8dc" stroke="#ff6eb4" stroke-width="1.2" transform="rotate(-15 298 116)"/>
+          <ellipse cx="322" cy="116" rx="5" ry="9" fill="#ffb8dc" stroke="#ff6eb4" stroke-width="1.2" transform="rotate(15 322 116)"/>
+          <ellipse cx="298" cy="116" rx="3" ry="6" fill="#ff9ecf" transform="rotate(-15 298 116)"/>
+          <ellipse cx="322" cy="116" rx="3" ry="6" fill="#ff9ecf" transform="rotate(15 322 116)"/>
+          <circle cx="305" cy="124" r="2.5" fill="#2a0a3e"/>
+          <circle cx="315" cy="124" r="2.5" fill="#2a0a3e"/>
+          <circle cx="306" cy="123" r="1" fill="#fff"/>
+          <circle cx="316" cy="123" r="1" fill="#fff"/>
+          <ellipse cx="305" cy="128" rx="1.5" ry="0.8" fill="#ffb8dc"/>
+          <ellipse cx="315" cy="128" rx="1.5" ry="0.8" fill="#ffb8dc"/>
+          <path d="M308 130 Q310 132 312 130" stroke="#2a0a3e" stroke-width="1" fill="none" stroke-linecap="round"/>
+          <!-- graduation cap -->
+          <rect x="300" y="112" width="20" height="4" fill="#1a0830" rx="1"/>
+          <rect x="306" y="108" width="8" height="5" fill="#1a0830"/>
+          <line x1="316" y1="113" x2="316" y2="118" stroke="#ffe066" stroke-width="1.5"/>
+        </svg>
+
+        <div class="illus-caption" id="illus-caption">Usagi-sensei floats before the Cherry Blossom Gate, waiting for brave English learners...</div>
+      </div>
+    </div>
+
+    <!-- STORY + GAME -->
+    <div class="story-col">
+      <div class="story-scroll" id="story-scroll">
+        <div class="sline narrator">The air smells of cherry blossoms and ancient grammar spells...</div>
+        <div class="sline">
+          <span style="color:#ff6eb4;font-weight:700">Usagi-sensei:</span>
+          <span style="color:#ffd6f0"> "Konnichiwa, brave adventurer! ♡ I am Usagi-sensei, guardian of the English Realm! To enter the Sakura Dungeon, you must prove your English power! Are you ready?"</span>
+        </div>
+        <div class="cursor-b" id="cursor"></div>
+      </div>
+
+      <div class="choices-row" id="choices-row">
+        <button class="cbtn" onclick="pick('A','Yes! I am ready!')"><span class="ckey">A</span>"Yes! I am ready!"</button>
+        <button class="cbtn" onclick="pick('B','What kind of challenge?')"><span class="ckey">B</span>"What kind of challenge?"</button>
+        <button class="cbtn" onclick="pick('C','Tell me about yourself')"><span class="ckey">C</span>Ask about Usagi-sensei</button>
+      </div>
+
+      <div class="input-row">
+        <span class="cmd-prompt">&gt;_</span>
+        <input class="cmd-input" id="cmd" placeholder="type freely or pick A / B / C..." autocomplete="off"/>
+        <button class="send-btn" onclick="send()">SEND ♡</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SYS = `You are Usagi-sensei, kawaii bunny spirit guardian of the English Realm — a Japanese-themed text adventure for ESL learners. Sweet, encouraging, anime-dramatic style. Use ♡ hearts and Japanese exclamations: Sugoi!, Gambatte!, Nani?!, Kawaii!
+
+Each player response: continue the story + weave in an English lesson moment.
+After every 2-3 turns: introduce a NEW vocabulary word naturally.
+Sometimes challenge: "Quick! Use PERSEVERE in a sentence!"
+Award XP: mention "+10 XP ✦" for good answers.
+Deduct HP: mention "-5 HP ♡" for wrong answers.
+Always be encouraging even when wrong.
+
+Keep responses SHORT: 3-4 sentences of story.
+End EVERY response with exactly 3 choices formatted: [A] text | [B] text | [C] text
+
+Also output a scene description for the illustration panel — wrap it in <SCENE>description of what should be illustrated, 1 sentence</SCENE>
+And output the new vocabulary word if introduced: <WORD>WORD — definition</WORD>
+
+The dungeon: Cherry Blossom Gate → Grammar Dungeon → Boss Battle with the Oni of Tenses.
+English IS the magic power here.`;
+
+const hist = [];
+const gs = {hp:88,xp:35,mp:60};
+
+function updateBars(){
+  document.getElementById('hp-f').style.width=gs.hp+'%';
+  document.getElementById('xp-f').style.width=Math.min(gs.xp,100)+'%';
+  document.getElementById('mp-f').style.width=gs.mp+'%';
+}
+
+function addLine(html, cls=''){
+  const s=document.getElementById('story-scroll');
+  const cur=document.getElementById('cursor');
+  const d=document.createElement('div');
+  d.className='sline '+cls;
+  d.innerHTML=html;
+  s.insertBefore(d,cur);
+  s.scrollTop=s.scrollHeight;
+}
+
+function setChoices(txt){
+  const row=document.getElementById('choices-row');
+  row.innerHTML='';
+  const ms=[...txt.matchAll(/\[([A-C])\]\s*([^\[|]+)/g)];
+  ms.forEach(m=>{
+    const b=document.createElement('button');
+    b.className='cbtn';
+    const label=m[2].trim().replace(/\s*\|?\s*$/,'');
+    b.innerHTML=`<span class="ckey">${m[1]}</span>${label}`;
+    b.onclick=()=>pick(m[1],label);
+    row.appendChild(b);
+  });
+  if(!ms.length){
+    const b=document.createElement('button');
+    b.className='cbtn';
+    b.innerHTML='<span class="ckey">↩</span> Continue...';
+    b.onclick=()=>pick('continue','Continue');
+    row.appendChild(b);
+  }
+}
+
+function updateScene(desc){
+  if(!desc) return;
+  document.getElementById('illus-caption').textContent=desc;
+}
+
+function updateWord(wordLine){
+  if(!wordLine) return;
+  const parts=wordLine.split('—');
+  if(parts[0]) document.getElementById('ww').textContent=parts[0].trim();
+  if(parts[1]) document.getElementById('wd').textContent=parts[1].trim()+' ♡';
+}
+
+function showLoading(){
+  document.getElementById('choices-row').innerHTML='<div class="loading-txt">Usagi-sensei is thinking <span class="dots"><span>.</span><span>.</span><span>.</span></span></div>';
+}
+
+async function callAI(input){
+  showLoading();
+  hist.push({role:'user',content:input});
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:SYS,messages:hist})
+    });
+    const d=await r.json();
+    const raw=d.content?.find(b=>b.type==='text')?.text||'Something magical happened... ♡';
+    hist.push({role:'assistant',content:raw});
+
+    const sceneM=raw.match(/<SCENE>(.*?)<\/SCENE>/s);
+    const wordM=raw.match(/<WORD>(.*?)<\/WORD>/s);
+    let story=raw.replace(/<SCENE>.*?<\/SCENE>/s,'').replace(/<WORD>.*?<\/WORD>/s,'').trim();
+
+    const xpM=story.match(/\+(\d+)\s*XP/i);
+    const hpM=story.match(/-(\d+)\s*HP/i);
+    if(xpM) gs.xp=Math.min(100,gs.xp+parseInt(xpM[1]));
+    if(hpM) gs.hp=Math.max(10,gs.hp-parseInt(hpM[1]));
+    updateBars();
+
+    const choiceIdx=story.search(/\[A\]/);
+    const storyPart=choiceIdx>-1?story.substring(0,choiceIdx).trim():story;
+    const choicePart=choiceIdx>-1?story.substring(choiceIdx):'';
+
+    addLine('<span style="color:#ff6eb4;font-weight:700">Usagi-sensei:</span> <span style="color:#ffd6f0">'+storyPart.replace(/\n/g,'<br>')+'</span>');
+    if(sceneM) updateScene(sceneM[1].trim());
+    if(wordM) updateWord(wordM[1].trim());
+    setChoices(choicePart);
+  }catch(e){
+    document.getElementById('choices-row').innerHTML='';
+    addLine('A magical connection error appeared! ♡','sys');
+  }
+}
+
+function pick(key,label){
+  addLine('<span style="color:#ffe066;font-weight:700">You:</span> '+label,'player');
+  callAI('Player chose '+key+': "'+label+'"');
+}
+
+function send(){
+  const el=document.getElementById('cmd');
+  const v=el.value.trim();
+  if(!v)return;
+  el.value='';
+  addLine('<span style="color:#ffe066;font-weight:700">You:</span> '+v,'player');
+  callAI(v);
+}
+
+document.getElementById('cmd').addEventListener('keydown',e=>{
+  if(e.key==='Enter')send();
+});
+
+updateBars();
+</script>

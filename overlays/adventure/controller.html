@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Production Controller</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Dela+Gothic+One&family=VT323&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a0830;--panel:#26103d;--pink:#ff6eb4;--mint:#5de8c1;
+  --yellow:#ffe066;--lav:#c9b8ff;--text:#f0e8ff;--muted:#9d88c4;--dim:#4a3570;
+}
+body{background:#0e0620;font-family:'Nunito',sans-serif;color:var(--text);padding:16px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:920px;margin:0 auto}
+.full{grid-column:1/-1}
+
+.hdr{
+  grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;background:linear-gradient(135deg,#ff6eb4,#c9b8ff,#5de8c1);border-radius:10px;
+}
+.hdr h1{font-family:'Dela Gothic One',sans-serif;font-size:16px;color:#fff;letter-spacing:2px}
+.conn{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.6)}
+.conn.on{color:#fff}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:#ff4466}
+.conn.on .conn-dot{background:#5de8c1}
+
+.panel{background:var(--panel);border:1px solid var(--dim);border-radius:10px;padding:12px}
+.panel-title{
+  font-size:9px;color:var(--muted);letter-spacing:2px;font-weight:700;
+  margin-bottom:8px;text-transform:uppercase;display:flex;align-items:center;gap:6px;
+}
+.panel-title::before{content:'';width:3px;height:10px;border-radius:2px}
+.panel-title.pk::before{background:var(--pink)}
+.panel-title.mt::before{background:var(--mint)}
+.panel-title.lv::before{background:var(--lav)}
+.panel-title.yl::before{background:var(--yellow)}
+.panel-title.rd::before{background:#ff4444}
+
+textarea{
+  width:100%;min-height:55px;max-height:100px;resize:vertical;
+  background:rgba(255,255,255,0.05);border:1px solid var(--dim);border-radius:6px;padding:8px 10px;
+  font-family:'Nunito',sans-serif;font-size:12px;color:var(--text);outline:none;
+}
+textarea:focus{border-color:var(--lav)}
+textarea::placeholder{color:var(--dim)}
+input[type=text]{
+  width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--dim);border-radius:6px;
+  padding:7px 10px;font-family:'Nunito',sans-serif;font-size:12px;color:var(--text);outline:none;
+}
+input[type=text]:focus{border-color:var(--lav)}
+input[type=text]::placeholder{color:var(--dim)}
+
+.brow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.b{
+  padding:7px 12px;border-radius:6px;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;border:2px solid;transition:all 0.1s;
+}
+.b:hover{filter:brightness(1.3)}.b:active{transform:scale(0.97)}
+.b-pk{background:rgba(255,110,180,0.12);border-color:var(--pink);color:var(--pink)}
+.b-mt{background:rgba(93,232,193,0.12);border-color:var(--mint);color:var(--mint)}
+.b-lv{background:rgba(201,184,255,0.12);border-color:var(--lav);color:var(--lav)}
+.b-yl{background:rgba(255,224,102,0.12);border-color:var(--yellow);color:var(--yellow)}
+.b-rd{background:rgba(255,68,68,0.12);border-color:#ff4444;color:#ff4444}
+.b-gr{background:rgba(93,232,193,0.12);border-color:#5de8c1;color:#5de8c1}
+.b-big{flex:1;text-align:center;padding:10px 14px;font-size:13px}
+
+.srow{display:flex;align-items:center;gap:8px;margin-top:6px}
+.srow label{font-size:10px;color:var(--muted);font-weight:700;min-width:44px}
+.srow input[type=range]{flex:1;accent-color:var(--pink)}
+.srow .sv{font-family:'VT323',monospace;font-size:14px;color:var(--pink);min-width:36px}
+
+.stat-r{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.stat-r label{font-size:10px;font-weight:700;min-width:26px}
+.stat-r input[type=range]{flex:1}
+.stat-r .sv{font-family:'VT323',monospace;font-size:14px;min-width:36px}
+
+.choice-r{display:flex;gap:6px;margin-bottom:6px}
+.choice-r input{flex:1}
+.choice-r .ck{width:36px;text-align:center;font-family:'VT323',monospace;font-weight:700;color:var(--pink)}
+
+.status-bar{
+  grid-column:1/-1;padding:6px 12px;background:rgba(255,255,255,0.03);
+  border:1px solid var(--dim);border-radius:6px;
+  font-size:10px;color:var(--muted);font-style:italic;text-align:center;
+}
+</style>
+</head>
+<body>
+<div class="grid">
+
+  <div class="hdr">
+    <h1>🎬 PRODUCTION CONTROLLER</h1>
+    <div class="conn" id="conn"><div class="conn-dot"></div> Waiting...</div>
+  </div>
+
+  <!-- ═══ TYPE SENSEI DIALOGUE ═══ -->
+  <div class="panel">
+    <div class="panel-title pk">SENSEI DIALOGUE</div>
+    <textarea id="sensei-text" placeholder="Type Usagi-sensei's dialogue here...">Sugoi! Today we learn the word "Reluctant" — when you don't really want to do something but might anyway! ♡</textarea>
+    <div class="srow">
+      <label>Speed:</label>
+      <input type="range" min="15" max="100" value="35" id="sensei-speed" oninput="document.getElementById('ss-v').textContent=this.value+'ms'"/>
+      <span class="sv" id="ss-v">35ms</span>
+    </div>
+    <div class="brow">
+      <button class="b b-pk b-big" onclick="fireSensei()">▶ TYPE SENSEI</button>
+    </div>
+  </div>
+
+  <!-- ═══ TYPE NARRATOR ═══ -->
+  <div class="panel">
+    <div class="panel-title lv">NARRATOR TEXT</div>
+    <textarea id="narrator-text" placeholder="Type narrator/scene text here...">Your friends are at the bungee jumping platform, laughing and excited. You stand frozen at the edge, heart pounding as you look down at the dizzying drop below.</textarea>
+    <div class="srow">
+      <label>Speed:</label>
+      <input type="range" min="15" max="100" value="40" id="narrator-speed" oninput="document.getElementById('ns-v').textContent=this.value+'ms'"/>
+      <span class="sv" id="ns-v">40ms</span>
+    </div>
+    <div class="brow">
+      <button class="b b-lv b-big" onclick="fireNarrator()">▶ TYPE NARRATOR</button>
+    </div>
+  </div>
+
+  <!-- ═══ TYPE PLAYER ═══ -->
+  <div class="panel">
+    <div class="panel-title yl">PLAYER TEXT</div>
+    <textarea id="player-text" placeholder="Type player response here..."></textarea>
+    <div class="brow">
+      <button class="b b-yl b-big" onclick="firePlayer()">▶ TYPE PLAYER</button>
+    </div>
+  </div>
+
+  <!-- ═══ SYSTEM TEXT ═══ -->
+  <div class="panel">
+    <div class="panel-title mt">SYSTEM TEXT</div>
+    <textarea id="system-text" placeholder="System announcement (+10 XP etc)..."></textarea>
+    <div class="brow">
+      <button class="b b-mt b-big" onclick="fireSystem()">▶ TYPE SYSTEM</button>
+    </div>
+  </div>
+
+  <!-- ═══ TRANSPORT CONTROLS ═══ -->
+  <div class="panel full">
+    <div class="panel-title rd">TRANSPORT</div>
+    <div class="brow">
+      <button class="b b-rd b-big" onclick="cmd('stop-typing')">⏹ STOP TYPING</button>
+      <button class="b b-rd b-big" onclick="cmd('clear-story')">🗑 CLEAR STORY</button>
+      <button class="b b-lv b-big" onclick="cmd('hide-choices')">HIDE CHOICES</button>
+      <button class="b b-pk b-big" onclick="cmd('show-loading')">⏳ LOADING...</button>
+    </div>
+    <div class="brow">
+      <button class="b b-gr b-big" onclick="fireCorrect()">✓ CORRECT ANSWER</button>
+      <button class="b b-rd b-big" onclick="fireWrong()">✗ WRONG ANSWER</button>
+    </div>
+  </div>
+
+  <!-- ═══ COUNTDOWN TIMER ═══ -->
+  <div class="panel full">
+    <div class="panel-title yl">⏱ COUNTDOWN TIMER</div>
+    <div class="srow">
+      <label>Duration:</label>
+      <input type="range" min="3" max="30" value="10" id="timer-duration" oninput="document.getElementById('timer-dur-v').textContent=this.value+'s'"/>
+      <span class="sv" id="timer-dur-v" style="color:var(--yellow)">10s</span>
+    </div>
+    <div class="brow">
+      <button class="b b-mt b-big" onclick="timerStart()">▶ START</button>
+      <button class="b b-yl b-big" onclick="cmd('timer-stop')">⏸ STOP</button>
+      <button class="b b-lv b-big" onclick="cmd('timer-reset')">↻ RESET</button>
+      <button class="b b-rd b-big" onclick="cmd('timer-hide')">✕ HIDE</button>
+    </div>
+  </div>
+
+  <!-- ═══ LIKE & SUBSCRIBE ═══ -->
+  <div class="panel full">
+    <div class="panel-title pk">👍 LIKE & SUBSCRIBE</div>
+    <div class="brow">
+      <button class="b b-pk b-big" onclick="cmd('show-like-subscribe')">▶ SHOW LIKE & SUBSCRIBE</button>
+      <button class="b b-rd b-big" onclick="cmd('hide-like-subscribe')">✕ HIDE</button>
+    </div>
+  </div>
+
+  <!-- ═══ CHOICES EDITOR ═══ -->
+  <div class="panel full">
+    <div class="panel-title pk">SHOW CHOICES</div>
+    <div class="choice-r"><span class="ck">A</span><input type="text" id="ch-a" placeholder="Choice A text..." value="Close your eyes and scream?"/></div>
+    <div class="choice-r"><span class="ck">B</span><input type="text" id="ch-b" placeholder="Choice B text..." value="Stay on the ground and record them?"/></div>
+    <div class="choice-r"><span class="ck">C</span><input type="text" id="ch-c" placeholder="Choice C text (optional)..."/></div>
+    <div class="brow">
+      <button class="b b-pk b-big" onclick="fireChoices()">▶ SHOW CHOICES</button>
+    </div>
+    <div class="brow">
+      <button class="b b-yl b-big" onclick="highlightChoice('A')">A SELECTED</button>
+      <button class="b b-yl b-big" onclick="highlightChoice('B')">B SELECTED</button>
+      <button class="b b-yl b-big" onclick="highlightChoice('C')">C SELECTED</button>
+    </div>
+    <div class="brow">
+      <button class="b b-mt b-big" onclick="showFeedback('correct')">✓ CORRECT!</button>
+      <button class="b b-rd b-big" onclick="showFeedback('wrong')">✗ WRONG</button>
+    </div>
+  </div>
+
+  <!-- ═══ STATS CONTROL ═══ -->
+  <div class="panel">
+    <div class="panel-title pk">SET STATS</div>
+    <div class="stat-r">
+      <label style="color:#ff6eb4">HP</label>
+      <input type="range" min="0" max="100" value="88" id="s-hp" style="accent-color:#ff6eb4" oninput="document.getElementById('s-hp-v').textContent=this.value+'%'"/>
+      <span class="sv" id="s-hp-v" style="color:#ff6eb4">88%</span>
+    </div>
+    <div class="stat-r">
+      <label style="color:#5de8c1">XP</label>
+      <input type="range" min="0" max="100" value="35" id="s-xp" style="accent-color:#5de8c1" oninput="document.getElementById('s-xp-v').textContent=this.value+'%'"/>
+      <span class="sv" id="s-xp-v" style="color:#5de8c1">35%</span>
+    </div>
+    <div class="stat-r">
+      <label style="color:#c9b8ff">MP</label>
+      <input type="range" min="0" max="100" value="60" id="s-mp" style="accent-color:#c9b8ff" oninput="document.getElementById('s-mp-v').textContent=this.value+'%'"/>
+      <span class="sv" id="s-mp-v" style="color:#c9b8ff">60%</span>
+    </div>
+    <div class="brow">
+      <button class="b b-pk b-big" onclick="fireStats()">UPDATE STATS</button>
+    </div>
+  </div>
+
+  <!-- ═══ SCENE / WORD / IMAGE ═══ -->
+  <div class="panel">
+    <div class="panel-title mt">SCENE &amp; WORD</div>
+    <input type="text" id="sc-badge" placeholder="Scene badge text..." style="margin-bottom:6px" value="The Jump"/>
+    <input type="text" id="sc-caption" placeholder="Scene caption..." style="margin-bottom:6px" value="You are reluctant to jump..."/>
+    <div class="brow" style="margin-top:0;margin-bottom:8px">
+      <button class="b b-mt b-big" onclick="fireScene()">UPDATE SCENE</button>
+    </div>
+    <input type="text" id="w-word" placeholder="Vocabulary word..." style="margin-bottom:6px" value="Reluctant"/>
+    <input type="text" id="w-def" placeholder="Definition..." style="margin-bottom:6px" value="— not wanting to do something"/>
+    <div class="brow" style="margin-top:0;margin-bottom:8px">
+      <button class="b b-mt b-big" onclick="fireWord()">UPDATE WORD</button>
+    </div>
+    <input type="text" id="img-src" placeholder="Image filename (e.g. jump.png)..." value="jump.png"/>
+    <div class="brow" style="margin-top:6px">
+      <button class="b b-mt b-big" onclick="fireImage()">CHANGE IMAGE</button>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-bar" id="status">Ready — open the game page to connect</div>
+
+</div>
+
+<script>
+// ── COMMS: WebSocket (primary) + BroadcastChannel (fallback) ──
+const bc = new BroadcastChannel('adventure-ctrl');
+let ws = null;
+let wsConnected = false;
+let connected = false;
+
+function connectWS(){
+  const url = 'ws://localhost:4455';
+  console.log('[WS Controller] Connecting to:', url);
+  ws = new WebSocket(url);
+  ws.onopen = () => {
+    wsConnected = true;
+    markConnected();
+    setStatus('WebSocket connected — overlay will respond');
+    console.log('[WS Controller] Connected');
+  };
+  ws.onclose = () => {
+    wsConnected = false;
+    connected = false;
+    const c = document.getElementById('conn');
+    c.className = 'conn';
+    c.innerHTML = '<div class="conn-dot"></div> Reconnecting...';
+    setStatus('WebSocket disconnected — retrying...');
+    console.log('[WS Controller] Disconnected, retrying...');
+    setTimeout(connectWS, 2000);
+  };
+  ws.onerror = (e) => {
+    console.error('[WS Controller] Error:', e);
+    setStatus('WebSocket error — check if server is running');
+  };
+  ws.onmessage = (e) => {
+    console.log('[WS Controller] Received:', e.data);
+    try { handleReply(JSON.parse(e.data)); } catch(err){
+      console.error('[WS Controller] Failed to parse:', err);
+    }
+  };
+}
+connectWS();
+
+// BroadcastChannel fallback
+bc.onmessage = (e) => { handleReply(e.data); };
+
+// Ping via both channels
+setInterval(()=>{
+  const ping = {type:'ping'};
+  bc.postMessage(ping);
+  if(ws && wsConnected) ws.send(JSON.stringify(ping));
+}, 2000);
+
+function handleReply(d){
+  if(d.type === 'pong' && !connected) markConnected();
+  if(d.type === 'status') setStatus(d.msg);
+}
+
+function markConnected(){
+  connected = true;
+  const c = document.getElementById('conn');
+  c.className = 'conn on';
+  c.innerHTML = '<div class="conn-dot"></div> Connected ✓';
+  setStatus('Connected to game page');
+}
+
+function setStatus(msg){ document.getElementById('status').textContent = msg; }
+
+function cmd(type, data={}){
+  const payload = {type, ...data};
+  bc.postMessage(payload);
+  if(ws && wsConnected) ws.send(JSON.stringify(payload));
+  setStatus('Sent: ' + type);
+}
+
+function fireSensei(){
+  const text = document.getElementById('sensei-text').value.trim();
+  if(!text) return;
+  const speed = parseInt(document.getElementById('sensei-speed').value);
+  cmd('type-sensei', {text: text.replace(/\n/g, '<br>'), speed});
+}
+
+function fireNarrator(){
+  const text = document.getElementById('narrator-text').value.trim();
+  if(!text) return;
+  const speed = parseInt(document.getElementById('narrator-speed').value);
+  cmd('type-narrator', {text: text.replace(/\n/g, '<br>'), speed});
+}
+
+function firePlayer(){
+  const text = document.getElementById('player-text').value.trim();
+  if(!text) return;
+  cmd('type-player', {text: text.replace(/\n/g, '<br>')});
+}
+
+function fireSystem(){
+  const text = document.getElementById('system-text').value.trim();
+  if(!text) return;
+  cmd('type-system', {text: text.replace(/\n/g, '<br>')});
+}
+
+function fireChoices(){
+  const choices = [];
+  const a = document.getElementById('ch-a').value.trim();
+  const b = document.getElementById('ch-b').value.trim();
+  const c = document.getElementById('ch-c').value.trim();
+  if(a) choices.push({key:'A', label:a});
+  if(b) choices.push({key:'B', label:b});
+  if(c) choices.push({key:'C', label:c});
+  if(choices.length === 0) return;
+  cmd('show-choices', {choices});
+}
+
+function fireStats(){
+  cmd('set-stats', {
+    hp: parseInt(document.getElementById('s-hp').value),
+    xp: parseInt(document.getElementById('s-xp').value),
+    mp: parseInt(document.getElementById('s-mp').value)
+  });
+}
+
+function fireScene(){
+  const badge = document.getElementById('sc-badge').value.trim();
+  const caption = document.getElementById('sc-caption').value.trim();
+  if(badge || caption) cmd('set-scene', {badge, caption});
+}
+
+function fireWord(){
+  const word = document.getElementById('w-word').value.trim();
+  const def = document.getElementById('w-def').value.trim();
+  if(word || def) cmd('set-word', {word, def});
+}
+
+function fireImage(){
+  const src = document.getElementById('img-src').value.trim();
+  if(src) cmd('set-image', {src});
+}
+
+function highlightChoice(key){
+  cmd('highlight-choice', {key});
+}
+
+function showFeedback(type){
+  cmd('show-feedback', {feedbackType: type});
+}
+
+function timerStart(){
+  const duration = parseInt(document.getElementById('timer-duration').value);
+  cmd('timer-start', {duration});
+}
+
+function fireCorrect(){
+  // Update stats (increase XP and HP)
+  cmd('set-stats', {
+    hp: Math.min(100, parseInt(document.getElementById('s-hp').value) + 10),
+    xp: Math.min(100, parseInt(document.getElementById('s-xp').value) + 15),
+    mp: parseInt(document.getElementById('s-mp').value)
+  });
+  
+  // Change to success image
+  cmd('set-image', {src: 'success.png'});
+  
+  // Show correct system text
+  cmd('type-system', {text: '✨ Correct! +15 XP +10 HP'});
+  
+  // Show feedback overlay
+  cmd('show-feedback', {feedbackType: 'correct'});
+}
+
+function fireWrong(){
+  // Update stats (decrease HP)
+  cmd('set-stats', {
+    hp: Math.max(0, parseInt(document.getElementById('s-hp').value) - 5),
+    xp: parseInt(document.getElementById('s-xp').value),
+    mp: parseInt(document.getElementById('s-mp').value)
+  });
+  
+  // Change to wrong image
+  cmd('set-image', {src: 'wrong.png'});
+  
+  // Show wrong system text
+  cmd('type-system', {text: '❌ Wrong! -5 HP'});
+  
+  // Show feedback overlay
+  cmd('show-feedback', {feedbackType: 'wrong'});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Teacher Lewis1 – TikTok Vertical Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #D4A843;
+    --gold-light: #F0C96A;
+    --gold-dark: #A07820;
+    --teal: #1A6B6B;
+    --teal-light: #2A9090;
+    --teal-dark: #0D4040;
+    --cream: #FDF6E8;
+    --red-accent: #C0392B;
+    --white: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  .scaler {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 430px;
+    height: 932px;
+    transform-origin: top left;
+    font-family: 'Nunito', sans-serif;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  /* ── TOP BANNER ── */
+  .top-banner {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 160px;
+    background: linear-gradient(160deg, var(--teal-dark) 0%, var(--teal) 60%, var(--teal-light) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 24px 14px;
+    clip-path: polygon(0 0, 100% 0, 100% 82%, 50% 100%, 0 82%);
+    z-index: 10;
+  }
+  .top-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(212,168,67,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 50%, rgba(212,168,67,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .banner-deco {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    opacity: 0.85;
+  }
+  .banner-deco .line {
+    width: 60px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .banner-deco .lotus {
+    color: var(--gold);
+    font-size: 14px;
+    letter-spacing: 6px;
+  }
+  .teacher-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 30px;
+    color: var(--cream);
+    letter-spacing: 1px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    line-height: 1.1;
+  }
+  .teacher-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ── CORNER ORNAMENTS ── */
+  .corner {
+    position: absolute;
+    width: 70px; height: 70px;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .corner svg { width: 100%; height: 100%; }
+  .corner-tl { top: 0; left: 0; }
+  .corner-tr { top: 0; right: 0; transform: scaleX(-1); }
+  .corner-bl { bottom: 0; left: 0; transform: scaleY(-1); }
+  .corner-br { bottom: 0; right: 0; transform: scale(-1,-1); }
+
+  /* ── LIVE BADGE ── */
+  .live-badge {
+    position: absolute;
+    top: 168px; right: 20px;
+    background: var(--red-accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 16px rgba(192,57,43,0.5);
+    z-index: 15;
+    animation: livePulse 2s ease-in-out infinite;
+  }
+  .live-badge .dot {
+    width: 7px; height: 7px;
+    background: white;
+    border-radius: 50%;
+    animation: dotBlink 1.2s ease-in-out infinite;
+  }
+  @keyframes livePulse {
+    0%, 100% { box-shadow: 0 4px 16px rgba(192,57,43,0.5); }
+    50%       { box-shadow: 0 4px 28px rgba(192,57,43,0.85); }
+  }
+  @keyframes dotBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.2; }
+  }
+
+  /* ── WEBCAM CIRCLE ── */
+  .webcam-area {
+    position: absolute;
+    top: 185px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px; height: 280px;
+    z-index: 5;
+  }
+  .webcam-ring-outer {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 3px solid rgba(212,168,67,0.35);
+    box-shadow: 0 0 0 1px rgba(212,168,67,0.15), 0 0 30px rgba(212,168,67,0.15);
+  }
+  .webcam-ring-inner {
+    position: absolute; inset: 8px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 18px rgba(212,168,67,0.4), inset 0 0 18px rgba(212,168,67,0.08);
+    background: transparent;
+  }
+  .webcam-spin {
+    position: absolute; inset: 3px;
+    border-radius: 50%;
+    border: 2px dashed rgba(212,168,67,0.28);
+    animation: spinRing 14s linear infinite;
+  }
+  @keyframes spinRing {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .webcam-dot {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(212,168,67,0.9);
+  }
+  .webcam-dot.d-top    { top: 6px;    left: 50%; transform: translateX(-50%); }
+  .webcam-dot.d-bottom { bottom: 6px; left: 50%; transform: translateX(-50%); }
+  .webcam-dot.d-left   { left: 6px;   top: 50%;  transform: translateY(-50%); }
+  .webcam-dot.d-right  { right: 6px;  top: 50%;  transform: translateY(-50%); }
+  .webcam-label {
+    position: absolute;
+    bottom: -22px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: rgba(212,168,67,0.45);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* ── SIDE LABEL ── */
+  .side-label {
+    position: absolute;
+    top: 168px; left: 20px;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    color: var(--teal-dark);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    z-index: 15;
+    box-shadow: 0 3px 12px rgba(160,120,32,0.4);
+  }
+
+  /* ── TOPIC BOX — editable ── */
+  .topic-box {
+    position: absolute;
+    top: 490px;
+    left: 20px; right: 20px;
+    background: rgba(13,64,64,0.82);
+    border: 1px solid rgba(212,168,67,0.35);
+    border-radius: 12px;
+    padding: 12px 16px;
+    backdrop-filter: blur(6px);
+    z-index: 10;
+  }
+  .topic-label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  /* The editable topic text field */
+  .topic-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.2;
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    caret-color: var(--gold);
+  }
+  .topic-text::placeholder {
+    color: rgba(253,246,232,0.3);
+  }
+  .topic-sub-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .topic-sub {
+    font-size: 10px;
+    color: rgba(240,201,106,0.75);
+    font-weight: 600;
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    caret-color: var(--gold-light);
+  }
+  .topic-sub::placeholder {
+    color: rgba(240,201,106,0.3);
+  }
+  .edit-hint {
+    font-size: 7px;
+    color: rgba(212,168,67,0.35);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    margin-top: 3px;
+  }
+
+  /* ── LEVEL PILLS ── */
+  .levels-row {
+    position: absolute;
+    top: 594px;
+    left: 20px; right: 20px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+  .pill {
+    flex: 1;
+    text-align: center;
+    padding: 7px 4px;
+    border-radius: 30px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border: 1px solid rgba(212,168,67,0.3);
+    background: rgba(26,107,107,0.55);
+    color: rgba(240,201,106,0.9);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+    transition: all 0.4s ease;
+    user-select: none;
+  }
+  .pill.active {
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    color: var(--teal-dark);
+    border-color: var(--gold);
+    box-shadow: 0 3px 12px rgba(212,168,67,0.5);
+  }
+
+  /* ── DIVIDER ── */
+  .gold-divider {
+    position: absolute;
+    left: 20px; right: 20px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), rgba(212,168,67,0.3), transparent);
+    z-index: 10;
+  }
+  .d1 { top: 636px; }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    position: absolute;
+    top: 648px;
+    left: 20px; right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+  }
+  .stat-card {
+    flex: 1;
+    background: rgba(13,64,64,0.75);
+    border: 1px solid rgba(212,168,67,0.2);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+  }
+  .stat-icon { font-size: 18px; margin-bottom: 3px; }
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: rgba(253,246,232,0.55);
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  /* ── PHRASE OF THE DAY ── */
+  .phrase-box {
+    position: absolute;
+    top: 734px;
+    left: 20px; right: 20px;
+    background: linear-gradient(135deg, rgba(160,120,32,0.22), rgba(212,168,67,0.12));
+    border: 1px solid rgba(212,168,67,0.4);
+    border-radius: 12px;
+    padding: 12px 16px;
+    z-index: 10;
+    backdrop-filter: blur(4px);
+  }
+  .phrase-label {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .phrase-label::before { content: '✦'; color: var(--gold); font-size: 8px; }
+  .phrase-english {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--cream);
+    font-style: italic;
+    line-height: 1.3;
+  }
+  .phrase-translation {
+    font-size: 10px;
+    color: rgba(240,201,106,0.8);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* ── BOOK A LESSON ── */
+  .book-box {
+    position: absolute;
+    top: 822px;
+    left: 20px; right: 20px;
+    background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    padding: 10px 16px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 20px rgba(212,168,67,0.2);
+    animation: bookPulse 3s ease-in-out infinite;
+  }
+  @keyframes bookPulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(212,168,67,0.2); }
+    50%       { box-shadow: 0 4px 30px rgba(212,168,67,0.5); }
+  }
+  .book-left { flex: 1; }
+  .book-label {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .book-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1.1;
+  }
+  .book-sub {
+    font-size: 9px;
+    color: rgba(240,201,106,0.75);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .book-btn {
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    color: var(--teal-dark);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+    box-shadow: 0 3px 12px rgba(160,120,32,0.5);
+    animation: btnShine 3s ease-in-out infinite;
+  }
+  @keyframes btnShine {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.85; }
+  }
+
+  /* ── BOTTOM BAR ── */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 76px;
+    background: linear-gradient(0deg, var(--teal-dark) 0%, var(--teal) 70%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 14px;
+    clip-path: polygon(0 18%, 50% 0%, 100% 18%, 100% 100%, 0 100%);
+    z-index: 10;
+  }
+  .bottom-bar::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 100%, rgba(212,168,67,0.1) 0%, transparent 70%);
+  }
+  .bottom-marquee {
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(240,201,106,0.8);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    text-align: center;
+    padding: 0 20px;
+    margin-bottom: 3px;
+  }
+  .bottom-handle {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    color: var(--cream);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+
+  /* ── SHIMMER ── */
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+  }
+  .shimmer-text {
+    background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold-light) 40%, var(--gold-dark) 60%, var(--gold-light) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+  }
+
+  /* ── PARTICLES ── */
+  .particle {
+    position: absolute;
+    color: rgba(212,168,67,0.18);
+    font-size: 14px;
+    pointer-events: none;
+    animation: floatUp linear infinite;
+    z-index: 1;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(0deg);   opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.3; }
+    100% { transform: translateY(-900px) rotate(360deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scaler">
+  <div class="canvas" id="canvas">
+
+    <!-- Particles -->
+    <div class="particle" style="left:8%;  top:700px; animation-duration:18s; animation-delay:0s;">✿</div>
+    <div class="particle" style="left:25%; top:750px; animation-duration:22s; animation-delay:4s;  font-size:10px;">❀</div>
+    <div class="particle" style="left:70%; top:720px; animation-duration:16s; animation-delay:2s;">✦</div>
+    <div class="particle" style="left:88%; top:760px; animation-duration:20s; animation-delay:7s;  font-size:10px;">✿</div>
+    <div class="particle" style="left:50%; top:800px; animation-duration:25s; animation-delay:11s;">❀</div>
+
+    <!-- Corner ornaments -->
+    <div class="corner corner-tl">
+      <svg viewBox="0 0 70 70" fill="none">
+        <path d="M4 4 L30 4 Q4 4 4 30 Z" fill="rgba(212,168,67,0.5)"/>
+        <path d="M4 4 L4 30 Q4 4 30 4 Z" fill="rgba(212,168,67,0.25)"/>
+        <circle cx="10" cy="10" r="3" fill="rgba(212,168,67,0.7)"/>
+        <circle cx="20" cy="6" r="1.5" fill="rgba(212,168,67,0.5)"/>
+        <circle cx="6" cy="20" r="1.5" fill="rgba(212,168,67,0.5)"/>
+        <path d="M4 38 Q4 4 38 4" stroke="rgba(212,168,67,0.3)" stroke-width="1" fill="none"/>
+        <path d="M4 28 Q4 4 28 4" stroke="rgba(212,168,67,0.2)" stroke-width="0.5" fill="none"/>
+      </svg>
+    </div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <!-- TOP BANNER -->
+    <div class="top-banner">
+      <div class="banner-deco">
+        <div class="line"></div>
+        <span class="lotus">❀ ❀ ❀</span>
+        <div class="line"></div>
+      </div>
+      <div class="teacher-name">Teacher <span class="shimmer-text">Lewis1</span></div>
+      <div class="teacher-title">✦ &nbsp; English Online &nbsp; ✦</div>
+    </div>
+
+    <!-- LIVE BADGE -->
+    <div class="live-badge"><span class="dot"></span>LIVE</div>
+
+    <!-- WEBCAM CIRCLE -->
+    <div class="webcam-area">
+      <div class="webcam-ring-outer"></div>
+      <div class="webcam-spin"></div>
+      <div class="webcam-ring-inner"></div>
+      <div class="webcam-dot d-top"></div>
+      <div class="webcam-dot d-bottom"></div>
+      <div class="webcam-dot d-left"></div>
+      <div class="webcam-dot d-right"></div>
+      <div class="webcam-label">✦ &nbsp; Teacher Lewis1 &nbsp; ✦</div>
+    </div>
+
+    <!-- SIDE LABEL -->
+    <div class="side-label">🇬🇧 Free Class</div>
+
+    <!-- TOPIC BOX — click the text to edit live -->
+    <div class="topic-box">
+      <div class="topic-label">Today's Topic ✏️</div>
+      <input class="topic-text" id="topicTitle" type="text"
+        value="Everyday Conversations"
+        placeholder="Type your topic here..." />
+      <div class="topic-sub-wrap">
+        <input class="topic-sub" id="topicSub" type="text"
+          value="📌 Greetings · Introductions · Small Talk"
+          placeholder="Subtopics..." />
+      </div>
+      <div class="edit-hint">click text to edit</div>
+    </div>
+
+    <!-- LEVEL PILLS — click to change which is gold -->
+    <div class="levels-row" id="pillsRow">
+      <div class="pill active" onclick="setActivePill(0)">Beginner</div>
+      <div class="pill"        onclick="setActivePill(1)">Elementary</div>
+      <div class="pill"        onclick="setActivePill(2)">Pre-Int</div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="gold-divider d1"></div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon">📚</div>
+        <div class="stat-value">5+</div>
+        <div class="stat-label">Yrs Exp</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-value">Elite</div>
+        <div class="stat-label">Class Only</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value">4.9</div>
+        <div class="stat-label">Rating</div>
+      </div>
+    </div>
+
+    <!-- PHRASE OF THE DAY -->
+    <div class="phrase-box">
+      <div class="phrase-label">Phrase of the Day</div>
+      <div class="phrase-english">"How are you doing today?"</div>
+      <div class="phrase-translation">🇹🇭 วันนี้เป็นยังไงบ้าง?&nbsp;&nbsp;🇻🇳 Bạn có khỏe không?</div>
+    </div>
+
+    <!-- BOOK A LESSON -->
+    <div class="book-box">
+      <div class="book-left">
+        <div class="book-label">✦ Limited Spots</div>
+        <div class="book-title">Book a Lesson Now</div>
+        <div class="book-sub">1-on-1 · Online · Any Level</div>
+      </div>
+      <div class="book-btn">📩 DM Me</div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="bottom-bar">
+      <div class="bottom-marquee">✦ &nbsp; สวัสดี · Xin chào · Welcome &nbsp; ✦ &nbsp; Join the class! &nbsp; ✦</div>
+      <div class="bottom-handle">@TeacherLewis1</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── Scale canvas to fill OBS browser window — anchored top-left ──
+  function scaleCanvas() {
+    const canvas = document.getElementById('canvas');
+    const scaleX = window.innerWidth  / 430;
+    const scaleY = window.innerHeight / 932;
+    const scale  = Math.min(scaleX, scaleY);
+    canvas.style.transform       = `scale(${scale})`;
+    canvas.style.transformOrigin = 'top left';
+    canvas.style.left = ((window.innerWidth  - 430 * scale) / 2) + 'px';
+    canvas.style.top  = '0px';
+  }
+  scaleCanvas();
+  window.addEventListener('resize', scaleCanvas);
+
+  // ── Auto-rotate level pills every 3 seconds ──
+  const pills = document.querySelectorAll('#pillsRow .pill');
+  let currentPill = 0;
+
+  function rotatePill() {
+    pills[currentPill].classList.remove('active');
+    currentPill = (currentPill + 1) % pills.length;
+    pills[currentPill].classList.add('active');
+  }
+
+  // Auto-rotate timer
+  let pillTimer = setInterval(rotatePill, 3000);
+
+  // Manual click — resets the timer so it doesn't jump after clicking
+  function setActivePill(index) {
+    clearInterval(pillTimer);
+    pills.forEach(p => p.classList.remove('active'));
+    pills[index].classList.add('active');
+    currentPill = index;
+    pillTimer = setInterval(rotatePill, 3000);
+  }
+</script>
+
+</body>
+</html>

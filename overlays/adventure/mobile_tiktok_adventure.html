@@ -1,0 +1,1547 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a0830;--panel:#26103d;--pink:#ff6eb4;--mint:#5de8c1;
+  --yellow:#ffe066;--lav:#c9b8ff;--text:#f0e8ff;--muted:#9d88c4;--dim:#4a3570;
+}
+body{background:transparent;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+
+.tiktok-frame{
+  width:1080px;height:1920px;
+  background:transparent;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  position:relative;
+  margin:0 auto;
+  padding-bottom:480px; /* TikTok safe zone — keeps content above native UI */
+}
+
+.esl-header{
+  background:linear-gradient(135deg, #ff6eb4 0%, #c9b8ff 50%, #5de8c1 100%);
+  padding:10px 20px;
+  text-align:center;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:24px;
+  color:#fff;
+  font-weight:900;
+  letter-spacing:3px;
+  text-shadow:2px 2px 6px rgba(0,0,0,0.4);
+  flex-shrink:0;
+}
+
+/* ── BATTLE HUD: WEBCAM + VITALS ── */
+.webcam-hero{
+  display:flex;flex-direction:row;align-items:stretch;
+  background:transparent;
+  border-bottom:3px solid var(--pink);
+  flex-shrink:0;
+  position:relative;
+  height:280px;
+}
+
+/* webcam frame — slanted rectangle */
+.webcam-frame{
+  flex:0 0 480px;
+  clip-path:polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%);
+  background:transparent;
+  position:relative;overflow:hidden;
+  pointer-events:none;
+}
+.webcam-inner{
+  width:100%;height:100%;
+  background:transparent;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;
+}
+.cam-label{font-size:24px;color:var(--dim);letter-spacing:2px;font-weight:700}
+.cam-icon{font-size:72px}
+.live-badge{
+  position:absolute;top:16px;left:16px;
+  display:flex;align-items:center;gap:8px;
+  background:rgba(0,0,0,0.6);border:2px solid #ff4466;
+  border-radius:8px;padding:6px 14px;
+  z-index:5;pointer-events:auto;
+}
+.live-dot{width:12px;height:12px;background:#ff4466;border-radius:50%;animation:pip 1.4s ease-in-out infinite}
+@keyframes pip{0%,100%{opacity:1}50%{opacity:0.2}}
+.live-txt{font-size:16px;font-weight:900;color:#ff4466;letter-spacing:2px}
+
+/* teacher name plate — floating overlay at bottom-left of webcam */
+.teacher-name-plate{
+  position:absolute;bottom:20px;left:16px;
+  transform:skewX(-15deg);
+  background:rgba(26,8,48,0.8);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:2px solid var(--pink);
+  border-left:4px solid var(--pink);
+  padding:10px 24px 10px 18px;
+  z-index:5;pointer-events:auto;
+}
+.teacher-name-plate > *{transform:skewX(15deg)}
+.tnp-name{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:26px;color:#fff;display:block}
+.tnp-sub{font-size:14px;color:var(--pink);letter-spacing:2px;margin-top:2px;display:block}
+.esl-badge{
+  display:inline-block;
+  background:linear-gradient(135deg, #ffe066, #ff9ecf);
+  border-radius:4px;
+  padding:3px 12px;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:12px;
+  font-weight:900;
+  color:#1a0830;
+  margin-top:6px;
+  letter-spacing:1px;
+}
+
+/* vitals column — right side of HUD */
+.vitals-column{
+  flex:1;
+  display:flex;flex-direction:column;
+  justify-content:center;
+  padding:24px 30px 24px 50px;
+  gap:20px;
+  background:linear-gradient(135deg, #120420 0%, #0a0318 100%);
+}
+.vital-row{
+  display:flex;align-items:center;gap:12px;
+}
+.vital-icon{font-size:28px;width:36px;text-align:center}
+.vital-label{
+  font-family:'Courier New',Courier,monospace;font-size:22px;font-weight:700;
+  min-width:36px;letter-spacing:2px;
+}
+.vital-bar{
+  flex:1;height:28px;
+  background:rgba(255,255,255,0.06);
+  border:2px solid rgba(255,255,255,0.1);
+  border-radius:4px;overflow:hidden;
+  position:relative;
+}
+.vital-fill{
+  height:100%;border-radius:2px;
+  transition:width 0.5s ease-in-out;
+}
+.vital-fill.hp{background:#ff6eb4;box-shadow:0 0 12px rgba(255,110,180,0.5), inset 0 1px 0 rgba(255,255,255,0.2)}
+.vital-fill.xp{background:#5de8c1;box-shadow:0 0 12px rgba(93,232,193,0.5), inset 0 1px 0 rgba(255,255,255,0.2)}
+.vital-fill.mp{background:#c9b8ff;box-shadow:0 0 12px rgba(201,184,255,0.5), inset 0 1px 0 rgba(255,255,255,0.2)}
+.vital-num{
+  font-family:'Courier New',Courier,monospace;font-size:24px;font-weight:700;
+  min-width:52px;text-align:right;
+}
+/* ── WORD OF THE DAY (in vitals column) ── */
+.wotd-hud{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  margin-top:6px;
+  padding:10px 16px;
+  background:rgba(255,110,180,0.08);
+  border:2px solid var(--pink);
+  border-radius:12px;
+  box-shadow:0 0 20px rgba(255,110,180,0.3), inset 0 0 15px rgba(255,110,180,0.05);
+  animation:wotd-glow 2s ease-in-out infinite;
+}
+@keyframes wotd-glow{
+  0%,100%{box-shadow:0 0 20px rgba(255,110,180,0.3), inset 0 0 15px rgba(255,110,180,0.05)}
+  50%{box-shadow:0 0 35px rgba(255,110,180,0.6), 0 0 60px rgba(255,110,180,0.2), inset 0 0 20px rgba(255,110,180,0.1)}
+}
+.wotd-label{
+  font-family:'Courier New',Courier,monospace;font-size:13px;color:var(--pink);
+  letter-spacing:3px;font-weight:700;text-transform:uppercase;
+}
+.wotd-word{
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:34px;font-weight:900;
+  color:#fff;
+  text-shadow:0 0 18px rgba(255,110,180,0.6), 0 0 40px rgba(255,110,180,0.3);
+  letter-spacing:2px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+
+/* ── VOCAB STRIP ── */
+.vocab-strip{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  padding:5px 20px;
+  background:#120420;
+  border-bottom:2px solid var(--dim);
+  flex-shrink:0;
+}
+.vs-label{font-size:10px;color:var(--mint);letter-spacing:1px;font-weight:700}
+.vs-word{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:18px;color:#fff}
+.vs-def{font-size:13px;color:var(--muted);font-style:italic}
+.vs-count{
+  background:rgba(255,224,102,0.15);border:1px solid rgba(255,224,102,0.3);
+  border-radius:15px;padding:4px 12px;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:11px;font-weight:700;color:var(--yellow);
+}
+
+
+/* ── ILLUSTRATION PANEL ── */
+.illus-panel{
+  height:350px;background:#0d0520;
+  border-bottom:2px solid var(--dim);
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.illus-inner{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.illus-badge{
+  position:absolute;top:12px;left:16px;
+  background:rgba(201,184,255,0.12);border:2px solid var(--lav);
+  border-radius:10px;padding:8px 18px;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;font-weight:700;color:var(--lav);letter-spacing:1px;
+}
+.illus-caption{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(13,5,32,0.92);
+  padding:14px 20px;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:18px;color:var(--muted);font-style:italic;text-align:center;
+  border-top:2px solid var(--dim);
+}
+
+/* ── STORY + CHOICES ── */
+.story-col{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.story-scroll{
+  flex:1;overflow-y:auto;padding:20px 30px 10px;
+  scrollbar-width:thin;scrollbar-color:var(--dim) transparent;
+}
+.story-scroll::-webkit-scrollbar{width:4px}
+.story-scroll::-webkit-scrollbar-thumb{background:var(--dim);border-radius:99px}
+.sline{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:30px;line-height:1.6;color:var(--text);margin-bottom:14px}
+.sline.narrator{color:var(--muted);font-style:italic}
+.sline.player{color:var(--yellow);font-weight:700}
+.sline.sys{color:var(--mint);font-size:26px;font-weight:700;letter-spacing:0.5px}
+.cursor-b{display:inline-block;width:16px;height:30px;background:var(--pink);border-radius:2px;animation:blink 1s step-end infinite;vertical-align:middle}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.choices-row{
+  display:flex;flex-direction:column;gap:10px;padding:14px 30px;
+  border-top:2px solid var(--dim);flex-shrink:0;
+  justify-content:center;
+}
+.cbtn{
+  width:100%;
+  background:rgba(255,110,180,0.07);
+  border:3px solid rgba(255,110,180,0.25);
+  border-radius:16px;padding:16px 24px;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:26px;font-weight:700;
+  color:var(--text);cursor:pointer;display:flex;align-items:center;gap:14px;
+  text-align:left;transition:all 0.12s;justify-content:center;
+  max-width:95%;
+  margin:0 auto;
+}
+.cbtn:hover{background:rgba(255,110,180,0.18);border-color:var(--pink);color:#fff}
+.cbtn:active{transform:scale(0.98)}
+.cbtn.selected{background:rgba(255,224,102,0.25);border-color:var(--yellow);color:#fff;box-shadow:0 0 20px rgba(255,224,102,0.4)}
+.cbtn.selected .ckey{color:var(--yellow)}
+.ckey{font-family:'Courier New',Courier,monospace;font-size:34px;color:var(--pink);line-height:1.1;min-width:40px}
+
+.input-row{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 20px;border-top:2px solid var(--dim);flex-shrink:0;
+}
+.cmd-prompt{font-family:'Courier New',Courier,monospace;font-size:42px;color:var(--pink)}
+.cmd-input{
+  flex:1;background:rgba(255,255,255,0.05);border:2px solid var(--dim);
+  border-radius:10px;padding:16px 20px;outline:none;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:24px;color:var(--text);font-weight:700;
+}
+.cmd-input:focus{border-color:var(--lav)}
+.cmd-input::placeholder{color:var(--dim)}
+.send-btn{
+  background:rgba(255,110,180,0.15);border:2px solid var(--pink);
+  border-radius:10px;padding:16px 26px;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:22px;font-weight:900;
+  color:var(--pink);cursor:pointer;white-space:nowrap;
+}
+.send-btn:hover{background:rgba(255,110,180,0.3)}
+
+.loading-txt{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:28px;color:var(--lav);font-style:italic;display:flex;align-items:center;gap:6px;padding:12px 20px}
+.dots span{animation:db 1.2s ease-in-out infinite;display:inline-block}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes db{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+
+/* ── FEEDBACK OVERLAY ── */
+.feedback-overlay{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:100;pointer-events:none;
+  opacity:0;transition:opacity 0.3s ease;
+}
+.feedback-overlay.show{opacity:1}
+.feedback-correct{
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:120px;font-weight:900;
+  color:var(--mint);text-shadow:0 0 40px rgba(93,232,193,0.8);
+  animation:feedback-bounce 0.8s ease-out;
+}
+.feedback-wrong{
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:120px;font-weight:900;
+  color:#ff4444;text-shadow:0 0 40px rgba(255,68,68,0.8);
+  animation:feedback-shake 0.6s ease-out;
+}
+@keyframes feedback-bounce{
+  0%{transform:scale(0) rotate(-10deg)}50%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0deg)}
+}
+@keyframes feedback-shake{
+  0%,100%{transform:translateX(0)}25%{transform:translateX(-20px) rotate(-5deg)}75%{transform:translateX(20px) rotate(5deg)}
+}
+
+/* ── COUNTDOWN TIMER ── */
+.timer-container{
+  position:absolute;top:20px;right:20px;z-index:50;
+  display:none;
+}
+.timer-container.active{display:block}
+.timer-circle{
+  width:120px;height:120px;position:relative;
+  background:rgba(26,8,48,0.9);border-radius:50%;
+  border:4px solid var(--dim);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 30px rgba(0,0,0,0.5);
+}
+.timer-svg{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  transform:rotate(-90deg);
+}
+.timer-circle-bg{
+  fill:none;stroke:rgba(255,255,255,0.1);stroke-width:8;
+}
+.timer-circle-progress{
+  fill:none;stroke:var(--pink);stroke-width:8;
+  stroke-linecap:round;
+  transition:stroke-dashoffset 0.1s linear;
+}
+.timer-circle-progress.warning{stroke:var(--yellow)}
+.timer-circle-progress.danger{stroke:#ff4444}
+.timer-text{
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:36px;
+  color:var(--pink);z-index:1;
+  text-shadow:0 0 10px rgba(255,110,180,0.5);
+}
+.timer-text.warning{color:var(--yellow)}
+.timer-text.danger{color:#ff4444;animation:timer-pulse 0.5s ease-in-out infinite}
+.timer-label{
+  position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);
+  font-family:'Courier New',Courier,monospace;font-size:16px;
+  color:var(--muted);letter-spacing:2px;white-space:nowrap;
+}
+@keyframes timer-pulse{
+  0%,100%{transform:scale(1)}50%{transform:scale(1.1)}
+}
+
+/* ── LIKE & SUBSCRIBE OVERLAY ── */
+.like-subscribe-overlay{
+  position:fixed;bottom:0;left:0;width:100%;
+  z-index:200;pointer-events:none;
+  display:none;
+  transform:translateY(100%);
+  transition:transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+.like-subscribe-overlay.show{
+  display:block;
+  transform:translateY(0);
+}
+.like-subscribe-box{
+  width:100%;
+  padding:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.follow-logo{
+  max-width:90%;
+  height:auto;
+  animation:follow-float 2s ease-in-out infinite;
+}
+@keyframes follow-float{
+  0%,100%{transform:translateY(0px)}
+  50%{transform:translateY(-10px)}
+}
+
+/* ── TICKER ── */
+.ticker{
+  border-top:2px solid var(--dim);
+  padding:8px 20px;overflow:hidden;white-space:nowrap;
+  background:linear-gradient(90deg, #150626, #1a0830, #150626);
+  flex-shrink:0;
+}
+.tick-inner{
+  display:inline-block;
+  animation:tick 25s linear infinite;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;font-weight:700;color:rgba(255,224,102,0.8);letter-spacing:0.5px;
+}
+@keyframes tick{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+
+/* ── PARTICLE CANVAS ── */
+.particle-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:999;
+}
+
+/* ── SCREEN FLASH ── */
+.screen-flash{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:998;opacity:0;
+  transition:opacity 0.08s ease-out;
+}
+.screen-flash.go{opacity:1}
+
+/* ── GLOW PULSE on vitals ── */
+@keyframes vital-glow-up{
+  0%{filter:brightness(1) drop-shadow(0 0 0px transparent)}
+  50%{filter:brightness(1.8) drop-shadow(0 0 12px rgba(93,232,193,0.8))}
+  100%{filter:brightness(1) drop-shadow(0 0 0px transparent)}
+}
+@keyframes vital-glow-down{
+  0%{filter:brightness(1) drop-shadow(0 0 0px transparent)}
+  50%{filter:brightness(1.8) drop-shadow(0 0 12px rgba(255,68,68,0.8))}
+  100%{filter:brightness(1) drop-shadow(0 0 0px transparent)}
+}
+.vital-fill.glow-up{animation:vital-glow-up 0.6s ease-out}
+.vital-fill.glow-down{animation:vital-glow-down 0.6s ease-out}
+
+/* ── CHOICE SHIMMER ── */
+@keyframes choice-shimmer{
+  0%{background-position:-200% center}
+  100%{background-position:200% center}
+}
+.cbtn.shimmer{
+  background-image:linear-gradient(90deg, transparent 0%, rgba(255,110,180,0.3) 50%, transparent 100%);
+  background-size:200% 100%;
+  animation:choice-shimmer 0.8s ease-out;
+}
+
+/* ── IMAGE REVEAL FLASH ── */
+@keyframes img-reveal{
+  0%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.3)}
+}
+.illus-flash{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  background:radial-gradient(circle, rgba(201,184,255,0.6) 0%, transparent 70%);
+  pointer-events:none;z-index:10;
+  animation:img-reveal 0.6s ease-out forwards;
+}
+</style>
+
+<div class="tiktok-frame">
+
+  <!-- ESL LESSON HEADER -->
+  <div class="esl-header">[ ESL ENGLISH ADVENTURE ]</div>
+
+  <!-- BATTLE HUD: WEBCAM + VITALS -->
+  <div class="webcam-hero">
+    <!-- Webcam (Left) — slanted rectangle -->
+    <div class="webcam-frame">
+      <div class="webcam-inner"></div>
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        <span class="live-txt">LIVE</span>
+      </div>
+      <div class="teacher-name-plate">
+        <div class="tnp-name">Teacher Lewis &hearts;</div>
+        <div class="tnp-sub">English Quest Academy</div>
+        <div class="esl-badge">[ ESL CERTIFIED ]</div>
+      </div>
+    </div>
+
+    <!-- Vitals (Right) -->
+    <div class="vitals-column">
+      <div class="vital-row">
+        <span class="vital-icon" style="color:#ff6eb4">&hearts;</span>
+        <span class="vital-label" style="color:#ff6eb4">HP</span>
+        <div class="vital-bar"><div class="vital-fill hp" id="hp-f" style="width:88%"></div></div>
+        <span class="vital-num" id="hp-num" style="color:#ff6eb4">88%</span>
+      </div>
+      <div class="vital-row">
+        <span class="vital-icon" style="color:#5de8c1">&star;</span>
+        <span class="vital-label" style="color:#5de8c1">XP</span>
+        <div class="vital-bar"><div class="vital-fill xp" id="xp-f" style="width:35%"></div></div>
+        <span class="vital-num" id="xp-num" style="color:#5de8c1">35%</span>
+      </div>
+      <div class="vital-row">
+        <span class="vital-icon" style="color:#c9b8ff">&bull;</span>
+        <span class="vital-label" style="color:#c9b8ff">MP</span>
+        <div class="vital-bar"><div class="vital-fill mp" id="mp-f" style="width:60%"></div></div>
+        <span class="vital-num" id="mp-num" style="color:#c9b8ff">60%</span>
+      </div>
+      <div class="wotd-hud">
+        <span class="wotd-label">+ WORD OF THE DAY +</span>
+        <span class="wotd-word" id="wb-word">PERSEVERE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VOCAB STRIP -->
+  <div class="vocab-strip">
+    <span class="vs-label">+ WORD:</span>
+    <span class="vs-word" id="ww">PERSEVERE</span>
+    <span class="vs-def" id="wd">&mdash; to keep going even when it's hard &hearts;</span>
+    <span class="vs-count">[ 5 words ]</span>
+  </div>
+
+  <!-- ILLUSTRATION PANEL -->
+  <div class="illus-panel">
+    <div class="illus-inner" id="illus-inner">
+      <div class="illus-badge" id="illus-badge">The Cherry Blossom Gate</div>
+
+      <!-- scene art scaled for mobile -->
+      <img src="jump.png" alt="Scene illustration" style="width:100%;height:100%;object-fit:contain;" id="scene-img"/>
+
+      <div class="illus-caption" id="illus-caption">Usagi-sensei floats before the Cherry Blossom Gate, waiting for brave English learners...</div>
+    </div>
+  </div>
+
+  <!-- STORY + GAME -->
+  <div class="story-col">
+    <div class="story-scroll" id="story-scroll">
+      <div class="sline narrator">The air smells of cherry blossoms and ancient grammar spells...</div>
+      <div class="sline">
+        <span style="color:#ff6eb4;font-weight:700;">Usagi-sensei:</span>
+        <span style="color:#ffd6f0;"> "Konnichiwa, brave adventurer! &hearts; I am Usagi-sensei, guardian of the English Realm! To enter the Sakura Dungeon, you must prove your English power! Are you ready?"</span>
+      </div>
+      <div class="cursor-b" id="cursor"></div>
+    </div>
+
+    <div class="choices-row" id="choices-row">
+      <button class="cbtn" onclick="pick('A','Yes! I am ready!')"><span class="ckey">A</span>"Yes! I am ready!"</button>
+      <button class="cbtn" onclick="pick('B','What kind of challenge?')"><span class="ckey">B</span>"What kind of challenge?"</button>
+      <button class="cbtn" onclick="pick('C','Tell me about yourself')"><span class="ckey">C</span>Ask about Usagi-sensei</button>
+    </div>
+
+    <div class="input-row">
+      <span class="cmd-prompt">&gt;_</span>
+      <input class="cmd-input" id="cmd" placeholder="type freely or pick A / B / C..." autocomplete="off"/>
+      <button class="send-btn" onclick="send()">SEND ♡</button>
+    </div>
+  </div>
+
+  <!-- FEEDBACK OVERLAY -->
+  <div class="feedback-overlay" id="feedback-overlay"></div>
+
+  <!-- LIKE & SUBSCRIBE OVERLAY -->
+  <div class="like-subscribe-overlay" id="like-subscribe-overlay">
+    <div class="like-subscribe-box">
+      <img src="follow.png" alt="Follow" class="follow-logo"/>
+    </div>
+  </div>
+
+  <!-- COUNTDOWN TIMER -->
+  <div class="timer-container" id="timer-container">
+    <div class="timer-circle">
+      <svg class="timer-svg" viewBox="0 0 120 120">
+        <circle class="timer-circle-bg" cx="60" cy="60" r="54"></circle>
+        <circle class="timer-circle-progress" id="timer-progress" cx="60" cy="60" r="54" stroke-dasharray="339.292" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="timer-text" id="timer-text">10</div>
+    </div>
+    <div class="timer-label">DECIDE!</div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <span class="tick-inner">🎓 ESL ENGLISH LESSON 🎓 &nbsp;&nbsp; ♥ Learn English with Teacher Lewis ♥ &nbsp;&nbsp; 📚 Study English Online &nbsp;&nbsp; ♡ BOOK A LESSON: calendly.com/teacherlewis ♡ &nbsp;&nbsp; ★ Speak English Confidently ★ &nbsp;&nbsp; 🌍 Join Daily ESL Classes ♡ &nbsp;&nbsp;</span>
+  </div>
+
+</div>
+
+<!-- PARTICLE CANVAS OVERLAY -->
+<canvas class="particle-canvas" id="particle-canvas"></canvas>
+<div class="screen-flash" id="screen-flash"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// ── SFX ENGINE (Web Audio API — no files needed)
+// ══════════════════════════════════════════════
+const SFX = (function(){
+  let ctx = null;
+  function ac(){
+    if(!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if(ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  function tone(freq, dur, type='sine', vol=0.18, ramp=0.01){
+    const c = ac();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, c.currentTime);
+    g.gain.setValueAtTime(vol, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+    o.connect(g); g.connect(c.destination);
+    o.start(c.currentTime);
+    o.stop(c.currentTime + dur);
+  }
+
+  function noise(dur, vol=0.06){
+    const c = ac();
+    const buf = c.createBuffer(1, c.sampleRate * dur, c.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1);
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    const g = c.createGain();
+    g.gain.setValueAtTime(vol, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+    const filt = c.createBiquadFilter();
+    filt.type = 'highpass'; filt.frequency.value = 4000;
+    src.connect(filt); filt.connect(g); g.connect(c.destination);
+    src.start(); src.stop(c.currentTime + dur);
+  }
+
+  return {
+    // soft tick for each typed character
+    typeTick(){
+      const c = ac();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = 'square';
+      o.frequency.setValueAtTime(1800 + Math.random()*400, c.currentTime);
+      g.gain.setValueAtTime(0.04, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.03);
+      o.connect(g); g.connect(c.destination);
+      o.start(c.currentTime); o.stop(c.currentTime + 0.03);
+    },
+
+    // choice button highlighted / selected
+    choiceSelect(){
+      tone(880, 0.12, 'sine', 0.2);
+      setTimeout(()=> tone(1320, 0.15, 'sine', 0.15), 60);
+    },
+
+    // choices panel appearing on screen
+    choicesAppear(){
+      tone(440, 0.08, 'triangle', 0.1);
+      setTimeout(()=> tone(660, 0.08, 'triangle', 0.1), 50);
+      setTimeout(()=> tone(880, 0.12, 'triangle', 0.08), 100);
+    },
+
+    // correct answer fanfare
+    correct(){
+      tone(523, 0.12, 'sine', 0.22);
+      setTimeout(()=> tone(659, 0.12, 'sine', 0.2), 100);
+      setTimeout(()=> tone(784, 0.12, 'sine', 0.18), 200);
+      setTimeout(()=> tone(1047, 0.25, 'sine', 0.22), 300);
+    },
+
+    // wrong answer buzz
+    wrong(){
+      tone(220, 0.15, 'sawtooth', 0.15);
+      setTimeout(()=> tone(185, 0.2, 'sawtooth', 0.12), 120);
+      setTimeout(()=> tone(147, 0.3, 'sawtooth', 0.1), 240);
+    },
+
+    // vital bar goes UP (XP gain, HP heal)
+    vitalUp(){
+      tone(660, 0.08, 'sine', 0.15);
+      setTimeout(()=> tone(880, 0.08, 'sine', 0.15), 70);
+      setTimeout(()=> tone(1100, 0.12, 'sine', 0.12), 140);
+    },
+
+    // vital bar goes DOWN (HP loss)
+    vitalDown(){
+      tone(440, 0.1, 'triangle', 0.15);
+      setTimeout(()=> tone(330, 0.1, 'triangle', 0.12), 80);
+      setTimeout(()=> tone(220, 0.15, 'triangle', 0.1), 160);
+    },
+
+    // generic vital update (mixed changes)
+    vitalUpdate(){
+      tone(740, 0.08, 'sine', 0.12);
+      setTimeout(()=> tone(880, 0.1, 'sine', 0.1), 60);
+    },
+
+    // follow / like-subscribe overlay appears
+    followAppear(){
+      tone(523, 0.1, 'sine', 0.2);
+      setTimeout(()=> tone(784, 0.1, 'sine', 0.18), 80);
+      setTimeout(()=> tone(1047, 0.15, 'sine', 0.2), 160);
+      setTimeout(()=> tone(1319, 0.2, 'sine', 0.15), 260);
+      setTimeout(()=> noise(0.08, 0.04), 300);
+    },
+
+    // scene image changes
+    imageReveal(){
+      noise(0.12, 0.06);
+      tone(400, 0.06, 'sine', 0.1);
+      setTimeout(()=> tone(600, 0.08, 'sine', 0.12), 50);
+      setTimeout(()=> tone(800, 0.12, 'sine', 0.1), 100);
+    },
+
+    // scene / word update
+    sceneUpdate(){
+      tone(550, 0.08, 'triangle', 0.1);
+      setTimeout(()=> tone(733, 0.1, 'triangle', 0.08), 60);
+    },
+
+    // timer tick each second
+    timerTick(){
+      tone(1000, 0.04, 'square', 0.06);
+    },
+
+    // timer warning (last few seconds)
+    timerWarning(){
+      tone(880, 0.06, 'square', 0.12);
+      setTimeout(()=> tone(880, 0.06, 'square', 0.1), 100);
+    },
+
+    // timer finished
+    timerDone(){
+      tone(440, 0.2, 'sawtooth', 0.18);
+      setTimeout(()=> tone(330, 0.25, 'sawtooth', 0.15), 150);
+      setTimeout(()=> tone(220, 0.35, 'sawtooth', 0.12), 300);
+    },
+
+    // typing starts (little intro blip)
+    typeStart(){
+      tone(1200, 0.05, 'sine', 0.1);
+      setTimeout(()=> tone(1600, 0.06, 'sine', 0.08), 40);
+    },
+
+    // typing complete
+    typeDone(){
+      tone(880, 0.08, 'sine', 0.12);
+      setTimeout(()=> tone(1100, 0.1, 'sine', 0.1), 60);
+      setTimeout(()=> tone(1320, 0.12, 'sine', 0.08), 120);
+    }
+  };
+})();
+
+// unlock audio context on first user interaction
+document.addEventListener('click', ()=>{ SFX.typeTick(); }, {once:true});
+
+// ══════════════════════════════════════════════
+// ── PARTICLE ENGINE (canvas-based)
+// ══════════════════════════════════════════════
+const VFX = (function(){
+  const cvs = document.getElementById('particle-canvas');
+  const c = cvs.getContext('2d');
+  let particles = [];
+  let raf = null;
+  let W = 0, H = 0;
+
+  function resize(){
+    W = cvs.width = window.innerWidth;
+    H = cvs.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ── Particle class ──
+  class P {
+    constructor(o){
+      this.x = o.x ?? W/2;
+      this.y = o.y ?? H/2;
+      this.vx = o.vx ?? (Math.random()-0.5)*4;
+      this.vy = o.vy ?? (Math.random()-0.5)*4;
+      this.size = o.size ?? 4;
+      this.color = o.color ?? '#ff6eb4';
+      this.alpha = o.alpha ?? 1;
+      this.decay = o.decay ?? 0.02;
+      this.gravity = o.gravity ?? 0;
+      this.friction = o.friction ?? 0.99;
+      this.shape = o.shape ?? 'circle'; // circle, star, heart, petal, square, ring
+      this.rotation = o.rotation ?? Math.random()*Math.PI*2;
+      this.spin = o.spin ?? (Math.random()-0.5)*0.1;
+      this.life = 1;
+      this.shrink = o.shrink ?? 0;
+      this.glow = o.glow ?? 0;
+    }
+    update(){
+      this.vx *= this.friction;
+      this.vy *= this.friction;
+      this.vy += this.gravity;
+      this.x += this.vx;
+      this.y += this.vy;
+      this.life -= this.decay;
+      this.alpha = Math.max(0, this.life);
+      this.rotation += this.spin;
+      if(this.shrink) this.size = Math.max(0, this.size - this.shrink);
+      return this.life > 0 && this.size > 0;
+    }
+    draw(ctx){
+      ctx.save();
+      ctx.globalAlpha = this.alpha;
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation);
+      if(this.glow > 0){
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = this.glow;
+      }
+      ctx.fillStyle = this.color;
+
+      if(this.shape === 'circle'){
+        ctx.beginPath();
+        ctx.arc(0,0,this.size,0,Math.PI*2);
+        ctx.fill();
+      } else if(this.shape === 'star'){
+        drawStar(ctx, 0, 0, 5, this.size, this.size*0.4);
+      } else if(this.shape === 'heart'){
+        drawHeart(ctx, 0, 0, this.size);
+      } else if(this.shape === 'petal'){
+        ctx.beginPath();
+        ctx.ellipse(0,0, this.size*0.6, this.size*1.5, 0, 0, Math.PI*2);
+        ctx.fill();
+      } else if(this.shape === 'square'){
+        ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+      } else if(this.shape === 'ring'){
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0,0,this.size,0,Math.PI*2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+
+  function drawStar(ctx, cx, cy, spikes, outer, inner){
+    let rot = Math.PI/2*3, step = Math.PI/spikes;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - outer);
+    for(let i=0;i<spikes;i++){
+      ctx.lineTo(cx + Math.cos(rot)*outer, cy + Math.sin(rot)*outer);
+      rot += step;
+      ctx.lineTo(cx + Math.cos(rot)*inner, cy + Math.sin(rot)*inner);
+      rot += step;
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function drawHeart(ctx, cx, cy, sz){
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + sz*0.4);
+    ctx.bezierCurveTo(cx - sz, cy - sz*0.5, cx - sz*0.5, cy - sz*1.2, cx, cy - sz*0.5);
+    ctx.bezierCurveTo(cx + sz*0.5, cy - sz*1.2, cx + sz, cy - sz*0.5, cx, cy + sz*0.4);
+    ctx.fill();
+  }
+
+  // ── Animation loop ──
+  function loop(){
+    c.clearRect(0,0,W,H);
+    particles = particles.filter(p => {
+      const alive = p.update();
+      if(alive) p.draw(c);
+      return alive;
+    });
+    // spawn ambient particles
+    if(Math.random() < 0.12) spawnAmbient();
+    raf = requestAnimationFrame(loop);
+  }
+
+  // ── Ambient sakura petals + sparkles ──
+  function spawnAmbient(){
+    const colors = ['#ffb8dc','#ffd6f0','#ff9ecf','#c9b8ff','#ffe066'];
+    particles.push(new P({
+      x: Math.random()*W,
+      y: -10,
+      vx: (Math.random()-0.3)*1.5,
+      vy: Math.random()*1.5 + 0.5,
+      size: Math.random()*5 + 3,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      alpha: 0.6,
+      decay: 0.003,
+      gravity: 0.02,
+      friction: 0.999,
+      shape: Math.random() > 0.3 ? 'petal' : 'star',
+      spin: (Math.random()-0.5)*0.04,
+      glow: Math.random() > 0.5 ? 8 : 0
+    }));
+  }
+
+  // ── Screen flash helper ──
+  function flash(color, dur=200){
+    const el = document.getElementById('screen-flash');
+    el.style.background = color;
+    el.classList.add('go');
+    setTimeout(()=> el.classList.remove('go'), dur);
+  }
+
+  // ── Burst helpers ──
+  function burst(x, y, count, opts={}){
+    for(let i=0;i<count;i++){
+      const angle = (Math.PI*2/count)*i + Math.random()*0.3;
+      const speed = (opts.speed ?? 4) * (0.5 + Math.random()*0.8);
+      particles.push(new P({
+        x, y,
+        vx: Math.cos(angle)*speed,
+        vy: Math.sin(angle)*speed,
+        size: opts.size ?? (Math.random()*5+3),
+        color: opts.colors ? opts.colors[Math.floor(Math.random()*opts.colors.length)] : '#ff6eb4',
+        decay: opts.decay ?? 0.02,
+        gravity: opts.gravity ?? 0.05,
+        friction: opts.friction ?? 0.97,
+        shape: opts.shape ?? 'circle',
+        glow: opts.glow ?? 10,
+        shrink: opts.shrink ?? 0,
+        spin: (Math.random()-0.5)*0.15
+      }));
+    }
+  }
+
+  function rain(count, opts={}){
+    for(let i=0;i<count;i++){
+      setTimeout(()=>{
+        particles.push(new P({
+          x: Math.random()*W,
+          y: -20 - Math.random()*100,
+          vx: (Math.random()-0.5)*3,
+          vy: Math.random()*3 + 2,
+          size: opts.size ?? (Math.random()*6+3),
+          color: opts.colors ? opts.colors[Math.floor(Math.random()*opts.colors.length)] : '#ff6eb4',
+          decay: opts.decay ?? 0.008,
+          gravity: opts.gravity ?? 0.08,
+          friction: 0.99,
+          shape: opts.shape ?? 'heart',
+          glow: opts.glow ?? 6,
+          spin: (Math.random()-0.5)*0.1
+        }));
+      }, i * 30);
+    }
+  }
+
+  function rising(x, y, count, opts={}){
+    for(let i=0;i<count;i++){
+      setTimeout(()=>{
+        particles.push(new P({
+          x: x + (Math.random()-0.5)*80,
+          y,
+          vx: (Math.random()-0.5)*2,
+          vy: -(Math.random()*3 + 2),
+          size: opts.size ?? (Math.random()*4+2),
+          color: opts.colors ? opts.colors[Math.floor(Math.random()*opts.colors.length)] : '#5de8c1',
+          decay: opts.decay ?? 0.015,
+          gravity: opts.gravity ?? -0.02,
+          friction: 0.98,
+          shape: opts.shape ?? 'star',
+          glow: opts.glow ?? 12,
+          spin: (Math.random()-0.5)*0.1
+        }));
+      }, i * 20);
+    }
+  }
+
+  // ── PUBLIC EFFECTS ──
+  return {
+    start(){ if(!raf) loop(); },
+
+    // correct answer — big green/gold sparkle burst + flash
+    correct(){
+      burst(W/2, H/2, 50, {
+        colors:['#5de8c1','#ffe066','#fff','#c9b8ff'],
+        speed:8, size:8, shape:'star', glow:20, decay:0.015
+      });
+      burst(W/2, H/2, 30, {
+        colors:['#5de8c1','#ffe066'],
+        speed:5, size:5, shape:'circle', glow:15, decay:0.02
+      });
+      flash('rgba(93,232,193,0.25)', 250);
+    },
+
+    // wrong answer — red shake burst + flash
+    wrong(){
+      burst(W/2, H/2, 35, {
+        colors:['#ff4444','#ff6666','#ff2222'],
+        speed:6, size:6, shape:'square', glow:15, decay:0.025
+      });
+      flash('rgba(255,68,68,0.2)', 200);
+    },
+
+    // choice highlighted — sparkle from center
+    choiceSelect(){
+      const cy = H * 0.75;
+      burst(W/2, cy, 20, {
+        colors:['#ffe066','#ff6eb4','#fff'],
+        speed:4, size:5, shape:'star', glow:12, decay:0.025
+      });
+    },
+
+    // choices appear — shimmer rain
+    choicesAppear(){
+      const cy = H * 0.7;
+      for(let i=0;i<15;i++){
+        setTimeout(()=>{
+          particles.push(new P({
+            x: W*0.1 + Math.random()*W*0.8,
+            y: cy + Math.random()*100,
+            vx: (Math.random()-0.5)*1,
+            vy: (Math.random()-0.5)*1,
+            size: Math.random()*4+2,
+            color: ['#ff6eb4','#c9b8ff','#ffe066'][Math.floor(Math.random()*3)],
+            decay: 0.03,
+            shape: 'star',
+            glow: 15,
+            spin: (Math.random()-0.5)*0.2
+          }));
+        }, i*40);
+      }
+    },
+
+    // vital bars go up — rising green sparkles from HUD area
+    vitalUp(){
+      const hx = W * 0.75, hy = H * 0.18;
+      rising(hx, hy, 20, {
+        colors:['#5de8c1','#ffe066','#fff'],
+        size:5, glow:15
+      });
+      // glow pulse on bars
+      document.querySelectorAll('.vital-fill').forEach(el=>{
+        el.classList.remove('glow-up');
+        void el.offsetWidth;
+        el.classList.add('glow-up');
+      });
+    },
+
+    // vital bars go down — falling red particles
+    vitalDown(){
+      const hx = W * 0.75, hy = H * 0.18;
+      burst(hx, hy, 25, {
+        colors:['#ff4444','#ff6eb4','#ff6666'],
+        speed:3, size:4, shape:'circle', glow:10, decay:0.02, gravity:0.15
+      });
+      document.querySelectorAll('.vital-fill').forEach(el=>{
+        el.classList.remove('glow-down');
+        void el.offsetWidth;
+        el.classList.add('glow-down');
+      });
+    },
+
+    // follow / like-subscribe — heart rain + confetti
+    followAppear(){
+      rain(40, {
+        colors:['#ff6eb4','#ff9ecf','#ffe066','#c9b8ff','#fff'],
+        shape:'heart', size:10, glow:12, decay:0.006
+      });
+      // also confetti squares
+      rain(30, {
+        colors:['#ff6eb4','#5de8c1','#ffe066','#c9b8ff','#ff9ecf'],
+        shape:'square', size:6, glow:0, decay:0.008
+      });
+      flash('rgba(255,110,180,0.15)', 300);
+    },
+
+    // image change — radial flash + sparkle ring
+    imageReveal(){
+      const cx = W/2, cy = H * 0.42;
+      burst(cx, cy, 30, {
+        colors:['#c9b8ff','#fff','#5de8c1','#ffe066'],
+        speed:6, size:6, shape:'star', glow:18, decay:0.02
+      });
+      // add flash div to illus panel
+      const panel = document.getElementById('illus-inner');
+      if(panel){
+        const fl = document.createElement('div');
+        fl.className = 'illus-flash';
+        panel.appendChild(fl);
+        setTimeout(()=> fl.remove(), 700);
+      }
+    },
+
+    // scene/word update — subtle sparkle
+    sceneUpdate(){
+      const vx = W/2, vy = H*0.25;
+      burst(vx, vy, 10, {
+        colors:['#c9b8ff','#5de8c1','#ffe066'],
+        speed:2, size:3, shape:'star', glow:10, decay:0.03
+      });
+    },
+
+    // typing complete — sparkle trail
+    typeDone(){
+      const ty = H * 0.65;
+      for(let i=0;i<12;i++){
+        setTimeout(()=>{
+          particles.push(new P({
+            x: W*0.1 + (i/12)*W*0.8,
+            y: ty + (Math.random()-0.5)*20,
+            vx: (Math.random()-0.5)*1,
+            vy: -(Math.random()*2+1),
+            size: Math.random()*4+2,
+            color: ['#ff6eb4','#ffd6f0','#c9b8ff'][Math.floor(Math.random()*3)],
+            decay: 0.025,
+            shape: 'star',
+            glow: 12,
+            spin: (Math.random()-0.5)*0.15
+          }));
+        }, i*25);
+      }
+    },
+
+    // timer warning — pulsing red ring particles around timer
+    timerWarning(){
+      const tx = W - 80, ty = 80;
+      for(let i=0;i<6;i++){
+        const angle = (Math.PI*2/6)*i;
+        particles.push(new P({
+          x: tx + Math.cos(angle)*40,
+          y: ty + Math.sin(angle)*40,
+          vx: Math.cos(angle)*1.5,
+          vy: Math.sin(angle)*1.5,
+          size: 8 + Math.random()*4,
+          color: '#ff4444',
+          decay: 0.04,
+          shape: 'ring',
+          glow: 15,
+          friction: 0.95
+        }));
+      }
+    },
+
+    // timer done — big red explosion
+    timerDone(){
+      const tx = W - 80, ty = 80;
+      burst(tx, ty, 40, {
+        colors:['#ff4444','#ff6666','#ffe066','#fff'],
+        speed:7, size:7, shape:'star', glow:20, decay:0.018
+      });
+      flash('rgba(255,68,68,0.25)', 300);
+    }
+  };
+})();
+
+// Start the particle loop
+VFX.start();
+
+// ── COMMS: WebSocket (primary) + BroadcastChannel (fallback) ──
+const bc = new BroadcastChannel('adventure-ctrl');
+let ws = null;
+let wsConnected = false;
+
+function connectWS(){
+  const url = 'ws://localhost:4455';
+  console.log('[WS] Connecting to:', url);
+  ws = new WebSocket(url);
+  ws.onopen = () => { 
+    wsConnected = true; 
+    console.log('[WS] Connected'); 
+    document.body.style.border = '4px solid #5de8c1'; // Visual indicator
+  };
+  ws.onclose = () => { 
+    wsConnected = false; 
+    console.log('[WS] Disconnected, retrying...'); 
+    document.body.style.border = '4px solid #ff4444'; // Visual indicator
+    setTimeout(connectWS, 2000); 
+  };
+  ws.onerror = (e) => { 
+    console.error('[WS] Error:', e); 
+    document.body.style.border = '4px solid #ff4444';
+  };
+  ws.onmessage = (e) => {
+    console.log('[WS] Received:', e.data);
+    try { handleMsg(JSON.parse(e.data)); } catch(err){
+      console.error('[WS] Failed to parse message:', err);
+    }
+  };
+}
+connectWS();
+
+// BroadcastChannel fallback
+bc.onmessage = (e) => { handleMsg(e.data); };
+
+// Unified send (replies go to both channels)
+const ch = {
+  postMessage(data){
+    bc.postMessage(data);
+    if(ws && wsConnected) ws.send(JSON.stringify(data));
+  }
+};
+
+// ── PRODUCTION STATE ──
+const gs = {hp:88, xp:35, mp:60};
+let typeTimer = null;
+let countdownTimer = null;
+let timerDuration = 10;
+let timerRemaining = 10;
+const TIMER_CIRCUMFERENCE = 339.292;
+
+// ── TIMER FUNCTIONS ──
+function startTimer(duration){
+  stopTimer();
+  timerDuration = duration || 10;
+  timerRemaining = timerDuration;
+  
+  const container = document.getElementById('timer-container');
+  const text = document.getElementById('timer-text');
+  const progress = document.getElementById('timer-progress');
+  
+  container.classList.add('active');
+  updateTimerDisplay();
+  
+  let lastSecond = timerDuration;
+  countdownTimer = setInterval(() => {
+    timerRemaining -= 0.1;
+    
+    const sec = Math.ceil(timerRemaining);
+    if(sec !== lastSecond && sec > 0){
+      lastSecond = sec;
+      if(timerRemaining / timerDuration <= 0.3){ SFX.timerWarning(); VFX.timerWarning(); }
+      else SFX.timerTick();
+    }
+    
+    if(timerRemaining <= 0){
+      timerRemaining = 0;
+      stopTimer();
+      showTimesUp();
+      SFX.timerDone();
+      VFX.timerDone();
+      ch.postMessage({type:'status', msg:'Timer finished!'});
+    }
+    
+    updateTimerDisplay();
+  }, 100);
+}
+
+function stopTimer(){
+  if(countdownTimer){
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+}
+
+function resetTimer(){
+  stopTimer();
+  timerRemaining = timerDuration;
+  const label = document.querySelector('.timer-label');
+  label.textContent = 'DECIDE!';
+  label.style.color = '';
+  label.style.fontSize = '';
+  label.style.fontWeight = '';
+  updateTimerDisplay();
+}
+
+function hideTimer(){
+  stopTimer();
+  document.getElementById('timer-container').classList.remove('active');
+}
+
+function showTimesUp(){
+  const text = document.getElementById('timer-text');
+  const label = document.querySelector('.timer-label');
+  text.textContent = "0";
+  label.textContent = "TIME'S UP!";
+  label.style.color = '#ff4444';
+  label.style.fontSize = '18px';
+  label.style.fontWeight = '900';
+}
+
+function showLikeSubscribe(){
+  const overlay = document.getElementById('like-subscribe-overlay');
+  overlay.classList.add('show');
+  SFX.followAppear();
+  VFX.followAppear();
+  
+  // Auto-hide after 3 seconds
+  setTimeout(() => {
+    hideLikeSubscribe();
+  }, 3000);
+}
+
+function hideLikeSubscribe(){
+  const overlay = document.getElementById('like-subscribe-overlay');
+  overlay.classList.remove('show');
+}
+
+function updateTimerDisplay(){
+  const text = document.getElementById('timer-text');
+  const progress = document.getElementById('timer-progress');
+  
+  const seconds = Math.ceil(timerRemaining);
+  text.textContent = seconds;
+  
+  const percentage = timerRemaining / timerDuration;
+  const offset = TIMER_CIRCUMFERENCE * (1 - percentage);
+  progress.style.strokeDashoffset = offset;
+  
+  // Update colors based on time remaining
+  text.className = 'timer-text';
+  progress.className = 'timer-circle-progress';
+  
+  if(percentage <= 0.3){
+    text.classList.add('danger');
+    progress.classList.add('danger');
+  } else if(percentage <= 0.5){
+    text.classList.add('warning');
+    progress.classList.add('warning');
+  }
+}
+
+// ── TYPEWRITER ENGINE ──
+function typeText(targetId, html, speed=40, callback){
+  clearInterval(typeTimer);
+  const el = document.getElementById(targetId);
+  if(!el) return;
+  // extract plain text, converting <br> to \n so line breaks survive
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  tmp.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+  const plainText = tmp.textContent;
+  
+  el.innerHTML = '';
+  let i = 0;
+  SFX.typeStart();
+  typeTimer = setInterval(()=>{
+    if(i < plainText.length){
+      if(plainText[i] === '\n'){
+        el.appendChild(document.createElement('br'));
+      } else {
+        el.appendChild(document.createTextNode(plainText[i]));
+        if(plainText[i].trim()) SFX.typeTick();
+      }
+      i++;
+      el.parentElement.scrollTop = el.parentElement.scrollHeight;
+    } else {
+      clearInterval(typeTimer);
+      typeTimer = null;
+      // restore full html after typing done
+      el.innerHTML = html;
+      SFX.typeDone();
+      VFX.typeDone();
+      if(callback) callback();
+      ch.postMessage({type:'status', msg:'Typing complete'});
+    }
+  }, speed);
+}
+
+// ── ADD A LINE WITH TYPEWRITER ──
+function addLineTyped(html, cls='', speed=40){
+  const s = document.getElementById('story-scroll');
+  const cur = document.getElementById('cursor');
+  const d = document.createElement('div');
+  d.className = 'sline ' + cls;
+  d.id = 'typing-target';
+  s.insertBefore(d, cur);
+  typeText('typing-target', html, speed, ()=>{
+    d.removeAttribute('id');
+  });
+}
+
+// ── ADD A LINE INSTANTLY ──
+function addLine(html, cls=''){
+  const s = document.getElementById('story-scroll');
+  const cur = document.getElementById('cursor');
+  const d = document.createElement('div');
+  d.className = 'sline ' + cls;
+  d.innerHTML = html;
+  s.insertBefore(d, cur);
+  s.scrollTop = s.scrollHeight;
+}
+
+// ── UPDATE BARS ──
+function updateBars(){
+  document.getElementById('hp-f').style.width = gs.hp+'%';
+  document.getElementById('xp-f').style.width = Math.min(gs.xp,100)+'%';
+  document.getElementById('mp-f').style.width = gs.mp+'%';
+  document.getElementById('hp-num').textContent = gs.hp+'%';
+  document.getElementById('xp-num').textContent = Math.min(gs.xp,100)+'%';
+  document.getElementById('mp-num').textContent = gs.mp+'%';
+}
+
+// ── SET CHOICES ──
+function setChoices(list){
+  const row = document.getElementById('choices-row');
+  row.innerHTML = '';
+  list.forEach(c=>{
+    const b = document.createElement('button');
+    b.className = 'cbtn';
+    b.innerHTML = `<span class="ckey">${c.key}</span>${c.label}`;
+    row.appendChild(b);
+  });
+  if(list.length){
+    SFX.choicesAppear();
+    VFX.choicesAppear();
+    // add shimmer class to each button
+    document.querySelectorAll('#choices-row .cbtn').forEach((btn,i)=>{
+      setTimeout(()=>{ btn.classList.add('shimmer'); }, i*120);
+      setTimeout(()=>{ btn.classList.remove('shimmer'); }, i*120+800);
+    });
+  }
+}
+
+// ── CLEAR STORY ──
+function clearStory(){
+  const s = document.getElementById('story-scroll');
+  const cur = document.getElementById('cursor');
+  s.innerHTML = '';
+  s.appendChild(cur);
+}
+
+// ── SHOW / HIDE ELEMENTS ──
+function showEl(id){ const el=document.getElementById(id); if(el) el.style.display=''; }
+function hideEl(id){ const el=document.getElementById(id); if(el) el.style.display='none'; }
+
+// ── HANDLE PRODUCTION COMMANDS FROM CONTROLLER ──
+function handleMsg(d){
+  if(d.type === 'ping'){
+    ch.postMessage({type:'pong'});
+    return;
+  }
+
+  // Type narrator text with typewriter effect
+  if(d.type === 'type-narrator'){
+    addLineTyped(d.text, 'narrator', d.speed || 40);
+  }
+
+  // Type sensei dialogue with typewriter effect
+  if(d.type === 'type-sensei'){
+    const html = '<span style="color:#ff6eb4;font-weight:700;font-family:system-ui,-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif">Usagi-sensei:</span> <span style="color:#ffd6f0;font-family:system-ui,-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif">' + d.text + '</span>';
+    addLineTyped(html, '', d.speed || 35);
+  }
+
+  // Type player text with typewriter effect
+  if(d.type === 'type-player'){
+    const html = '<span style="color:#ffe066;font-weight:700">You:</span> ' + d.text;
+    addLineTyped(html, 'player', d.speed || 30);
+  }
+
+  // Type system text
+  if(d.type === 'type-system'){
+    addLineTyped(d.text, 'sys', d.speed || 25);
+  }
+
+  // Add text instantly (no typewriter)
+  if(d.type === 'add-instant'){
+    addLine(d.text, d.cls || '');
+  }
+
+  // Stop current typing
+  if(d.type === 'stop-typing'){
+    clearInterval(typeTimer);
+    typeTimer = null;
+    const t = document.getElementById('typing-target');
+    if(t) t.removeAttribute('id');
+  }
+
+  // Show choices
+  if(d.type === 'show-choices'){
+    setChoices(d.choices || []);
+  }
+
+  // Hide choices
+  if(d.type === 'hide-choices'){
+    document.getElementById('choices-row').innerHTML = '';
+  }
+
+  // Clear all story text
+  if(d.type === 'clear-story'){
+    clearStory();
+  }
+
+  // Update HP/XP/MP
+  if(d.type === 'set-stats'){
+    const oldHp = gs.hp, oldXp = gs.xp, oldMp = gs.mp;
+    if(d.hp !== undefined) gs.hp = d.hp;
+    if(d.xp !== undefined) gs.xp = d.xp;
+    if(d.mp !== undefined) gs.mp = d.mp;
+    updateBars();
+    const totalDelta = (gs.hp - oldHp) + (gs.xp - oldXp) + (gs.mp - oldMp);
+    if(totalDelta > 0){ SFX.vitalUp(); VFX.vitalUp(); }
+    else if(totalDelta < 0){ SFX.vitalDown(); VFX.vitalDown(); }
+    else SFX.vitalUpdate();
+  }
+
+  // Update scene caption
+  if(d.type === 'set-scene'){
+    if(d.badge) document.getElementById('illus-badge').textContent = d.badge;
+    if(d.caption) document.getElementById('illus-caption').textContent = d.caption;
+    SFX.sceneUpdate();
+    VFX.sceneUpdate();
+  }
+
+  // Update vocabulary word
+  if(d.type === 'set-word'){
+    if(d.word){
+      document.getElementById('ww').textContent = d.word;
+      document.getElementById('wb-word').textContent = d.word;
+    }
+    if(d.def) document.getElementById('wd').textContent = d.def;
+    SFX.sceneUpdate();
+    VFX.sceneUpdate();
+  }
+
+  // Change scene image
+  if(d.type === 'set-image'){
+    const img = document.getElementById('scene-img');
+    if(img && d.src){
+      img.src = d.src;
+      SFX.imageReveal();
+      VFX.imageReveal();
+    }
+  }
+
+  // Show/hide any element by ID
+  if(d.type === 'show') showEl(d.id);
+  if(d.type === 'hide') hideEl(d.id);
+
+  // Show loading spinner in choices area
+  if(d.type === 'show-loading'){
+    document.getElementById('choices-row').innerHTML = '<div class="loading-txt">Usagi-sensei is thinking <span class="dots"><span>.</span><span>.</span><span>.</span></span></div>';
+  }
+
+  // Highlight selected choice
+  if(d.type === 'highlight-choice'){
+    const key = d.key || '';
+    SFX.choiceSelect();
+    VFX.choiceSelect();
+    document.querySelectorAll('#choices-row .cbtn').forEach(btn => {
+      const btnKey = btn.querySelector('.ckey')?.textContent || '';
+      if(btnKey === key){
+        btn.classList.add('selected');
+      } else {
+        btn.classList.remove('selected');
+      }
+    });
+  }
+
+  // Show feedback overlay
+  if(d.type === 'show-feedback'){
+    const overlay = document.getElementById('feedback-overlay');
+    const feedbackType = d.feedbackType || d.type || 'correct';
+    
+    overlay.className = 'feedback-overlay';
+    if(feedbackType === 'correct'){
+      overlay.innerHTML = '<div class="feedback-correct">CORRECT!</div>';
+      SFX.correct();
+      VFX.correct();
+    } else if(feedbackType === 'wrong'){
+      overlay.innerHTML = '<div class="feedback-wrong">WRONG!</div>';
+      SFX.wrong();
+      VFX.wrong();
+    }
+    
+    // trigger animation
+    setTimeout(() => overlay.classList.add('show'), 10);
+    
+    // auto-hide after 2 seconds
+    setTimeout(() => {
+      overlay.classList.remove('show');
+    }, 2000);
+  }
+
+  // Timer controls
+  if(d.type === 'timer-start'){
+    startTimer(d.duration || 10);
+  }
+  if(d.type === 'timer-stop'){
+    stopTimer();
+  }
+  if(d.type === 'timer-reset'){
+    resetTimer();
+  }
+  if(d.type === 'timer-hide'){
+    hideTimer();
+  }
+
+  // Like & Subscribe overlay
+  if(d.type === 'show-like-subscribe'){
+    showLikeSubscribe();
+  }
+  if(d.type === 'hide-like-subscribe'){
+    hideLikeSubscribe();
+  }
+}
+
+updateBars();
+</script>

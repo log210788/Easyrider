@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Useful English Phrases — Presentations, Academic & Meetings</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1b2d;
+    --panel: #162236;
+    --gold: #f5c842;
+    --teal: #38d9a9;
+    --white: #f0f4ff;
+    --muted: #7a93b4;
+    --pres: #2e6da4;
+    --acad: #9b59b6;
+    --meet: #2e9e5c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 25%, rgba(46,109,164,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 75%, rgba(56,217,169,0.10) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 18px 16px 6px;
+  }
+  header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+    color: var(--gold);
+    text-shadow: 0 0 28px rgba(245,200,66,0.4);
+  }
+  header p { font-size: 0.9rem; color: var(--muted); margin-top: 4px; font-weight: 700; }
+  header .kr { color: var(--teal); font-size: 0.85rem; opacity: 0.85; }
+
+  .controls {
+    display: flex; justify-content: center; gap: 10px;
+    padding: 8px 16px; position: relative; z-index: 1; flex-wrap: wrap;
+  }
+  .btn {
+    background: var(--gold); color: var(--bg); border: none; border-radius: 50px;
+    padding: 6px 18px; font-family: 'Fredoka One', cursive; font-size: 0.85rem;
+    cursor: pointer; transition: transform 0.15s; white-space: nowrap;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-kr {
+    background: transparent; color: var(--teal); border: 2px solid var(--teal);
+  }
+  .btn-kr.on { background: var(--teal); color: var(--bg); }
+
+  .page-wrap {
+    position: relative; z-index: 1;
+    max-width: 1200px; margin: 0 auto;
+    padding: 4px 16px 30px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    background: rgba(22,34,54,0.6);
+    border-radius: 16px;
+    padding: 14px 16px 10px;
+    border: 1.5px solid rgba(255,255,255,0.06);
+  }
+  .section-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title.pres { color: var(--pres); }
+  .section-title.acad { color: var(--acad); }
+  .section-title.meet { color: var(--meet); }
+
+  /* ── TABLE ── */
+  .phrase-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .phrase-table th {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .phrase-table th.col-num { width: 36px; text-align: center; }
+  .phrase-table th.col-phrase { color: var(--gold); }
+  .phrase-table th.col-use { color: var(--teal); }
+
+  .phrase-table td {
+    padding: 7px 10px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.4;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .phrase-table tr:last-child td { border-bottom: none; }
+
+  .phrase-table .num {
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    width: 28px;
+    display: inline-block;
+  }
+
+  .phrase-table .phrase-cell { color: var(--white); }
+  .phrase-table .use-cell { color: rgba(240,244,255,0.7); font-weight: 600; }
+
+  /* Korean sub-text */
+  .kr-text {
+    display: none;
+    font-size: 0.78rem;
+    color: var(--teal);
+    opacity: 0.85;
+    margin-top: 2px;
+    font-weight: 600;
+  }
+  body.kr-on .kr-text { display: block; }
+
+  /* Hover highlight */
+  .phrase-table tbody tr {
+    transition: background 0.15s;
+    border-radius: 8px;
+  }
+  .phrase-table tbody tr:hover {
+    background: rgba(255,255,255,0.04);
+  }
+
+  @media (max-width: 700px) {
+    .phrase-table td { font-size: 0.82rem; padding: 6px 6px; }
+    .phrase-table th { font-size: 0.65rem; }
+    .section { padding: 10px 10px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎤 Useful Phrases for B1 English</h1>
+  <p>Presentations · Academic Writing · Meetings</p>
+  <p class="kr">발표 · 학술 글쓰기 · 회의에서 쓰는 유용한 표현</p>
+</header>
+
+<div class="controls">
+  <button class="btn btn-kr" id="krToggle" onclick="toggleKr()">🇰🇷 Show Korean</button>
+</div>
+
+<div class="page-wrap">
+
+  <!-- ═══ PRESENTATIONS ═══ -->
+  <div class="section">
+    <div class="section-title pres">🎤 Presentations</div>
+    <table class="phrase-table">
+      <thead><tr><th class="col-num">#</th><th class="col-phrase">Phrase</th><th class="col-use">When to use it</th></tr></thead>
+      <tbody>
+        <tr><td><span class="num">1</span></td>
+          <td class="phrase-cell">Good morning, everyone. Thank you for coming.<div class="kr-text">좋은 아침입니다, 여러분. 와 주셔서 감사합니다.</div></td>
+          <td class="use-cell">Welcome the audience at the start.<div class="kr-text">시작할 때 청중을 환영하기</div></td></tr>
+        <tr><td><span class="num">2</span></td>
+          <td class="phrase-cell">Today I'm going to talk about…<div class="kr-text">오늘 저는 ~에 대해 이야기하겠습니다.</div></td>
+          <td class="use-cell">Introduce the topic of your presentation.<div class="kr-text">발표 주제를 소개하기</div></td></tr>
+        <tr><td><span class="num">3</span></td>
+          <td class="phrase-cell">I've divided my presentation into three parts.<div class="kr-text">발표를 세 부분으로 나누었습니다.</div></td>
+          <td class="use-cell">Show the structure of your talk.<div class="kr-text">발표의 구조를 보여주기</div></td></tr>
+        <tr><td><span class="num">4</span></td>
+          <td class="phrase-cell">Let me start by giving you some background.<div class="kr-text">먼저 배경 정보를 알려드리겠습니다.</div></td>
+          <td class="use-cell">Give context before the main points.<div class="kr-text">주요 내용 전에 배경을 설명하기</div></td></tr>
+        <tr><td><span class="num">5</span></td>
+          <td class="phrase-cell">As you can see from this chart…<div class="kr-text">이 차트에서 보시다시피…</div></td>
+          <td class="use-cell">Direct attention to a visual aid.<div class="kr-text">시각 자료에 주의를 끌기</div></td></tr>
+        <tr><td><span class="num">6</span></td>
+          <td class="phrase-cell">Moving on to my next point…<div class="kr-text">다음 요점으로 넘어가겠습니다…</div></td>
+          <td class="use-cell">Signal a transition to a new section.<div class="kr-text">새로운 부분으로 전환 신호 보내기</div></td></tr>
+        <tr><td><span class="num">7</span></td>
+          <td class="phrase-cell">I'd like to highlight one important thing.<div class="kr-text">한 가지 중요한 점을 강조하고 싶습니다.</div></td>
+          <td class="use-cell">Emphasise a key point.<div class="kr-text">핵심 포인트를 강조하기</div></td></tr>
+        <tr><td><span class="num">8</span></td>
+          <td class="phrase-cell">To sum up, the main points are…<div class="kr-text">요약하면, 주요 포인트는…</div></td>
+          <td class="use-cell">Summarise your presentation at the end.<div class="kr-text">발표 마지막에 요약하기</div></td></tr>
+        <tr><td><span class="num">9</span></td>
+          <td class="phrase-cell">Does anyone have any questions?<div class="kr-text">질문 있으신 분 계신가요?</div></td>
+          <td class="use-cell">Invite questions from the audience.<div class="kr-text">청중에게 질문을 요청하기</div></td></tr>
+        <tr><td><span class="num">10</span></td>
+          <td class="phrase-cell">Thank you very much for your attention.<div class="kr-text">경청해 주셔서 대단히 감사합니다.</div></td>
+          <td class="use-cell">Close and thank the audience.<div class="kr-text">마무리하고 청중에게 감사하기</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══ ACADEMIC ═══ -->
+  <div class="section">
+    <div class="section-title acad">📚 Academic Writing</div>
+    <table class="phrase-table">
+      <thead><tr><th class="col-num">#</th><th class="col-phrase">Phrase</th><th class="col-use">When to use it</th></tr></thead>
+      <tbody>
+        <tr><td><span class="num">1</span></td>
+          <td class="phrase-cell">The aim of this essay is to…<div class="kr-text">이 에세이의 목적은 ~입니다.</div></td>
+          <td class="use-cell">State the purpose of your writing.<div class="kr-text">글의 목적을 밝히기</div></td></tr>
+        <tr><td><span class="num">2</span></td>
+          <td class="phrase-cell">According to recent research…<div class="kr-text">최근 연구에 따르면…</div></td>
+          <td class="use-cell">Refer to evidence from studies.<div class="kr-text">연구 증거를 인용하기</div></td></tr>
+        <tr><td><span class="num">3</span></td>
+          <td class="phrase-cell">There are several reasons for this.<div class="kr-text">이에 대한 여러 가지 이유가 있습니다.</div></td>
+          <td class="use-cell">Introduce multiple causes or explanations.<div class="kr-text">여러 원인이나 설명을 제시하기</div></td></tr>
+        <tr><td><span class="num">4</span></td>
+          <td class="phrase-cell">On the other hand…<div class="kr-text">반면에…</div></td>
+          <td class="use-cell">Present a contrasting point of view.<div class="kr-text">반대 관점을 제시하기</div></td></tr>
+        <tr><td><span class="num">5</span></td>
+          <td class="phrase-cell">For example, a study by Smith (2022) shows…<div class="kr-text">예를 들어, Smith(2022)의 연구에 따르면…</div></td>
+          <td class="use-cell">Give a specific example to support your point.<div class="kr-text">구체적인 예를 들어 주장을 뒷받침하기</div></td></tr>
+        <tr><td><span class="num">6</span></td>
+          <td class="phrase-cell">In addition to this…<div class="kr-text">이 외에도…</div></td>
+          <td class="use-cell">Add another supporting point.<div class="kr-text">또 다른 근거를 추가하기</div></td></tr>
+        <tr><td><span class="num">7</span></td>
+          <td class="phrase-cell">It is important to note that…<div class="kr-text">주목할 점은 ~입니다.</div></td>
+          <td class="use-cell">Highlight something the reader should notice.<div class="kr-text">독자가 주의해야 할 점을 강조하기</div></td></tr>
+        <tr><td><span class="num">8</span></td>
+          <td class="phrase-cell">In conclusion…<div class="kr-text">결론적으로…</div></td>
+          <td class="use-cell">Begin your final paragraph or summary.<div class="kr-text">마지막 문단이나 요약을 시작하기</div></td></tr>
+        <tr><td><span class="num">9</span></td>
+          <td class="phrase-cell">This suggests that…<div class="kr-text">이것은 ~을 시사합니다.</div></td>
+          <td class="use-cell">Draw a conclusion from evidence.<div class="kr-text">증거에서 결론을 도출하기</div></td></tr>
+        <tr><td><span class="num">10</span></td>
+          <td class="phrase-cell">Further research is needed to…<div class="kr-text">~을 위해 추가 연구가 필요합니다.</div></td>
+          <td class="use-cell">Suggest areas for future study.<div class="kr-text">향후 연구 분야를 제안하기</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══ MEETINGS ═══ -->
+  <div class="section">
+    <div class="section-title meet">🤝 Meetings</div>
+    <table class="phrase-table">
+      <thead><tr><th class="col-num">#</th><th class="col-phrase">Phrase</th><th class="col-use">When to use it</th></tr></thead>
+      <tbody>
+        <tr><td><span class="num">1</span></td>
+          <td class="phrase-cell">Shall we get started?<div class="kr-text">시작할까요?</div></td>
+          <td class="use-cell">Open the meeting.<div class="kr-text">회의를 시작하기</div></td></tr>
+        <tr><td><span class="num">2</span></td>
+          <td class="phrase-cell">The purpose of today's meeting is to…<div class="kr-text">오늘 회의의 목적은 ~입니다.</div></td>
+          <td class="use-cell">State why you are meeting.<div class="kr-text">회의 이유를 밝히기</div></td></tr>
+        <tr><td><span class="num">3</span></td>
+          <td class="phrase-cell">Could you go over that again, please?<div class="kr-text">다시 한번 설명해 주시겠어요?</div></td>
+          <td class="use-cell">Ask someone to repeat or explain.<div class="kr-text">누군가에게 반복이나 설명을 요청하기</div></td></tr>
+        <tr><td><span class="num">4</span></td>
+          <td class="phrase-cell">I see your point, but I think…<div class="kr-text">말씀하신 점은 이해하지만, 제 생각에는…</div></td>
+          <td class="use-cell">Politely disagree with someone.<div class="kr-text">정중하게 반대 의견 말하기</div></td></tr>
+        <tr><td><span class="num">5</span></td>
+          <td class="phrase-cell">That's a good point.<div class="kr-text">좋은 지적이네요.</div></td>
+          <td class="use-cell">Show you agree with someone's idea.<div class="kr-text">상대방의 의견에 동의 표현하기</div></td></tr>
+        <tr><td><span class="num">6</span></td>
+          <td class="phrase-cell">Can I add something here?<div class="kr-text">여기서 한 가지 덧붙여도 될까요?</div></td>
+          <td class="use-cell">Politely interrupt to share your idea.<div class="kr-text">정중하게 끼어들어 의견 나누기</div></td></tr>
+        <tr><td><span class="num">7</span></td>
+          <td class="phrase-cell">Let's move on to the next item.<div class="kr-text">다음 안건으로 넘어가겠습니다.</div></td>
+          <td class="use-cell">Change to the next topic on the agenda.<div class="kr-text">안건의 다음 주제로 넘어가기</div></td></tr>
+        <tr><td><span class="num">8</span></td>
+          <td class="phrase-cell">Who's going to be responsible for this?<div class="kr-text">이 건은 누가 담당하나요?</div></td>
+          <td class="use-cell">Assign a task to someone.<div class="kr-text">누군가에게 업무를 배정하기</div></td></tr>
+        <tr><td><span class="num">9</span></td>
+          <td class="phrase-cell">When is the deadline for this?<div class="kr-text">이것의 마감 기한이 언제인가요?</div></td>
+          <td class="use-cell">Ask about the time limit.<div class="kr-text">기한에 대해 묻기</div></td></tr>
+        <tr><td><span class="num">10</span></td>
+          <td class="phrase-cell">Let me just summarise what we've agreed.<div class="kr-text">합의한 내용을 간단히 정리하겠습니다.</div></td>
+          <td class="use-cell">Review decisions before closing the meeting.<div class="kr-text">회의 종료 전 결정 사항 검토하기</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+function toggleKr() {
+  document.body.classList.toggle('kr-on');
+  const btn = document.getElementById('krToggle');
+  const on = document.body.classList.contains('kr-on');
+  btn.classList.toggle('on', on);
+  btn.textContent = on ? '🇰🇷 Hide Korean' : '🇰🇷 Show Korean';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Teacher Lewis1 – TikTok Vertical Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue:      #2E86C1;
+    --blue-dark: #1A5276;
+    --blue-mid:  #0d3558;
+    --sun:       #F5B041;
+    --sun-light: #FAD7A0;
+    --green-light:#6FCF97;
+    --white:     #FFFFFF;
+    --panel:     rgba(13, 40, 70, 0.94);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; background:transparent; overflow:hidden; }
+
+  /* 430 × 932 TikTok live canvas */
+  .canvas {
+    position: fixed;
+    top:0; left:0;
+    width:430px; height:932px;
+    transform-origin: top left;
+    font-family: 'Nunito', sans-serif;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  /* ════════════════════════════
+     TICKER  0 → 42px
+  ════════════════════════════ */
+  .ticker {
+    position: absolute;
+    top:0; left:0; right:0; height:42px;
+    background: linear-gradient(90deg, var(--blue-mid), var(--blue), var(--blue-mid));
+    border-bottom: 2px solid var(--sun);
+    display: flex; align-items: center;
+    overflow: hidden; z-index: 50;
+  }
+  .ticker-lang {
+    flex-shrink:0; height:100%; padding:0 14px;
+    display:flex; align-items:center;
+    background:rgba(0,0,0,0.3);
+    border-right:1px solid rgba(255,255,255,0.15);
+    font-size:12px; font-weight:900;
+    color:var(--sun-light); white-space:nowrap;
+  }
+  .ticker-track { flex:1; overflow:hidden; position:relative; height:100%; }
+  .ticker-text {
+    position:absolute; top:50%;
+    transform:translateY(-50%);
+    white-space:nowrap;
+    font-size:13px; font-weight:800;
+    color:var(--white); letter-spacing:0.3px;
+  }
+
+  /* ════════════════════════════
+     TOP HEADER  42px → 160px
+  ════════════════════════════ */
+  .top-panel {
+    position: absolute;
+    top:42px; left:0; right:0; height:118px;
+    background: var(--panel);
+    border-bottom: 2px solid var(--sun);
+    display: flex; align-items: center;
+    padding: 0 20px; gap: 16px; z-index:20;
+  }
+
+  .avatar-wrap {
+    width:78px; height:78px; flex-shrink:0;
+    border-radius:50%;
+    border:3px solid var(--sun);
+    overflow:hidden;
+    box-shadow:0 0 18px rgba(245,176,65,0.5);
+  }
+  .avatar-wrap img { width:100%; height:100%; object-fit:cover; display:block; }
+  .avatar-fb {
+    width:100%; height:100%;
+    background:linear-gradient(135deg, var(--blue), var(--blue-dark));
+    display:flex; align-items:center; justify-content:center; font-size:34px;
+  }
+
+  .tp-info { flex:1; min-width:0; }
+  .tp-hello { font-size:10px; font-weight:900; color:var(--sun-light); letter-spacing:2.5px; text-transform:uppercase; margin-bottom:2px; }
+  .tp-name  { font-family:'Fredoka One',cursive; font-size:32px; color:var(--white); line-height:1; }
+  .tp-name span { color:var(--sun-light); }
+  .tp-role  { font-size:11px; font-weight:800; color:rgba(255,255,255,0.5); letter-spacing:1px; margin-top:4px; }
+
+  .tp-right { display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex-shrink:0; }
+  .avail-pill {
+    display:flex; align-items:center; gap:6px;
+    background:rgba(39,174,96,0.15); border:1px solid rgba(39,174,96,0.35);
+    border-radius:30px; padding:6px 13px;
+  }
+  .avail-dot {
+    width:8px; height:8px; background:#4CAF50;
+    border-radius:50%; box-shadow:0 0 9px #4CAF50;
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+  .avail-text { font-size:11px; font-weight:900; color:var(--green-light); letter-spacing:1px; text-transform:uppercase; }
+  .flag-pill {
+    background:rgba(255,255,255,0.09); border-radius:20px;
+    padding:5px 13px; font-size:12px; font-weight:800; color:rgba(255,255,255,0.8);
+  }
+
+  /* ════════════════════════════
+     MIDDLE — completely empty for webcam
+     160px → 762px  (602px of clear space)
+  ════════════════════════════ */
+
+  /* ════════════════════════════
+     BOTTOM PANEL  762px → 932px
+  ════════════════════════════ */
+  .bottom-panel {
+    position: absolute;
+    bottom:0; left:0; right:0; height:170px;
+    background: var(--panel);
+    border-top: 2px solid var(--sun);
+    display: flex; flex-direction:column;
+    justify-content:center;
+    padding: 16px 20px; gap:12px; z-index:20;
+  }
+
+  /* Name row */
+  .bp-name-row { display:flex; align-items:center; justify-content:space-between; }
+  .bp-name { font-family:'Fredoka One',cursive; font-size:30px; color:var(--white); line-height:1; }
+  .bp-name span { color:var(--sun-light); }
+  .bp-handle { font-size:13px; font-weight:900; color:rgba(255,255,255,0.45); letter-spacing:1px; }
+
+  /* Calendly row */
+  .bp-cal {
+    display:flex; align-items:center; gap:12px;
+    background:rgba(255,255,255,0.07);
+    border:1px solid rgba(245,176,65,0.35);
+    border-left:3px solid var(--sun);
+    border-radius:10px; padding:11px 14px;
+    animation:glow 3s ease-in-out infinite;
+  }
+  @keyframes glow {
+    0%,100% { box-shadow:0 0 12px rgba(245,176,65,0.1); }
+    50%      { box-shadow:0 0 22px rgba(245,176,65,0.4); }
+  }
+  .bp-cal-icon { font-size:22px; flex-shrink:0; }
+  .bp-cal-info { flex:1; min-width:0; }
+  .bp-cal-label { font-size:9px; font-weight:900; color:var(--sun-light); letter-spacing:2.5px; text-transform:uppercase; margin-bottom:2px; }
+  .bp-cal-url   { font-family:'Fredoka One',cursive; font-size:18px; color:var(--white); line-height:1; }
+  .bp-cal-btn {
+    background:linear-gradient(135deg,#b87d1a,var(--sun));
+    color:var(--blue-dark); font-size:11px; font-weight:900;
+    letter-spacing:1px; text-transform:uppercase;
+    padding:9px 16px; border-radius:20px;
+    white-space:nowrap; flex-shrink:0;
+    box-shadow:0 3px 10px rgba(245,176,65,0.4);
+  }
+</style>
+</head>
+<body>
+<div class="canvas" id="canvas">
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-lang" id="ticker-lang">🇬🇧 EN</div>
+    <div class="ticker-track">
+      <div class="ticker-text" id="ticker-text"></div>
+    </div>
+  </div>
+
+  <!-- TOP HEADER -->
+  <div class="top-panel">
+    <div class="avatar-wrap">
+      <img src="logo.png" alt="Teacher Lewis1"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="avatar-fb" style="display:none;">👨‍🏫</div>
+    </div>
+    <div class="tp-info">
+      <div class="tp-hello">👋 Hello! I'm</div>
+      <div class="tp-name">Teacher <span>Lewis1</span></div>
+      <div class="tp-role">Private English Tutor · Online</div>
+    </div>
+    <div class="tp-right">
+      <div class="avail-pill">
+        <div class="avail-dot"></div>
+        <div class="avail-text">Open!</div>
+      </div>
+      <div class="flag-pill">🇬🇧 Native</div>
+    </div>
+  </div>
+
+  <!-- ↕ WEBCAM GOES HERE — 602px of clear space ↕ -->
+
+  <!-- BOTTOM PANEL -->
+  <div class="bottom-panel">
+    <div class="bp-name-row">
+      <div class="bp-name">Teacher <span>Lewis1</span></div>
+      <div class="bp-handle">@TeacherLewis1</div>
+    </div>
+    <div class="bp-cal">
+      <div class="bp-cal-icon">📅</div>
+      <div class="bp-cal-info">
+        <div class="bp-cal-label">✦ Book a Lesson</div>
+        <div class="bp-cal-url">calendly.com/teacherlewis</div>
+      </div>
+      <div class="bp-cal-btn">Book Now</div>
+    </div>
+  </div>
+
+</div>
+<script>
+/* Scale to OBS window */
+function scaleCanvas() {
+  var c = document.getElementById('canvas');
+  var s = Math.min(window.innerWidth / 430, window.innerHeight / 932);
+  c.style.transform = 'scale(' + s + ')';
+  c.style.left = ((window.innerWidth  - 430 * s) / 2) + 'px';
+  c.style.top  = '0px';
+}
+scaleCanvas();
+window.addEventListener('resize', scaleCanvas);
+
+/* Tri-language ticker */
+var LANGS = [
+  {
+    badge: '🇬🇧 ENGLISH',
+    text: '👋 Welcome!  I\'m Teacher Lewis1    ✦    🇬🇧 Native English Speaker    ✦    📅 Book now: calendly.com/teacherlewis    ✦    🎓 1-on-1 · All Ages · All Levels    ✦    😊 Fun, Friendly & Effective!    ✦'
+  },
+  {
+    badge: '🇹🇭 ภาษาไทย',
+    text: '👋 ยินดีต้อนรับ!  ฉันคือครูลูอิส1    ✦    🇬🇧 เจ้าของภาษาอังกฤษแท้ๆ    ✦    📅 จองบทเรียน: calendly.com/teacherlewis    ✦    🎓 เรียนส่วนตัว · ทุกวัย · ทุกระดับ    ✦    😊 สนุก เป็นกันเอง และเรียนได้ผลจริง!    ✦'
+  },
+  {
+    badge: '🇻🇳 TIẾNG VIỆT',
+    text: '👋 Xin chào!  Tôi là Teacher Lewis1    ✦    🇬🇧 Người bản ngữ tiếng Anh    ✦    📅 Đặt lịch: calendly.com/teacherlewis    ✦    🎓 Học 1-1 · Mọi lứa tuổi · Mọi trình độ    ✦    😊 Vui vẻ, thân thiện và hiệu quả!    ✦'
+  }
+];
+var langIdx = 0;
+var textEl  = document.getElementById('ticker-text');
+var langEl  = document.getElementById('ticker-lang');
+var trackEl = textEl.parentElement;
+var animTimer = null;
+
+function runTicker() {
+  var lang = LANGS[langIdx];
+  langEl.textContent = lang.badge;
+  textEl.style.transition = 'none';
+  textEl.style.transform  = 'translateY(-50%)';
+  textEl.textContent = lang.text;
+  void textEl.offsetWidth;
+  var startX = trackEl.offsetWidth + 20;
+  var endX   = -(textEl.scrollWidth + 20);
+  var dur    = Math.round(((startX - endX) / 110) * 1000);
+  textEl.style.transform = 'translateY(-50%) translateX(' + startX + 'px)';
+  void textEl.offsetWidth;
+  textEl.style.transition = 'transform ' + dur + 'ms linear';
+  textEl.style.transform  = 'translateY(-50%) translateX(' + endX + 'px)';
+  if (animTimer) clearTimeout(animTimer);
+  animTimer = setTimeout(function() {
+    langIdx = (langIdx + 1) % LANGS.length;
+    runTicker();
+  }, dur + 300);
+}
+
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(function(){ setTimeout(runTicker, 200); });
+} else {
+  setTimeout(runTicker, 500);
+}
+</script>
+</body>
+</html>

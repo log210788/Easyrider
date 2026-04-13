@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>This or That — Conversation Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Top bar */
+        .top-bar {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px 10px;
+        }
+        .timer-box {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .timer-box .dot { width: 10px; height: 10px; border-radius: 50%; background: #00e676; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+        .timer-box.warning .dot { background: #ff9800; }
+        .timer-box.danger .dot { background: #f44336; }
+        .round-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Category selector */
+        .category-bar {
+            width: 100%;
+            max-width: 800px;
+            padding: 6px 24px 14px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .cat-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #ccc;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            transition: all 0.25s;
+        }
+        .cat-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .cat-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        /* Main card */
+        .card {
+            width: 90%;
+            max-width: 700px;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 28px;
+            padding: 40px 30px 34px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.35s;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(102,126,234,0.15), transparent 60%);
+            pointer-events: none;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.65);
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+        .topic-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .battle-area {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            margin: 10px 0 0;
+        }
+
+        .option-btn {
+            flex: 1;
+            background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            border: 2px solid rgba(255,255,255,0.12);
+            color: #fff;
+            padding: 28px 16px 20px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            text-align: center;
+            line-height: 1.3;
+        }
+        .option-btn .thai {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.45);
+            margin-top: 6px;
+            transition: color 0.3s;
+        }
+        .option-btn .thai.hidden { display: none; }
+        .option-btn:hover {
+            border-color: #667eea;
+            background: linear-gradient(145deg, rgba(102,126,234,0.2), rgba(118,75,162,0.15));
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 35px rgba(102,126,234,0.25);
+        }
+        .option-btn:hover .thai { color: rgba(255,255,255,0.7); }
+        .option-btn:active { transform: scale(0.97); }
+
+        .vs-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 55px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.25);
+            letter-spacing: 2px;
+        }
+
+        /* Progress bar */
+        .progress-track {
+            width: 100%;
+            max-width: 700px;
+            height: 6px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+            margin-top: 18px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .ctrl-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #ccc;
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.25s;
+        }
+        .ctrl-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .ctrl-btn.thai-toggle.active { background: linear-gradient(135deg, #f093fb, #f5576c); border-color: transparent; color: #fff; }
+
+        /* End screen */
+        .end-screen {
+            text-align: center;
+            padding: 30px;
+        }
+        .end-screen h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #667eea, #f093fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+        .end-screen p { color: rgba(255,255,255,0.6); font-size: 1rem; margin-bottom: 24px; }
+        .restart-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: #fff;
+            padding: 14px 40px;
+            border-radius: 30px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+        }
+        .restart-btn:hover { transform: scale(1.05); box-shadow: 0 8px 30px rgba(102,126,234,0.4); }
+
+        /* Animations */
+        .card.slide-in { animation: slideIn 0.4s ease forwards; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 550px) {
+            .option-btn { font-size: 1.05rem; padding: 22px 12px 16px; }
+            .card { padding: 28px 18px 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+    <div class="timer-box" id="timerBox">
+        <div class="dot"></div>
+        <span id="timerDisplay">40:00</span>
+    </div>
+    <div class="round-badge">Round <span id="roundNum">1</span> / <span id="totalRounds">0</span></div>
+</div>
+
+<!-- Category Bar -->
+<div class="category-bar" id="categoryBar"></div>
+
+<!-- Main Card -->
+<div class="card slide-in" id="mainCard">
+    <div class="topic-label" id="topicLabel">LIFESTYLE</div>
+    <div class="question-text">Which do you prefer?</div>
+    <div class="battle-area">
+        <button class="option-btn" id="opt1" onclick="pick(0)">
+            <span class="en">Option 1</span>
+            <span class="thai hidden" id="thai1">ตัวเลือก 1</span>
+        </button>
+        <div class="vs-divider">VS</div>
+        <button class="option-btn" id="opt2" onclick="pick(1)">
+            <span class="en">Option 2</span>
+            <span class="thai hidden" id="thai2">ตัวเลือก 2</span>
+        </button>
+    </div>
+</div>
+
+<!-- Progress -->
+<div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+    <button class="ctrl-btn thai-toggle" id="thaiToggle" onclick="toggleThai()">🇹🇭 Thai / ไทย</button>
+    <button class="ctrl-btn" onclick="skipQuestion()">Skip ⏭️</button>
+    <button class="ctrl-btn" onclick="shuffleCurrent()">Shuffle 🔀</button>
+</div>
+
+<script>
+// ── DATA ──
+const topics = {
+    "Lifestyle & Values": [
+        ["Live in a big city forever","อยู่ในเมืองใหญ่ตลอดไป","Move to the countryside forever","ย้ายไปอยู่ชนบทตลอดไป"],
+        ["Have a strict daily routine","มีกิจวัตรประจำวันที่เคร่งครัด","Live with no schedule at all","ใช้ชีวิตโดยไม่มีตารางเลย"],
+        ["Always tell the truth","พูดความจริงเสมอ","Sometimes tell a white lie to be kind","บางทีโกหกเพื่อเป็นคนดี"],
+        ["Own a house with a big loan","มีบ้านแต่ผ่อนหนัก","Rent forever but be debt-free","เช่าตลอดแต่ไม่มีหนี้"],
+        ["Spend money on health & fitness","ใช้เงินกับสุขภาพและออกกำลังกาย","Spend money on travel & experiences","ใช้เงินกับการเดินทางและประสบการณ์"],
+        ["Delete all social media forever","ลบโซเชียลมีเดียทั้งหมดตลอดไป","Use social media but lose all privacy","ใช้โซเชียลแต่เสียความเป็นส่วนตัว"],
+        ["Have one deep hobby you love","มีงานอดิเรกที่รักอย่างลึกซึ้ง","Try a new hobby every month","ลองงานอดิเรกใหม่ทุกเดือน"],
+        ["Live to work","มีชีวิตเพื่อทำงาน","Work to live","ทำงานเพื่อมีชีวิต"],
+        ["Be the most popular person in town","เป็นคนที่มีชื่อเสียงที่สุดในเมือง","Be unknown but deeply respected by 5 people","ไม่มีใครรู้จักแต่ 5 คนเคารพอย่างลึกซึ้ง"],
+        ["Marry someone your family chooses","แต่งงานกับคนที่ครอบครัวเลือก","Marry for love but your family disagrees","แต่งงานเพราะรักแต่ครอบครัวไม่เห็นด้วย"],
+    ],
+    "Career & Ambition": [
+        ["Earn a lot but hate your job","ได้เงินเยอะแต่เกลียดงาน","Earn little but love every day","ได้เงินน้อยแต่รักทุกวัน"],
+        ["Be the boss with all the stress","เป็นเจ้านายแต่เครียดมาก","Be an employee with peace of mind","เป็นพนักงานแต่สบายใจ"],
+        ["Work 4 days a week, lower salary","ทำงาน 4 วัน เงินเดือนน้อยลง","Work 6 days a week, double salary","ทำงาน 6 วัน เงินเดือนสองเท่า"],
+        ["Start over in a completely new career at 35","เริ่มอาชีพใหม่ตอนอายุ 35","Stay in a career you don't love but it's safe","อยู่ในอาชีพที่ไม่รักแต่มั่นคง"],
+        ["Work under a tough boss who teaches you a lot","ทำงานกับเจ้านายเข้มงวดที่สอนเยอะ","Work under a nice boss who teaches nothing","ทำงานกับเจ้านายใจดีแต่ไม่สอนอะไร"],
+        ["Get promoted but lose your weekends","ได้เลื่อนตำแหน่งแต่เสียวันหยุด","Stay the same level but keep your free time","อยู่ตำแหน่งเดิมแต่มีเวลาว่าง"],
+        ["Build your own business that might fail","สร้างธุรกิจเองที่อาจล้มเหลว","Work for someone else's successful company","ทำงานให้บริษัทคนอื่นที่ประสบความสำเร็จ"],
+        ["Have a job everyone admires but you find boring","มีงานที่ทุกคนชื่นชมแต่คุณเบื่อ","Have a job nobody understands but you love","มีงานที่ไม่มีใครเข้าใจแต่คุณรัก"],
+        ["Work remotely but feel lonely","ทำงานทางไกลแต่รู้สึกเหงา","Go to an office every day but have great colleagues","ไปออฟฟิศทุกวันแต่มีเพื่อนร่วมงานดี"],
+        ["Learn AI and technology skills","เรียนรู้ทักษะ AI และเทคโนโลยี","Learn leadership and people skills","เรียนรู้ทักษะผู้นำและทักษะคน"],
+    ],
+    "Money & Decisions": [
+        ["Save 50% of your salary every month","เก็บเงิน 50% ของเงินเดือนทุกเดือน","Enjoy your money now, save later","ใช้เงินตอนนี้ เก็บทีหลัง"],
+        ["Inherit 10 million baht but can't work anymore","ได้มรดก 10 ล้านบาทแต่ทำงานไม่ได้","Earn your own money for the rest of your life","หาเงินเองตลอดชีวิต"],
+        ["Invest in stocks (risky, maybe big reward)","ลงทุนในหุ้น (เสี่ยง อาจได้ผลตอบแทนสูง)","Put money in the bank (safe, small reward)","ฝากเงินธนาคาร (ปลอดภัย ผลตอบแทนน้อย)"],
+        ["Buy cheap things often","ซื้อของถูกบ่อยๆ","Buy expensive things that last longer","ซื้อของแพงที่ใช้ได้นาน"],
+        ["Lend money to a close friend","ให้เพื่อนสนิตยืมเงิน","Never lend money to friends","ไม่ให้เพื่อนยืมเงินเด็ดขาด"],
+        ["Pay for convenience (taxi, delivery, etc.)","จ่ายเพื่อความสะดวก (แท็กซี่ เดลิเวอรี่)","Save money and do everything yourself","ประหยัดเงินแล้วทำทุกอย่างเอง"],
+        ["Have an expensive wedding","จัดงานแต่งงานแพง","Use that money for a house deposit","เอาเงินนั้นไปวางดาวน์บ้าน"],
+        ["Retire at 45 with a simple life","เกษียณอายุ 45 ใช้ชีวิตเรียบง่าย","Retire at 65 with a wealthy life","เกษียณอายุ 65 ใช้ชีวิตร่ำรวย"],
+    ],
+    "Relationships": [
+        ["A partner who is very honest but sometimes hurtful","คนรักที่ตรงไปตรงมาแต่บางทีทำให้เจ็บ","A partner who is always sweet but hides problems","คนรักที่หวานเสมอแต่ซ่อนปัญหา"],
+        ["Stay close to your family your whole life","อยู่ใกล้ครอบครัวตลอดชีวิต","Move far away to follow your dream","ย้ายไปไกลเพื่อตามความฝัน"],
+        ["Forgive someone who hurt you badly","ให้อภัยคนที่ทำร้ายคุณมาก","Cut them out of your life forever","ตัดเขาออกจากชีวิตตลอดไป"],
+        ["Have 1 best friend you trust completely","มีเพื่อนสนิท 1 คนที่ไว้ใจได้เต็มที่","Have 20 good friends but no one very close","มีเพื่อนดี 20 คนแต่ไม่สนิทมาก"],
+        ["Tell your friend their partner is cheating","บอกเพื่อนว่าคนรักนอกใจ","Stay quiet because it's not your business","เงียบไว้เพราะไม่ใช่เรื่องของคุณ"],
+        ["Date someone much older than you","คบคนที่อายุมากกว่ามาก","Date someone much younger than you","คบคนที่อายุน้อยกว่ามาก"],
+        ["A long-distance relationship with the perfect person","ความสัมพันธ์ทางไกลกับคนที่ใช่","A relationship with someone okay who lives nearby","ความสัมพันธ์กับคนธรรมดาที่อยู่ใกล้"],
+        ["Be single and free","โสดและอิสระ","Be in a serious relationship","มีความสัมพันธ์จริงจัง"],
+        ["A partner who earns a lot but is always busy","คนรักที่หาเงินเก่งแต่ยุ่งตลอด","A partner who earns little but always has time for you","คนรักที่หาเงินน้อยแต่มีเวลาให้เสมอ"],
+        ["Apologize first even when you're right","ขอโทษก่อนแม้ว่าคุณถูก","Wait for the other person to apologize","รอให้อีกฝ่ายขอโทษ"],
+    ],
+    "Society & Opinions": [
+        ["People should retire at 50","คนควรเกษียณอายุ 50","People should work as long as they can","คนควรทำงานได้นานเท่าที่ทำได้"],
+        ["Children should take care of their elderly parents","ลูกควรดูแลพ่อแม่ที่แก่ชรา","Elderly parents should live in care homes","พ่อแม่สูงอายุควรอยู่บ้านพักคนชรา"],
+        ["University education is still important","การศึกษามหาวิทยาลัยยังคงสำคัญ","You can succeed without university","คุณประสบความสำเร็จได้โดยไม่ต้องจบมหาลัย"],
+        ["Social media does more harm than good","โซเชียลมีเดียทำลายมากกว่าให้ประโยชน์","Social media connects people and helps society","โซเชียลมีเดียเชื่อมคนและช่วยสังคม"],
+        ["Everyone should learn to speak English","ทุกคนควรเรียนพูดภาษาอังกฤษ","People should focus on their own language first","คนควรเน้นภาษาตัวเองก่อน"],
+        ["The government should control food prices","รัฐบาลควรควบคุมราคาอาหาร","The market should decide food prices","ตลาดควรกำหนดราคาอาหาร"],
+        ["Celebrities have a responsibility to be good role models","ดาราต้องรับผิดชอบเป็นแบบอย่างที่ดี","Celebrities are just people, not role models","ดาราก็เป็นแค่คนธรรมดา ไม่ใช่แบบอย่าง"],
+        ["It's okay to lie on your resume a little","โกหกในเรซูเม่นิดหน่อยก็ได้","You should never lie on your resume","ไม่ควรโกหกในเรซูเม่เด็ดขาด"],
+        ["Rich people should pay much higher taxes","คนรวยควรจ่ายภาษีมากกว่ามาก","Everyone should pay the same tax rate","ทุกคนควรจ่ายภาษีอัตราเท่ากัน"],
+        ["Plastic surgery is a personal choice","ศัลยกรรมเป็นเรื่องส่วนตัว","Society puts too much pressure on appearance","สังคมกดดันเรื่องรูปลักษณ์มากเกินไป"],
+    ],
+    "Ethical Dilemmas": [
+        ["Report your coworker for stealing from the company","รายงานเพื่อนร่วมงานที่ขโมยจากบริษัท","Say nothing because they need the money","ไม่พูดอะไรเพราะเขาต้องการเงิน"],
+        ["Take a high-paying job that damages the environment","รับงานเงินดีที่ทำลายสิ่งแวดล้อม","Refuse the job and look for something ethical","ปฏิเสธงานแล้วหางานที่มีจริยธรรม"],
+        ["Keep extra change a cashier gave you by mistake","เก็บเงินทอนที่แคชเชียร์ทอนผิด","Give the extra money back","คืนเงินส่วนเกิน"],
+        ["Tell a child that Santa isn't real","บอกเด็กว่าซานต้าไม่มีจริง","Let them believe the story","ปล่อยให้เด็กเชื่อเรื่องนั้น"],
+        ["Break a promise to help someone in an emergency","ผิดสัญญาเพื่อช่วยคนในเหตุฉุกเฉิน","Keep your promise no matter what","รักษาสัญญาไม่ว่าจะเกิดอะไรขึ้น"],
+        ["Save 5 strangers","ช่วยคนแปลกหน้า 5 คน","Save 1 person you love","ช่วยคนที่คุณรัก 1 คน"],
+        ["Share a friend's secret to protect them","เปิดเผยความลับเพื่อนเพื่อปกป้องเขา","Keep the secret even if it hurts them","เก็บความลับแม้จะทำร้ายเขา"],
+        ["Accept a bribe to feed your family","รับสินบนเพื่อเลี้ยงครอบครัว","Stay honest even if your family struggles","ซื่อสัตย์แม้ครอบครัวจะลำบาก"],
+    ],
+    "Would You Rather (Hard)": [
+        ["Know exactly when you will die","รู้ว่าจะตายเมื่อไหร่","Know exactly how you will die","รู้ว่าจะตายอย่างไร"],
+        ["Relive the same day forever","ใช้ชีวิตวันเดิมซ้ำตลอดไป","Fast-forward 10 years right now","กรอเวลาไปข้างหน้า 10 ปีเลย"],
+        ["Read everyone's mind","อ่านใจทุกคนได้","No one can ever lie to you","ไม่มีใครโกหกคุณได้เลย"],
+        ["Live 200 years but watch everyone you love die","มีชีวิต 200 ปีแต่ต้องเห็นคนรักจากไป","Live only 60 years surrounded by loved ones","มีชีวิตแค่ 60 ปีแต่มีคนรักอยู่รอบข้าง"],
+        ["Be the smartest person alive but always lonely","ฉลาดที่สุดในโลกแต่เหงาตลอด","Be average but loved by everyone","ธรรมดาแต่ทุกคนรัก"],
+        ["Lose all your money","เสียเงินทั้งหมด","Lose all your memories","เสียความทรงจำทั้งหมด"],
+        ["Live in a world with no music","อยู่ในโลกที่ไม่มีเพลง","Live in a world with no color","อยู่ในโลกที่ไม่มีสี"],
+        ["Always know when people are lying","รู้เสมอเมื่อคนโกหก","Always get away with lying","โกหกได้โดยไม่มีใครรู้"],
+        ["Go back to age 18 with everything you know now","ย้อนกลับไปอายุ 18 พร้อมความรู้ปัจจุบัน","Stay your current age and get 10 million baht","อยู่อายุปัจจุบันแล้วได้ 10 ล้านบาท"],
+        ["Live without the internet","ใช้ชีวิตโดยไม่มีอินเทอร์เน็ต","Live without air conditioning","ใช้ชีวิตโดยไม่มีแอร์"],
+    ],
+    "Life Philosophy": [
+        ["It's better to be feared","ถูกกลัวดีกว่า","It's better to be loved","ถูกรักดีกว่า"],
+        ["People can truly change","คนเปลี่ยนแปลงได้จริงๆ","People always stay the same deep down","คนยังคงเหมือนเดิมในส่วนลึก"],
+        ["Happiness is a choice","ความสุขเป็นทางเลือก","Happiness depends on circumstances","ความสุขขึ้นอยู่กับสถานการณ์"],
+        ["Everything happens for a reason","ทุกอย่างเกิดขึ้นมีเหตุผล","Life is random, we create our own meaning","ชีวิตเป็นเรื่องสุ่ม เราสร้างความหมายเอง"],
+        ["It's better to regret doing something","เสียใจที่ทำดีกว่า","It's better to regret not doing something","เสียใจที่ไม่ได้ทำดีกว่า"],
+        ["Success means having money and status","ความสำเร็จคือมีเงินและสถานะ","Success means being happy and healthy","ความสำเร็จคือมีความสุขและสุขภาพดี"],
+        ["The past shapes who you are","อดีตหล่อหลอมตัวตนของคุณ","You can completely reinvent yourself","คุณสามารถสร้างตัวตนใหม่ได้เลย"],
+        ["Struggling builds character","ความลำบากสร้างนิสัย","Nobody should have to struggle","ไม่มีใครควรต้องลำบาก"],
+        ["Forgive but never forget","ให้อภัยแต่ไม่มีวันลืม","Forgive and truly forget","ให้อภัยและลืมจริงๆ"],
+        ["Age brings wisdom","อายุมากขึ้นทำให้ฉลาดขึ้น","Young people can be just as wise","คนหนุ่มสาวก็ฉลาดได้เท่ากัน"],
+    ],
+};
+
+// ── STATE ──
+let currentCategory = "all";
+let activePairs = [];
+let currentRound = 0;
+let showThai = false;
+let timerInterval = null;
+let totalSeconds = 40 * 60; // 40 minutes
+
+// ── INIT ──
+function init() {
+    buildCategoryBar();
+    setCategory("all");
+    startTimer();
+}
+
+function buildCategoryBar() {
+    const bar = document.getElementById('categoryBar');
+    let html = `<button class="cat-btn active" data-cat="all" onclick="setCategory('all')">All Topics</button>`;
+    for (const cat of Object.keys(topics)) {
+        html += `<button class="cat-btn" data-cat="${cat}" onclick="setCategory('${cat}')">${cat}</button>`;
+    }
+    bar.innerHTML = html;
+}
+
+function setCategory(cat) {
+    currentCategory = cat;
+    // highlight
+    document.querySelectorAll('.cat-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.cat === cat);
+    });
+    // build pairs
+    if (cat === "all") {
+        activePairs = [];
+        for (const c of Object.keys(topics)) activePairs.push(...topics[c].map(p => ({cat: c, data: p})));
+    } else {
+        activePairs = topics[cat].map(p => ({cat, data: p}));
+    }
+    shuffle(activePairs);
+    currentRound = 0;
+    document.getElementById('totalRounds').textContent = activePairs.length;
+    updateDisplay();
+}
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+// ── DISPLAY ──
+function updateDisplay() {
+    const card = document.getElementById('mainCard');
+    if (currentRound >= activePairs.length) {
+        card.innerHTML = `
+            <div class="end-screen">
+                <h1>Awesome! 🎉</h1>
+                <p>You finished all ${activePairs.length} questions!<br>ทำครบทุกคำถามแล้ว!</p>
+                <button class="restart-btn" onclick="location.reload()">Play Again</button>
+            </div>`;
+        document.getElementById('progressFill').style.width = '100%';
+        return;
+    }
+
+    const pair = activePairs[currentRound];
+    const [en1, th1, en2, th2] = pair.data;
+    const thaiClass = showThai ? '' : 'hidden';
+
+    card.innerHTML = `
+        <div class="topic-label" id="topicLabel">${pair.cat}</div>
+        <div class="question-text">Which do you prefer?</div>
+        <div class="battle-area">
+            <button class="option-btn" onclick="pick(0)">
+                <span class="en">${en1}</span>
+                <span class="thai ${thaiClass}">${th1}</span>
+            </button>
+            <div class="vs-divider">VS</div>
+            <button class="option-btn" onclick="pick(1)">
+                <span class="en">${en2}</span>
+                <span class="thai ${thaiClass}">${th2}</span>
+            </button>
+        </div>`;
+
+    // animate
+    card.classList.remove('slide-in');
+    void card.offsetWidth;
+    card.classList.add('slide-in');
+
+    document.getElementById('roundNum').textContent = currentRound + 1;
+    document.getElementById('progressFill').style.width = ((currentRound) / activePairs.length * 100) + '%';
+}
+
+function pick(idx) {
+    currentRound++;
+    updateDisplay();
+}
+
+function skipQuestion() {
+    // move current to end
+    if (currentRound < activePairs.length) {
+        activePairs.push(activePairs.splice(currentRound, 1)[0]);
+        updateDisplay();
+    }
+}
+
+function shuffleCurrent() {
+    const remaining = activePairs.splice(currentRound);
+    shuffle(remaining);
+    activePairs.push(...remaining);
+    updateDisplay();
+}
+
+// ── THAI TOGGLE ──
+function toggleThai() {
+    showThai = !showThai;
+    document.getElementById('thaiToggle').classList.toggle('active', showThai);
+    document.querySelectorAll('.thai').forEach(el => el.classList.toggle('hidden', !showThai));
+}
+
+// ── TIMER ──
+function startTimer() {
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+        totalSeconds--;
+        if (totalSeconds <= 0) { totalSeconds = 0; clearInterval(timerInterval); }
+        updateTimerDisplay();
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    document.getElementById('timerDisplay').textContent =
+        String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    const box = document.getElementById('timerBox');
+    box.classList.remove('warning','danger');
+    if (totalSeconds <= 300) box.classList.add('danger');
+    else if (totalSeconds <= 600) box.classList.add('warning');
+}
+
+// ── GO ──
+init();
+</script>
+
+</body>
+</html>

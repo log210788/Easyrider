@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Teacher Lewis1 – Broadcast Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue:       #2E86C1;
+    --blue-dark:  #1A5276;
+    --blue-light: #5DADE2;
+    --sun:        #F5B041;
+    --sun-light:  #FAD7A0;
+    --sun-dark:   #CA8A04;
+    --green:      #27AE60;
+    --coral:      #E74C3C;
+    --coral-light:#FADBD8;
+    --white:      #FFFFFF;
+    --text-dark:  #1A3A4A;
+    --glass:      rgba(255,255,255,0.14);
+    --glass-mid:  rgba(255,255,255,0.22);
+    --glass-solid:rgba(20,60,90,0.72);
+    --glass-warm: rgba(26,50,80,0.78);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  .scaler {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+  }
+
+  .canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1280px; height: 720px;
+    transform-origin: top left;
+    font-family: 'Nunito', sans-serif;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  /* TICKER */
+  .ticker {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 34px;
+    background: linear-gradient(90deg, var(--blue-dark), var(--blue), var(--blue-dark));
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    z-index: 30;
+    animation: slideDown 0.5s ease 0.1s both;
+  }
+  @keyframes slideDown {
+    from { transform: translateY(-34px); opacity: 0; }
+    to   { transform: translateY(0);     opacity: 1; }
+  }
+  .ticker-badge {
+    background: var(--sun);
+    color: var(--blue-dark);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 0 14px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .ticker-dot {
+    width: 6px; height: 6px;
+    background: var(--blue-dark);
+    border-radius: 50%;
+    animation: dotBlink 1.2s ease-in-out infinite;
+  }
+  @keyframes dotBlink {
+    0%,100% { opacity: 1; } 50% { opacity: 0.2; }
+  }
+  .ticker-track {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+  .ticker-content {
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 1.5px;
+    animation: tickerScroll 22s linear infinite;
+    padding-left: 40px;
+  }
+  @keyframes tickerScroll {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(-100%); }
+  }
+  .ticker-sep { color: var(--sun); margin: 0 14px; }
+
+  /* SIDE PANEL */
+  .side-panel {
+    position: absolute;
+    top: 34px; left: 0;
+    width: 220px;
+    bottom: 110px;
+    background: var(--glass-warm);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-right: 1px solid rgba(255,255,255,0.12);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 16px;
+    gap: 14px;
+    z-index: 20;
+    animation: slideInLeft 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;
+  }
+  @keyframes slideInLeft {
+    from { transform: translateX(-220px); opacity: 0; }
+    to   { transform: translateX(0);      opacity: 1; }
+  }
+
+  .identity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    gap: 6px;
+  }
+  .identity-avatar img {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255,255,255,0.3);
+    box-shadow: 0 4px 20px rgba(245,176,65,0.4);
+    animation: bounce 2.5s ease-in-out infinite;
+  }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+  .identity-name { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--white); }
+  .identity-name span { color: var(--sun-light); }
+  .identity-role { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.6); letter-spacing: 2px; text-transform: uppercase; }
+  .identity-flag { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.08); border-radius: 20px; padding: 3px 10px; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.7); }
+
+  .avail-row { display: flex; align-items: center; gap: 7px; background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.3); border-radius: 20px; padding: 6px 12px; }
+  .avail-dot { width: 7px; height: 7px; background: #4CAF50; border-radius: 50%; box-shadow: 0 0 8px rgba(76,175,80,1); animation: glowPulse 2s ease-in-out infinite; }
+  @keyframes glowPulse { 0%,100% { opacity: 0.9; } 50% { opacity: 1; transform: scale(1.2); } }
+  .avail-text { font-size: 9px; font-weight: 800; color: #6FCF97; letter-spacing: 1px; text-transform: uppercase; }
+
+  .side-contact-label { font-size: 8px; font-weight: 800; letter-spacing: 3px; color: var(--sun-light); text-transform: uppercase; opacity: 0.8; }
+  .side-contacts { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .side-card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 9px 11px; display: flex; align-items: center; gap: 9px; position: relative; }
+  .side-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 3px 0 0 3px; }
+  
+  .sc-chat::before    { background: linear-gradient(#27AE60, #2ECC71); }
+  .sc-booking::before { background: linear-gradient(var(--blue-light), var(--green)); }
+  .sc-email::before   { background: linear-gradient(var(--sun), #F0B27A); }
+
+  .sc-emoji { font-size: 16px; flex-shrink: 0; }
+  .sc-type { font-size: 7px; font-weight: 800; letter-spacing: 2px; color: rgba(255,255,255,0.45); text-transform: uppercase; margin-bottom: 1px; }
+  .sc-value { font-family: 'Fredoka One', cursive; font-size: 12px; color: var(--white); line-height: 1.1; }
+  .sc-note { font-size: 8px; font-weight: 600; color: rgba(255,255,255,0.45); margin-top: 1px; }
+
+  /* LOWER THIRD */
+  .lower-third {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 110px;
+    background: var(--glass-solid);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    padding: 0 28px 0 236px;
+    gap: 16px;
+    z-index: 20;
+    animation: slideUp 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.4s both;
+  }
+  @keyframes slideUp { from { transform: translateY(110px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .lt-name-block { flex-shrink: 0; border-right: 1px solid rgba(255,255,255,0.15); padding-right: 20px; }
+  .lt-tag { font-size: 9px; font-weight: 800; letter-spacing: 3px; color: var(--sun-light); text-transform: uppercase; margin-bottom: 3px; }
+  .lt-name { font-family: 'Fredoka One', cursive; font-size: 28px; color: var(--white); line-height: 1; }
+  .lt-name span { color: var(--sun-light); }
+  .lt-sub { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.55); letter-spacing: 1.5px; margin-top: 2px; }
+
+  .lt-countdown { flex-shrink: 0; border-right: 1px solid rgba(255,255,255,0.15); padding-right: 20px; }
+  .lt-cd-label { font-size: 8px; font-weight: 800; color: var(--sun-light); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .lt-urgency { font-size: 7px; font-weight: 800; color: var(--coral); background: var(--coral-light); padding: 2px 7px; border-radius: 10px; animation: urgencyPop 2s ease-in-out infinite; }
+  @keyframes urgencyPop { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+  .lt-cd-units { display: flex; gap: 4px; align-items: center; }
+  .lt-cd-unit { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; padding: 4px 8px; text-align: center; min-width: 38px; }
+  .lt-cd-val { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--white); line-height: 1; }
+  .lt-cd-lbl { font-size: 6px; font-weight: 800; color: var(--sun-light); text-transform: uppercase; display: block; margin-top: 1px; }
+  .lt-cd-sep { font-family: 'Fredoka One', cursive; font-size: 18px; color: rgba(255,255,255,0.35); animation: sepBlink 1s ease-in-out infinite; }
+  @keyframes sepBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.15; } }
+
+  .lt-cta { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .lt-cta-row { display: flex; gap: 8px; }
+  .lt-btn { flex: 1; display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 12px; }
+  .lt-btn-emoji { font-size: 16px; flex-shrink: 0; }
+  .lt-btn-type { font-size: 7px; font-weight: 800; letter-spacing: 2px; color: var(--sun-light); text-transform: uppercase; margin-bottom: 1px; }
+  .lt-btn-value { font-family: 'Fredoka One', cursive; font-size: 13px; color: var(--white); line-height: 1; }
+  .lt-btn-note { font-size: 8px; font-weight: 600; color: rgba(255,255,255,0.45); margin-top: 1px; }
+  .lt-pill { font-size: 7px; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; margin-left: auto; align-self: center; }
+  .pill-open  { background: #D5F5E3; color: var(--green); }
+  .pill-soon  { background: rgba(255,255,255,0.1); color: var(--sun-light); border: 1px solid rgba(255,255,255,0.2); }
+
+  .star { position: absolute; pointer-events: none; z-index: 2; animation: twinkle ease-in-out infinite; opacity: 0; }
+  @keyframes twinkle { 0%,100% { opacity: 0.35; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.3); } }
+</style>
+</head>
+<body>
+
+<div class="scaler">
+  <div class="canvas" id="canvas">
+
+    <div class="star" style="top:50px;  left:350px;  font-size:13px; animation-duration:2.2s;">⭐</div>
+    <div class="star" style="top:45px;  left:700px;  font-size:10px; animation-duration:2.8s;">✨</div>
+    <div class="star" style="top:55px;  left:1050px; font-size:12px; animation-duration:3.1s;">⭐</div>
+
+    <div class="ticker">
+      <div class="ticker-badge"><div class="ticker-dot"></div>LIVE</div>
+      <div class="ticker-track">
+        <div class="ticker-content">
+          👋 Welcome! I'm Teacher Lewis1 &nbsp;<span class="ticker-sep">✦</span>&nbsp; 
+          🇬🇧 Native English Speaker &nbsp;<span class="ticker-sep">✦</span>&nbsp; 
+          📅 Calendly booking: calendly.com/teacherlewis1 &nbsp;<span class="ticker-sep">✦</span>&nbsp; 
+          🎓 1-on-1 lessons · All ages · All levels welcome &nbsp;<span class="ticker-sep">✦</span>&nbsp; 
+          😊 Fun, friendly & effective English lessons! &nbsp;<span class="ticker-sep">✦</span>&nbsp;
+        </div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="identity">
+        <div class="identity-avatar"><img src="logo.png" alt="Teacher Lewis1"/></div>
+        <div class="identity-name">Teacher <span>Lewis1</span></div>
+        <div class="identity-role">Private English Tutor</div>
+        <div class="identity-flag">🇬🇧 Native Speaker</div>
+      </div>
+
+      <div class="avail-row">
+        <div class="avail-dot"></div>
+        <div class="avail-text">Open for Students!</div>
+      </div>
+
+      <div class="side-contact-label">📬 Contact Me</div>
+      <div class="side-contacts">
+        <div class="side-card sc-chat">
+          <div class="sc-emoji">💬</div>
+          <div class="sc-info">
+            <div class="sc-type">WhatsApp / Telegram</div>
+            <div class="sc-value">Lewis1 Contact</div>
+            <div class="sc-note">Message me anytime!</div>
+          </div>
+        </div>
+
+        <div class="side-card sc-booking">
+          <div class="sc-emoji">📅</div>
+          <div class="sc-info">
+            <div class="sc-type">Book a Lesson</div>
+            <div class="sc-value">Calendly</div>
+            <div class="sc-note">calendly.com/teacherlewis1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lower-third">
+      <div class="lt-name-block">
+        <div class="lt-tag">👋 Hello! I'm</div>
+        <div class="lt-name">Teacher <span>Lewis1</span></div>
+        <div class="lt-sub">🎉 All Ages · All Levels · Online</div>
+      </div>
+
+      <div class="lt-countdown">
+        <div class="lt-cd-label">⏰ On Platform For <div class="lt-urgency" id="urgencyLabel">Book Now!</div></div>
+        <div class="lt-cd-units">
+          <div class="lt-cd-unit"><span class="lt-cd-val" id="cd-days">14</span><span class="lt-cd-lbl">Days</span></div>
+          <div class="lt-cd-sep">:</div>
+          <div class="lt-cd-unit"><span class="lt-cd-val" id="cd-hours">00</span><span class="lt-cd-lbl">Hrs</span></div>
+          <div class="lt-cd-sep">:</div>
+          <div class="lt-cd-unit"><span class="lt-cd-val" id="cd-mins">00</span><span class="lt-cd-lbl">Min</span></div>
+        </div>
+      </div>
+
+      <div class="lt-cta">
+        <div class="lt-cta-row">
+          <div class="lt-btn">
+            <div class="lt-btn-emoji">✉️</div>
+            <div class="lt-btn-info">
+              <div class="lt-btn-type">Email / Contact</div>
+              <div class="lt-btn-value">TeacherLewis1</div>
+              <div class="lt-btn-note">Enquiries & Questions</div>
+            </div>
+            <div class="lt-pill pill-open">Online ✓</div>
+          </div>
+
+          <div class="lt-btn">
+            <div class="lt-btn-emoji">📅</div>
+            <div class="lt-btn-info">
+              <div class="lt-btn-type">Book a Lesson</div>
+              <div class="lt-btn-value">Calendly</div>
+              <div class="lt-btn-note">calendly.com/teacherlewis1</div>
+            </div>
+            <div class="lt-pill pill-soon">Available</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function scaleCanvas() {
+    const canvas = document.getElementById('canvas');
+    const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    canvas.style.transform = `scale(${scale})`;
+    canvas.style.left = ((window.innerWidth - 1280 * scale) / 2) + 'px';
+  }
+  scaleCanvas();
+  window.addEventListener('resize', scaleCanvas);
+
+  const endTime = new Date().getTime() + (14 * 24 * 60 * 60 * 1000);
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function updateCountdown() {
+    const diff = endTime - new Date().getTime();
+    if (diff <= 0) return;
+    document.getElementById('cd-days').textContent = pad(Math.floor(diff / 86400000));
+    document.getElementById('cd-hours').textContent = pad(Math.floor((diff % 86400000) / 3600000));
+    document.getElementById('cd-mins').textContent = pad(Math.floor((diff % 3600000) / 60000));
+  }
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business English Memory Match</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1a2744;
+      --navy-light: #2c3e6b;
+      --gold: #f0b652;
+      --gold-light: #ffe0a0;
+      --teal: #17b8a0;
+      --teal-light: #d2f5ef;
+      --coral: #ef6461;
+      --bg: #f4f6fb;
+      --card-term: #2c3e6b;
+      --card-def: #17b8a0;
+      --card-back1: #1a2744;
+      --card-back2: #2c3e6b;
+      --shadow: rgba(26,39,68,0.12);
+      --p1-color: #17b8a0;
+      --p2-color: #ef6461;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      background: var(--bg);
+      font-family: 'Poppins', sans-serif;
+      display: flex; flex-direction: row;
+      align-items: stretch;
+      padding: 10px; gap: 10px;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 200px; flex-shrink: 0;
+      background: white; border-radius: 18px;
+      padding: 16px 14px;
+      box-shadow: 0 6px 24px var(--shadow);
+      display: flex; flex-direction: column;
+      position: relative; z-index: 1;
+    }
+    .sidebar-title {
+      font-size: 16px; font-weight: 800; color: var(--navy);
+      text-align: center; margin-bottom: 4px;
+    }
+    .sidebar-sub {
+      font-size: 11px; color: var(--gold); font-weight: 700;
+      text-align: center; letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .player-box {
+      padding: 10px; border-radius: 14px; margin-bottom: 8px;
+      text-align: center; border: 3px solid transparent;
+      transition: all 0.3s; background: #f9fafb;
+    }
+    .player-box.active { transform: scale(1.04); box-shadow: 0 4px 14px var(--shadow); }
+    .player-box.p1.active { border-color: var(--p1-color); background: var(--teal-light); }
+    .player-box.p2.active { border-color: var(--p2-color); background: #fde8e8; }
+    .player-label { font-size: 11px; font-weight: 800; color: var(--navy); text-transform: uppercase; letter-spacing: 0.5px; }
+    .player-num { font-size: 28px; font-weight: 900; }
+    .p1 .player-num { color: var(--p1-color); }
+    .p2 .player-num { color: var(--p2-color); }
+
+    .divider { height: 3px; background: linear-gradient(90deg, var(--teal), var(--gold), var(--coral)); border-radius: 50px; margin: 8px 0; }
+
+    .legend { margin-bottom: 8px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+    .legend-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+    .legend-dot.term { background: var(--card-term); }
+    .legend-dot.def { background: var(--card-def); }
+    .legend-text { font-size: 10.5px; font-weight: 600; color: var(--navy); }
+
+    .instr {
+      font-family: 'Sarabun', sans-serif;
+      font-size: 11px; color: #555; font-weight: 600; line-height: 1.5;
+    }
+
+    .reset-btn {
+      margin-top: auto; padding: 10px; border: none; border-radius: 12px;
+      background: var(--navy); color: white; font-family: 'Poppins'; font-weight: 700;
+      font-size: 13px; cursor: pointer; transition: background 0.2s;
+    }
+    .reset-btn:hover { background: var(--navy-light); }
+
+    /* ── Main ── */
+    .main { flex: 1; display: flex; flex-direction: column; height: 100%; position: relative; z-index: 1; }
+
+    .header { text-align: center; margin-bottom: 2px; }
+    .title {
+      font-size: clamp(22px, 3vw, 38px); font-weight: 900; color: var(--navy);
+    }
+    .title span { color: var(--gold); }
+    .subtitle { font-size: 13px; color: #888; font-weight: 600; margin-top: -2px; }
+
+    .turn-bar {
+      text-align: center; font-size: 17px; font-weight: 800;
+      margin-bottom: 4px; transition: color 0.3s;
+    }
+
+    .controls { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 6px; }
+    .diff-btn {
+      font-family: 'Poppins'; font-size: 12px; font-weight: 700;
+      border: 2px solid #e0e0e0; border-radius: 50px; padding: 4px 14px;
+      cursor: pointer; background: white; color: var(--navy); transition: all 0.2s;
+    }
+    .diff-btn:hover { border-color: var(--gold); }
+    .diff-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
+
+    .grid-wrap { flex: 1; display: flex; align-items: center; justify-content: center; }
+    .grid { display: grid; gap: 7px; }
+
+    /* ── Cards ── */
+    .card { perspective: 700px; cursor: pointer; }
+    .card-inner {
+      width: 100%; height: 100%; position: relative;
+      transform-style: preserve-3d; transition: transform 0.35s ease;
+    }
+    .card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
+    .card-face {
+      position: absolute; inset: 0; backface-visibility: hidden;
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      padding: 4px;
+    }
+
+    .card-back {
+      background: linear-gradient(135deg, var(--card-back1), var(--card-back2));
+      color: rgba(255,255,255,0.3); font-weight: 900; font-size: 18px;
+      border: 2px solid rgba(255,255,255,0.08);
+    }
+    .card-back::after {
+      content: '💼'; font-size: 22px; position: absolute;
+    }
+
+    .card-front {
+      transform: rotateY(180deg); box-shadow: 0 3px 0 #ddd;
+      flex-direction: column; text-align: center;
+    }
+    .card-front.type-term {
+      background: var(--card-term); color: white;
+      border: 2px solid rgba(255,255,255,0.15);
+    }
+    .card-front.type-def {
+      background: white; color: var(--navy);
+      border: 2px solid var(--card-def);
+    }
+
+    .card-type-label {
+      font-size: 7px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1px; opacity: 0.6; margin-bottom: 2px;
+    }
+    .card-content {
+      font-size: 10px; font-weight: 700; line-height: 1.25;
+    }
+    .type-term .card-content { font-size: 11px; }
+
+    .card.matched { opacity: 0.5; pointer-events: none; }
+    .card.matched .card-inner { transform: rotateY(180deg) scale(0.92); }
+
+    /* ── Overlay ── */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(26,39,68,0.85); z-index: 100;
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+    .overlay.show { display: flex; }
+    .win-box {
+      background: white; border-radius: 22px; padding: 36px;
+      text-align: center; max-width: 380px; width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .win-icon { font-size: 52px; margin-bottom: 8px; }
+    .win-title { font-size: 28px; font-weight: 900; color: var(--navy); }
+    .win-score { margin: 12px 0; font-weight: 700; color: var(--teal); font-size: 16px; }
+    .win-btn {
+      padding: 12px 28px; border: none; border-radius: 14px;
+      background: var(--gold); color: var(--navy); font-family: 'Poppins';
+      font-weight: 800; font-size: 14px; cursor: pointer;
+    }
+    .win-btn:hover { background: var(--gold-light); }
+
+    /* ── Vocab Preview ── */
+    .vocab-btn {
+      font-family: 'Poppins'; font-size: 11px; font-weight: 700;
+      border: 2px solid var(--gold); border-radius: 50px; padding: 4px 14px;
+      cursor: pointer; background: var(--gold-light); color: var(--navy);
+    }
+    .vocab-modal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(26,39,68,0.85); z-index: 200;
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+    .vocab-modal.show { display: flex; }
+    .vocab-box {
+      background: white; border-radius: 22px; padding: 24px;
+      max-width: 520px; width: 92%; max-height: 80vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .vocab-box h2 { font-size: 20px; color: var(--navy); margin-bottom: 12px; text-align: center; }
+    .vocab-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .vocab-table th {
+      background: var(--navy); color: white; padding: 8px 10px;
+      text-align: left; font-weight: 700;
+    }
+    .vocab-table td { padding: 7px 10px; border-bottom: 1px solid #eee; }
+    .vocab-table tr:hover td { background: #f8f9ff; }
+    .close-vocab {
+      margin-top: 14px; padding: 8px 20px; border: none; border-radius: 10px;
+      background: var(--navy); color: white; font-family: 'Poppins';
+      font-weight: 700; cursor: pointer; display: block; margin-left: auto; margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-title">� Office Talk</div>
+  <div class="sidebar-sub">ESL Conversation</div>
+
+  <div class="player-box p1 active" id="p1-box">
+    <div class="player-label">Team 1</div>
+    <div class="player-num" id="p1-score">0</div>
+  </div>
+  <div class="player-box p2" id="p2-box">
+    <div class="player-label">Team 2</div>
+    <div class="player-num" id="p2-score">0</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot term"></div><div class="legend-text">= Question / Phrase</div></div>
+    <div class="legend-item"><div class="legend-dot def"></div><div class="legend-text">= Response / Answer</div></div>
+  </div>
+
+  <div class="instr">
+    <b>How to play:</b><br>
+    • Flip 2 cards per turn<br>
+    • Match the question to the correct answer<br>
+    • Correct match = +1 point &amp; go again<br>
+    • Wrong match = next team's turn<br><br>
+    <b>วิธีเล่น:</b><br>
+    • เปิดการ์ด 2 ใบ<br>
+    • จับคู่คำถามกับคำตอบที่ถูกต้อง<br>
+    • ถูกได้เล่นต่อ ผิดเปลี่ยนทีม
+  </div>
+
+  <button class="reset-btn" onclick="startGame()">🔄 Reset Game</button>
+</aside>
+
+<div class="main">
+  <header class="header">
+    <div class="title">Office Talk <span>Memory</span> �</div>
+    <div class="subtitle">Match the question to the correct response!</div>
+  </header>
+
+  <div class="turn-bar" id="turn-text" style="color: var(--p1-color);">Team 1's Turn</div>
+
+  <div class="controls">
+    <button class="diff-btn active" id="btn-easy" onclick="setDiff('easy')">📋 Easy (8)</button>
+    <button class="diff-btn" id="btn-medium" onclick="setDiff('medium')">📊 Medium (12)</button>
+    <button class="diff-btn" id="btn-hard" onclick="setDiff('hard')">🏢 Hard (16)</button>
+    <button class="vocab-btn" onclick="showVocab()">📖 Vocab List</button>
+  </div>
+
+  <div class="grid-wrap">
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<!-- Win Overlay -->
+<div class="overlay" id="overlay">
+  <div class="win-box">
+    <div class="win-icon">🏆</div>
+    <div class="win-title" id="winner-name">Team 1 Wins!</div>
+    <div class="win-score" id="final-stats"></div>
+    <button class="win-btn" onclick="startGame()">Play Again 🔄</button>
+  </div>
+</div>
+
+<!-- Vocab Modal -->
+<div class="vocab-modal" id="vocab-modal">
+  <div class="vocab-box">
+    <h2>� Conversation Pairs</h2>
+    <table class="vocab-table" id="vocab-table">
+      <thead><tr><th>Question / Phrase</th><th>Response</th></tr></thead>
+      <tbody id="vocab-body"></tbody>
+    </table>
+    <button class="close-vocab" onclick="hideVocab()">Close ✕</button>
+  </div>
+</div>
+
+<script>
+  const VOCAB = [
+    { term: "How are you today?",              def: "I'm fine, thank you." },
+    { term: "Where do you work?",              def: "I work at a bank." },
+    { term: "What do you do?",                 def: "I'm an accountant." },
+    { term: "Nice to meet you.",               def: "Nice to meet you too." },
+    { term: "How long have you worked here?",   def: "About three years." },
+    { term: "Can I help you?",                 def: "Yes, I have a question." },
+    { term: "When is the meeting?",            def: "It's at 10 o'clock." },
+    { term: "Would you like some coffee?",     def: "Yes, please. Thank you." },
+    { term: "What time do you start work?",    def: "I start at 9 AM." },
+    { term: "Could you send me the report?",   def: "Sure, I'll send it now." },
+    { term: "Do you have a business card?",    def: "Yes, here you are." },
+    { term: "Who is your manager?",            def: "Ms. Johnson is my manager." },
+    { term: "How was your weekend?",           def: "It was great, thanks!" },
+    { term: "Are you free on Friday?",         def: "Let me check my schedule." },
+    { term: "What department are you in?",     def: "I'm in the sales department." },
+    { term: "Can I take a message?",           def: "Please tell her I called." }
+  ];
+
+  const CONFIGS = {
+    easy:   { pairs: 8,  cols: 4, cardW: 140, cardH: 100 },
+    medium: { pairs: 12, cols: 6, cardW: 120, cardH: 90  },
+    hard:   { pairs: 16, cols: 8, cardW: 105, cardH: 85  }
+  };
+
+  let difficulty = 'easy';
+  let currentPlayer = 1;
+  let scores = { 1: 0, 2: 0 };
+  let flipped = [];
+  let lock = false;
+  let matchedCount = 0;
+
+  // Build vocab table
+  function buildVocabTable() {
+    const tbody = document.getElementById('vocab-body');
+    tbody.innerHTML = VOCAB.map(v =>
+      `<tr><td><b>${v.term}</b></td><td>${v.def}</td></tr>`
+    ).join('');
+  }
+  function showVocab() { document.getElementById('vocab-modal').classList.add('show'); }
+  function hideVocab() { document.getElementById('vocab-modal').classList.remove('show'); }
+
+  function setDiff(d) {
+    difficulty = d;
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + d).classList.add('active');
+    startGame();
+  }
+
+  function startGame() {
+    scores = { 1: 0, 2: 0 };
+    currentPlayer = 1;
+    matchedCount = 0;
+    flipped = [];
+    lock = false;
+    updateUI();
+
+    const cfg = CONFIGS[difficulty];
+    const pool = [...VOCAB].sort(() => Math.random() - 0.5).slice(0, cfg.pairs);
+
+    // Create two cards per pair: one TERM, one DEFINITION
+    const deck = [];
+    pool.forEach((item, i) => {
+      deck.push({ id: i, type: 'term', text: item.term, matchId: i });
+      deck.push({ id: i, type: 'def',  text: item.def,  matchId: i });
+    });
+
+    // Shuffle
+    for (let k = deck.length - 1; k > 0; k--) {
+      const j = Math.floor(Math.random() * (k + 1));
+      [deck[k], deck[j]] = [deck[j], deck[k]];
+    }
+
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    grid.style.gridTemplateColumns = `repeat(${cfg.cols}, ${cfg.cardW}px)`;
+
+    deck.forEach(card => {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.style.width = cfg.cardW + 'px';
+      el.style.height = cfg.cardH + 'px';
+      el.dataset.matchId = card.matchId;
+
+      const typeClass = card.type === 'term' ? 'type-term' : 'type-def';
+      const typeLabel = card.type === 'term' ? 'Question' : 'Answer';
+
+      el.innerHTML = `
+        <div class="card-inner">
+          <div class="card-face card-back"></div>
+          <div class="card-face card-front ${typeClass}">
+            <div class="card-type-label">${typeLabel}</div>
+            <div class="card-content">${card.text}</div>
+          </div>
+        </div>`;
+      el.addEventListener('click', () => flipCard(el));
+      grid.appendChild(el);
+    });
+
+    document.getElementById('overlay').classList.remove('show');
+    hideVocab();
+    buildVocabTable();
+  }
+
+  function flipCard(card) {
+    if (lock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+    card.classList.add('flipped');
+    flipped.push(card);
+
+    if (flipped.length === 2) {
+      lock = true;
+      const [a, b] = flipped;
+
+      if (a.dataset.matchId === b.dataset.matchId) {
+        // MATCH
+        scores[currentPlayer]++;
+        matchedCount++;
+        a.classList.add('matched');
+        b.classList.add('matched');
+        flipped = [];
+        lock = false;
+        updateUI();
+        if (matchedCount === CONFIGS[difficulty].pairs) setTimeout(endGame, 400);
+      } else {
+        // NO MATCH
+        setTimeout(() => {
+          a.classList.remove('flipped');
+          b.classList.remove('flipped');
+          currentPlayer = currentPlayer === 1 ? 2 : 1;
+          flipped = [];
+          lock = false;
+          updateUI();
+        }, 1200);
+      }
+    }
+  }
+
+  function updateUI() {
+    document.getElementById('p1-score').textContent = scores[1];
+    document.getElementById('p2-score').textContent = scores[2];
+    document.getElementById('p1-box').classList.toggle('active', currentPlayer === 1);
+    document.getElementById('p2-box').classList.toggle('active', currentPlayer === 2);
+    const t = document.getElementById('turn-text');
+    t.textContent = `Team ${currentPlayer}'s Turn`;
+    t.style.color = currentPlayer === 1 ? 'var(--p1-color)' : 'var(--p2-color)';
+  }
+
+  function endGame() {
+    let msg = '';
+    if (scores[1] > scores[2]) msg = '🎉 Team 1 Wins!';
+    else if (scores[2] > scores[1]) msg = '🎉 Team 2 Wins!';
+    else msg = "🤝 It's a Draw!";
+
+    document.getElementById('winner-name').textContent = msg;
+    document.getElementById('final-stats').textContent = `Score: ${scores[1]} — ${scores[2]}`;
+    document.getElementById('overlay').classList.add('show');
+  }
+
+  startGame();
+</script>
+</body>
+</html>

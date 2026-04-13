@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESL Kids Sentence Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: linear-gradient(160deg, #fff9f0 0%, #fff0fa 50%, #f0f7ff 100%);
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .phone {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(160deg, #fff9f0 0%, #fff0fa 50%, #f0f7ff 100%);
+  }
+
+  .tiktok-bar { background: #111; padding: 10px 16px 7px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .live-badge { background: #ff3b5c; color: white; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 5px; letter-spacing: 1px; }
+  .viewer-count { color: #fff9; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+  .dot-live { width: 7px; height: 7px; border-radius: 50%; background: #ff3b5c; animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .game-area {
+    flex: 1;
+    padding: 14px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    overflow: hidden;
+  }
+
+  .top-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .score-pill { background: white; border: 2px solid #f0e0ff; border-radius: 30px; padding: 5px 14px; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(180,100,255,0.1); }
+  .score-pill .val { font-size: 18px; font-weight: 900; color: #6c3fc5; }
+  .score-pill .lbl { font-size: 10px; color: #b89ad4; font-weight: 700; }
+  .round-badge { background: #fff3cd; border: 2px solid #ffd54f; border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: 800; color: #e65100; }
+
+  .stars-row { display: flex; gap: 4px; justify-content: center; }
+  .star { font-size: 20px; opacity: 0.2; transition: opacity 0.3s, transform 0.4s cubic-bezier(.34,1.56,.64,1); }
+  .star.lit { opacity: 1; transform: scale(1.25); }
+
+  .question-card { background: white; border: 2px solid #e8d5ff; border-radius: 20px; padding: 14px 16px; box-shadow: 0 4px 16px rgba(150,80,255,0.08); }
+  .q-label { font-size: 10px; font-weight: 800; color: #d63af9; letter-spacing: 1.5px; margin-bottom: 7px; }
+  .prompt-text { font-size: 16px; font-weight: 800; color: #2d1b6e; line-height: 1.6; }
+  .blank-line { display: inline-block; width: 70px; height: 3px; background: #d63af9; border-radius: 2px; vertical-align: middle; margin: 0 3px; }
+  .hint-text { font-size: 11px; color: #9b6fc4; font-weight: 700; margin-top: 7px; }
+
+  .answer-zone { background: #f8f0ff; border: 2.5px dashed #d4a8ff; border-radius: 18px; min-height: 68px; padding: 10px 10px 10px 12px; display: flex; flex-wrap: wrap; gap: 7px; align-content: flex-start; position: relative; transition: border-color 0.3s, background 0.3s; }
+  .answer-zone.correct-zone { border-color: #43e97b; background: #efffee; border-style: solid; }
+  .answer-zone.wrong-zone { border-color: #ff6b6b; background: #fff2f2; border-style: solid; }
+  .zone-label { position: absolute; top: -10px; left: 12px; background: #f8f0ff; font-size: 10px; color: #b084e0; font-weight: 700; padding: 0 7px; }
+
+  .word-chip { font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; padding: 7px 14px; border-radius: 25px; cursor: pointer; transition: transform 0.1s; user-select: none; border: none; outline: none; }
+  .word-chip:active { transform: scale(0.92); }
+  .chip-placed { background: #7c3aed; color: white; box-shadow: 0 3px 0 #5b21b6; }
+  .chip-bank { background: white; color: #4c1d95; border: 2px solid #ddd6fe; box-shadow: 0 2px 0 #ede9fe; }
+  .chip-bank.used { opacity: 0.25; pointer-events: none; }
+  .chip-correct { background: #22c55e; color: white; box-shadow: 0 3px 0 #15803d; }
+  .chip-wrong { background: #ef4444; color: white; box-shadow: 0 3px 0 #b91c1c; }
+
+  .word-bank { display: flex; flex-wrap: wrap; gap: 7px; min-height: 38px; }
+
+  .feedback-box { border-radius: 18px; padding: 12px 14px; display: none; flex-direction: column; gap: 5px; animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes popIn { from{transform:scale(0.75);opacity:0} to{transform:scale(1);opacity:1} }
+  .feedback-box.correct-fb { display: flex; background: #f0fdf4; border: 2px solid #86efac; }
+  .feedback-box.wrong-fb { display: flex; background: #fff5f5; border: 2px solid #fca5a5; }
+  .fb-title { font-size: 15px; font-weight: 900; display: flex; align-items: center; gap: 7px; }
+  .fb-title.green { color: #16a34a; }
+  .fb-title.red { color: #dc2626; }
+  .fb-detail { font-size: 12px; font-weight: 700; color: #555; line-height: 1.5; }
+  .correct-sentence { font-size: 12px; font-weight: 800; color: #7c3aed; margin-top: 2px; }
+
+  .btn-row { display: flex; gap: 8px; }
+  .btn { flex: 1; padding: 12px; border-radius: 16px; border: none; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; transition: transform 0.1s; }
+  .btn:active { transform: scale(0.95); }
+  .btn-check { background: #ff3b5c; color: white; box-shadow: 0 4px 0 #c41230; }
+  .btn-skip { background: #e5e7eb; color: #6b7280; box-shadow: 0 3px 0 #c5c9d0; }
+
+  .next-btn-wrap { display: none; animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1); }
+  .next-btn-wrap.visible { display: block; }
+  .btn-next-big { width: 100%; padding: 16px; border-radius: 20px; border: none; font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 900; cursor: pointer; background: #f59e0b; color: white; box-shadow: 0 6px 0 #b45309; letter-spacing: 0.5px; animation: wiggle 1s ease-in-out infinite; transition: transform 0.1s; }
+  .btn-next-big:active { transform: scale(0.95); animation: none; }
+  @keyframes wiggle { 0%,100%{transform:rotate(-1deg) scale(1)} 25%{transform:rotate(1deg) scale(1.02)} 50%{transform:rotate(-1deg) scale(1.03)} 75%{transform:rotate(1deg) scale(1.02)} }
+
+  .confetti-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; overflow: hidden; z-index: 100; }
+  .confetti-piece { position: absolute; top: -10px; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+  .done-screen { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center; }
+  .done-screen.visible { display: flex; }
+  .game-area.hidden { display: none; }
+  .done-emoji { font-size: 56px; animation: bounce 0.5s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes bounce { from{transform:scale(0.2)} to{transform:scale(1)} }
+  .done-score { font-size: 60px; font-weight: 900; color: #6c3fc5; }
+  .done-out { font-size: 15px; color: #9b6fc4; font-weight: 700; }
+  .done-stars { font-size: 26px; letter-spacing: 3px; }
+  .done-msg { font-size: 16px; font-weight: 800; color: #2d1b6e; line-height: 1.6; max-width: 280px; }
+  .btn-restart { font-family: 'Nunito', sans-serif; background: #ff3b5c; color: white; border: none; border-radius: 18px; padding: 14px 36px; font-size: 16px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #c41230; margin-top: 6px; transition: transform 0.1s; }
+  .btn-restart:active { transform: scale(0.96); }
+
+  .tiktok-bottom { background: #111; padding: 10px 20px 14px; display: flex; justify-content: space-around; align-items: center; flex-shrink: 0; }
+  .tb-icon { color: #ffffff55; font-size: 20px; }
+  .tb-icon.active { color: white; }
+</style>
+</head>
+<body>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<div class="phone" id="phone">
+
+  <div class="tiktok-bar">
+    <div style="color:white;font-size:13px;font-weight:800;">⭐ ESL Kids Live</div>
+    <div class="live-badge">LIVE</div>
+    <div class="viewer-count"><div class="dot-live"></div>1.2k</div>
+  </div>
+
+  <div class="game-area" id="gameArea">
+    <div class="top-row">
+      <div class="score-pill"><span style="font-size:15px">⭐</span><span class="val" id="score">0</span><span class="lbl">PTS</span></div>
+      <div class="round-badge" id="roundBadge">Round 1 of 6</div>
+      <div class="score-pill"><span style="font-size:15px">🔥</span><span class="val" id="streak">0</span><span class="lbl">STREAK</span></div>
+    </div>
+
+    <div class="stars-row">
+      <div class="star" id="s0">⭐</div><div class="star" id="s1">⭐</div><div class="star" id="s2">⭐</div>
+      <div class="star" id="s3">⭐</div><div class="star" id="s4">⭐</div><div class="star" id="s5">⭐</div>
+    </div>
+
+    <div class="question-card">
+      <div class="q-label">📝 BUILD THE SENTENCE</div>
+      <div class="prompt-text" id="promptText"></div>
+      <div class="hint-text" id="hintText"></div>
+    </div>
+
+    <div class="answer-zone" id="answerZone">
+      <div class="zone-label">tap words to build here ✏️</div>
+    </div>
+
+    <div class="word-bank" id="wordBank"></div>
+
+    <div class="feedback-box" id="feedbackBox">
+      <div class="fb-title" id="fbTitle"></div>
+      <div class="fb-detail" id="fbDetail"></div>
+      <div class="correct-sentence" id="fbCorrect"></div>
+    </div>
+
+    <div class="btn-row" id="checkRow">
+      <button class="btn btn-skip" onclick="skipRound()">⏭ Skip</button>
+      <button class="btn btn-check" onclick="checkAnswer()">✅ Check!</button>
+    </div>
+
+    <div class="next-btn-wrap" id="nextWrap">
+      <button class="btn-next-big" onclick="nextRound()">👉 NEXT QUESTION!</button>
+    </div>
+  </div>
+
+  <div class="done-screen" id="doneScreen">
+    <div class="done-emoji" id="doneEmoji">🎉</div>
+    <div class="done-score" id="finalScore">0</div>
+    <div class="done-out">out of 6 points</div>
+    <div class="done-stars" id="doneStars"></div>
+    <div class="done-msg" id="doneMsg"></div>
+    <button class="btn-restart" onclick="restartGame()">🔄 Play Again!</button>
+  </div>
+
+  <div class="tiktok-bottom">
+    <div class="tb-icon">☰</div>
+    <div class="tb-icon active" style="color:white">❄</div>
+    <div class="tb-icon">＋</div>
+    <div class="tb-icon">✉</div>
+    <div class="tb-icon">☞</div>
+  </div>
+
+</div>
+
+<script>
+const rounds = [
+  { prompt:"She ___ to school every day.", answer:["She","goes","to","school","every","day"], extra:["went","going","run","fast"], hint:"💡 Use simple present tense!", wrongTips:["Check the verb — is it simple present?","She/he/it → add 's' to the verb!"], correctMsg:"Great job! 'Goes' is correct for she/he/it! 🌟" },
+  { prompt:"I ___ eating pizza right now.", answer:["I","am","eating","pizza","right","now"], extra:["is","are","ate","will"], hint:"💡 Something happening RIGHT NOW!", wrongTips:["This is happening now — use present continuous!","Formula: I + am + verb-ing 😊"], correctMsg:"Awesome! Present continuous = am/is/are + -ing! 🍕" },
+  { prompt:"They have ___ best friends for years.", answer:["They","have","been","best","friends","for","years"], extra:["be","was","are","since"], hint:"💡 Started in the past, still true now!", wrongTips:["Use present perfect — have + past participle!","Been = past participle of 'be'!"], correctMsg:"Excellent! 'Have been' = started in past, still true now! ✨" },
+  { prompt:"If you study hard, you ___ pass the test.", answer:["If","you","study","hard","you","will","pass","the","test"], extra:["would","can","might","shall"], hint:"💡 A real future possibility!", wrongTips:["Real future possibility — use 'will'!","If + present → will + verb 🎯"], correctMsg:"Perfect! 'Will' = real future possibility! 🎯" },
+  { prompt:"She ___ never visited Japan before.", answer:["She","has","never","visited","Japan","before"], extra:["have","had","was","is"], hint:"💡 A life experience up to now!", wrongTips:["Use present perfect for life experiences!","She/he/it → has (not have)!"], correctMsg:"Super! Present perfect for experiences! 🗾" },
+  { prompt:"The cake ___ baked by my mum yesterday.", answer:["The","cake","was","baked","by","my","mum","yesterday"], extra:["were","is","bake","been"], hint:"💡 Someone else did the action — passive!", wrongTips:["Passive voice — use was/were + past participle!","Past passive = was/were + past participle 🎂"], correctMsg:"Brilliant! Passive = was/were + past participle! 🎂" }
+];
+
+let currentRound=0, score=0, streak=0, placed=[], checked=false;
+const colors=['#ff3b5c','#ffd600','#43e97b','#40c4ff','#e040fb','#ff9100','#00bcd4'];
+
+function launchConfetti(){
+  const c=document.getElementById('confettiContainer'); c.innerHTML='';
+  for(let i=0;i<55;i++){
+    const p=document.createElement('div'); p.className='confetti-piece';
+    const sz=6+Math.random()*8;
+    p.style.cssText=`left:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${1.3+Math.random()*1.2}s;animation-delay:${Math.random()*.6}s`;
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.innerHTML='',3200);
+}
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function showNextBtn(){ document.getElementById('checkRow').style.display='none'; document.getElementById('nextWrap').classList.add('visible'); }
+function hideNextBtn(){ document.getElementById('checkRow').style.display='flex'; document.getElementById('nextWrap').classList.remove('visible'); }
+
+function loadRound(){
+  checked=false; placed=[];
+  const r=rounds[currentRound];
+  document.getElementById('roundBadge').textContent=`Round ${currentRound+1} of ${rounds.length}`;
+  document.getElementById('promptText').innerHTML=r.prompt.replace('___','<span class="blank-line"></span>');
+  document.getElementById('hintText').textContent=r.hint;
+  const az=document.getElementById('answerZone');
+  az.innerHTML='<div class="zone-label">tap words to build here ✏️</div>';
+  az.className='answer-zone';
+  const bank=document.getElementById('wordBank'); bank.innerHTML='';
+  shuffle([...r.answer,...r.extra]).forEach(w=>{
+    const c=document.createElement('button'); c.className='word-chip chip-bank'; c.textContent=w;
+    c.onclick=()=>pickWord(c,w); bank.appendChild(c);
+  });
+  document.getElementById('feedbackBox').className='feedback-box';
+  document.getElementById('fbCorrect').textContent='';
+  hideNextBtn();
+}
+
+function pickWord(chip,word){
+  if(checked||chip.classList.contains('used')) return;
+  chip.classList.add('used'); placed.push({word,sourceChip:chip});
+  const az=document.getElementById('answerZone');
+  const pc=document.createElement('button'); pc.className='word-chip chip-placed'; pc.textContent=word;
+  pc.onclick=()=>{if(checked)return;pc.remove();chip.classList.remove('used');placed=placed.filter(p=>p.sourceChip!==chip);};
+  az.appendChild(pc);
+}
+
+function checkAnswer(){
+  if(placed.length===0) return;
+  checked=true;
+  const r=rounds[currentRound];
+  const user=placed.map(p=>p.word).join(' ');
+  const correct=r.answer.join(' ');
+  const ok=user===correct;
+  const az=document.getElementById('answerZone');
+  az.querySelectorAll('.chip-placed').forEach(c=>{c.classList.remove('chip-placed');c.classList.add(ok?'chip-correct':'chip-wrong');});
+  az.classList.add(ok?'correct-zone':'wrong-zone');
+  const fb=document.getElementById('feedbackBox');
+  if(ok){
+    score++;streak++;
+    document.getElementById('score').textContent=score;
+    document.getElementById('streak').textContent=streak;
+    document.getElementById('s'+currentRound).classList.add('lit');
+    fb.className='feedback-box correct-fb';
+    document.getElementById('fbTitle').innerHTML=`<span class="green">🎉 Correct! Well done!</span>`;
+    document.getElementById('fbDetail').textContent=r.correctMsg+(streak>1?` 🔥 ${streak} in a row!`:'');
+    document.getElementById('fbCorrect').textContent='';
+    launchConfetti();
+  } else {
+    streak=0; document.getElementById('streak').textContent=0;
+    fb.className='feedback-box wrong-fb';
+    document.getElementById('fbTitle').innerHTML=`<span class="red">😅 Not quite — keep trying!</span>`;
+    document.getElementById('fbDetail').textContent='💬 Tip: '+r.wrongTips[Math.floor(Math.random()*r.wrongTips.length)];
+    document.getElementById('fbCorrect').textContent='✅ Correct sentence: '+correct;
+  }
+  showNextBtn();
+}
+
+function skipRound(){
+  streak=0; checked=true; document.getElementById('streak').textContent=0;
+  const fb=document.getElementById('feedbackBox'); fb.className='feedback-box wrong-fb';
+  document.getElementById('fbTitle').innerHTML=`<span class="red">⏭ Skipped — no worries!</span>`;
+  document.getElementById('fbDetail').textContent="That's okay! Let's look at the answer together 😊";
+  document.getElementById('fbCorrect').textContent='✅ Correct: '+rounds[currentRound].answer.join(' ');
+  showNextBtn();
+}
+
+function nextRound(){
+  currentRound++;
+  if(currentRound>=rounds.length) showDone(); else loadRound();
+}
+
+function showDone(){
+  document.getElementById('gameArea').classList.add('hidden');
+  document.getElementById('doneScreen').classList.add('visible');
+  document.getElementById('finalScore').textContent=score;
+  document.getElementById('doneStars').textContent='⭐'.repeat(score)+(score<6?'☆'.repeat(6-score):'');
+  const msgs=[[6,'🏆',"PERFECT SCORE! You're an English superstar! 🌟"],[5,'🥇',"Fantastic! 5 out of 6 — almost perfect!"],[4,'🥈',"Really good work! Keep practising!"],[3,'🥉',"Good try! You're learning so much!"],[1,'😊',"Keep going! Every mistake helps you learn!"],[0,'💪',"Don't give up! You've got this next time!"]];
+  for(const [min,emoji,msg] of msgs){if(score>=min){document.getElementById('doneEmoji').textContent=emoji;document.getElementById('doneMsg').textContent=msg;break;}}
+  if(score===6) launchConfetti();
+}
+
+function restartGame(){
+  currentRound=0;score=0;streak=0;
+  document.getElementById('score').textContent=0;
+  document.getElementById('streak').textContent=0;
+  for(let i=0;i<6;i++) document.getElementById('s'+i).classList.remove('lit');
+  document.getElementById('doneScreen').classList.remove('visible');
+  document.getElementById('gameArea').classList.remove('hidden');
+  loadRound();
+}
+
+loadRound();
+</script>
+</body>
+</html>

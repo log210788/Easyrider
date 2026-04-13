@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Big World Lesson</title>
+    <style>
+        body { font-family: 'Comic Sans MS', cursive, sans-serif; background-color: #f0f8ff; color: #333; padding: 20px; text-align: center; }
+        h1 { color: #ff4500; font-size: 3em; margin-bottom: 10px; }
+        .intro { font-size: 1.2em; margin-bottom: 30px; color: #555; }
+        
+        .category { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-left: 10px solid; text-align: left; }
+        .essentials { border-color: #4caf50; }
+        .fun { border-color: #ffeb3b; }
+        .travel { border-color: #2196f3; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-top: 15px; }
+        
+        /* The Place Card */
+        .place { 
+            text-align: center; 
+            padding: 15px; 
+            border: 2px dashed #ccc; 
+            border-radius: 15px; 
+            transition: all 0.3s; 
+            cursor: pointer;
+            background: #fff;
+        }
+        .place:hover { transform: scale(1.1); background-color: #fff9c4; border-color: #ff4500; }
+        .place:active { transform: scale(0.95); }
+
+        .icon { font-size: 60px; display: block; margin-bottom: 5px; }
+        .name { font-weight: bold; color: #444; font-size: 1.1em; }
+        
+        /* Mystery Game Box */
+        .quiz-box { background: #fff; padding: 30px; border-radius: 20px; border: 4px solid #03a9f4; margin-top: 40px; }
+        #riddle { font-size: 1.5em; font-style: italic; color: #0277bd; min-height: 50px; }
+        #answer { font-size: 2em; color: #4caf50; font-weight: bold; margin-top: 10px; min-height: 50px; }
+        
+        .btn-group { margin-top: 20px; }
+        button { 
+            background: #ff4500; color: white; border: none; 
+            padding: 15px 30px; border-radius: 50px; 
+            cursor: pointer; font-size: 1.2em; font-weight: bold;
+            box-shadow: 0 4px #bf360c; margin: 5px;
+        }
+        button:active { box-shadow: 0 0; transform: translateY(4px); }
+        .btn-next { background: #2196f3; box-shadow: 0 4px #0d47a1; }
+    </style>
+</head>
+<body>
+
+    <h1>🏙️ Let’s Explore!</h1>
+    <p class="intro">Click on a place to hear its name!</p>
+
+    <div class="category essentials">
+        <h2>🍎 Places We Need</h2>
+        <div class="grid">
+            <div class="place" onclick="say('Supermarket')"><span class="icon">🛒</span><span class="name">Supermarket</span></div>
+            <div class="place" onclick="say('Hospital')"><span class="icon">🏥</span><span class="name">Hospital</span></div>
+            <div class="place" onclick="say('Shopping Mall')"><span class="icon">🛍️</span><span class="name">Shopping Mall</span></div>
+            <div class="place" onclick="say('Temple')"><span class="icon">🛕</span><span class="name">Temple</span></div>
+            <div class="place" onclick="say('Church')"><span class="icon">⛪</span><span class="name">Church</span></div>
+        </div>
+    </div>
+
+    <div class="category fun">
+        <h2>🎡 Places for Fun</h2>
+        <div class="grid">
+            <div class="place" onclick="say('Park')"><span class="icon">🌳</span><span class="name">Park</span></div>
+            <div class="place" onclick="say('Swimming Pool')"><span class="icon">🏊</span><span class="name">Swimming Pool</span></div>
+            <div class="place" onclick="say('The Beach')"><span class="icon">🏖️</span><span class="name">The Beach</span></div>
+            <div class="place" onclick="say('Funfair')"><span class="icon">🎢</span><span class="name">Funfair</span></div>
+            <div class="place" onclick="say('Sports Centre')"><span class="icon">🏀</span><span class="name">Sports Centre</span></div>
+        </div>
+    </div>
+
+    <div class="category travel">
+        <h2>🚀 Places to Go</h2>
+        <div class="grid">
+            <div class="place" onclick="say('Airport')"><span class="icon">✈️</span><span class="name">Airport</span></div>
+            <div class="place" onclick="say('Bus Station')"><span class="icon">🚌</span><span class="name">Bus Station</span></div>
+            <div class="place" onclick="say('Train Station')"><span class="icon">🚂</span><span class="name">Train Station</span></div>
+        </div>
+    </div>
+
+    <div class="quiz-box">
+        <h2>🕵️ Mystery Game</h2>
+        <p id="riddle">Click "New Riddle" to start!</p>
+        <p id="answer"></p>
+        <div class="btn-group">
+            <button class="btn-next" onclick="nextRiddle()">New Riddle ❓</button>
+            <button onclick="reveal()">Show Answer ✅</button>
+        </div>
+    </div>
+
+    <script>
+        // Feature: Speak the name
+        function say(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9; // Slightly slower for kids
+            window.speechSynthesis.speak(utterance);
+        }
+
+        const riddles = [
+            { q: "I have slides, swings, and lots of green grass. Where am I?", a: "🌳 THE PARK!" },
+            { q: "You need a ticket and a passport to see the big airplanes here. Where am I?", a: "✈️ THE AIRPORT!" },
+            { q: "I am full of water and you need your swimsuit! Where am I?", a: "🏊 SWIMMING POOL!" },
+            { q: "Doctors and nurses work here to help you feel better. Where am I?", a: "🏥 THE HOSPITAL!" },
+            { q: "I have many shops and a food court inside one big building. Where am I?", a: "🛍️ SHOPPING MALL!" },
+            { q: "I have roller coasters and candy floss! Where am I?", a: "🎢 THE FUNFAIR!" }
+        ];
+
+        let currentRiddle = 0;
+
+        function nextRiddle() {
+            currentRiddle = Math.floor(Math.random() * riddles.length);
+            document.getElementById('riddle').innerText = riddles[currentRiddle].q;
+            document.getElementById('answer').innerText = "";
+            say(riddles[currentRiddle].q);
+        }
+
+        function reveal() {
+            const ansText = riddles[currentRiddle].a;
+            document.getElementById('answer').innerText = ansText;
+            say("It is " + ansText);
+        }
+    </script>
+
+</body>
+</html>

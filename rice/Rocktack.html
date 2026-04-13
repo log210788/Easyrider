@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Tac Toe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family:'Nunito',sans-serif;
+            min-height:100vh;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);
+            color:white; padding:24px; overflow:hidden;
+        }
+
+        body::before {
+            content:''; position:fixed; inset:0;
+            background:
+                radial-gradient(2px 2px at 20% 30%,rgba(255,255,255,.3),transparent),
+                radial-gradient(2px 2px at 40% 70%,rgba(255,255,255,.2),transparent),
+                radial-gradient(2px 2px at 60% 20%,rgba(255,255,255,.3),transparent),
+                radial-gradient(2px 2px at 80% 50%,rgba(255,255,255,.15),transparent),
+                radial-gradient(2px 2px at 10% 80%,rgba(255,255,255,.2),transparent),
+                radial-gradient(2px 2px at 90% 10%,rgba(255,255,255,.25),transparent);
+            pointer-events:none; z-index:0;
+            animation:twinkle 4s ease-in-out infinite alternate;
+        }
+        @keyframes twinkle{0%{opacity:.5}100%{opacity:1}}
+
+        .container {
+            position:relative; z-index:1;
+            display:flex; flex-direction:column; align-items:center; gap:16px;
+        }
+
+        h1 {
+            font-family:'Fredoka One',cursive; font-size:3rem;
+            background:linear-gradient(90deg,#f97316,#ec4899,#8b5cf6,#06b6d4);
+            background-size:300% 300%;
+            -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+            animation:gradShift 4s ease infinite;
+        }
+        @keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+        .score-bar { display:flex; gap:20px; align-items:center; }
+        .score-box {
+            display:flex; align-items:center; gap:10px;
+            padding:10px 24px; border-radius:16px;
+            font-weight:900; font-size:1.05rem;
+        }
+        .score-x { background:rgba(239,68,68,.15); border:2px solid rgba(239,68,68,.4); color:#fca5a5; }
+        .score-o { background:rgba(59,130,246,.15); border:2px solid rgba(59,130,246,.4); color:#93c5fd; }
+        .score-num { font-family:'Fredoka One',cursive; font-size:1.6rem; }
+        .score-x .score-num { color:#ef4444; }
+        .score-o .score-num { color:#3b82f6; }
+        .vs-badge { font-family:'Fredoka One',cursive; font-size:1rem; color:rgba(255,255,255,.3); }
+
+        /* Wildcard badges */
+        .wc-bar { display:flex; gap:24px; align-items:center; }
+        .wc-badge {
+            font-family:'Fredoka One',cursive; font-size:.85rem;
+            padding:6px 16px; border-radius:20px; letter-spacing:1px;
+            transition:all .3s;
+        }
+        .wc-badge.available {
+            background:rgba(251,191,36,.15); border:2px solid rgba(251,191,36,.5);
+            color:#fbbf24; cursor:default;
+        }
+        .wc-badge.used {
+            background:rgba(255,255,255,.04); border:2px solid rgba(255,255,255,.08);
+            color:rgba(255,255,255,.25); text-decoration:line-through;
+        }
+
+        .turn-row { display:flex; align-items:center; gap:12px; }
+        .turn-dot {
+            width:14px; height:14px; border-radius:50%; background:#333;
+            transition:all .3s ease;
+        }
+        .turn-dot.x-turn { background:#ef4444; box-shadow:0 0 14px rgba(239,68,68,.7); }
+        .turn-dot.o-turn { background:#3b82f6; box-shadow:0 0 14px rgba(59,130,246,.7); }
+
+        #status-msg {
+            font-family:'Fredoka One',cursive; font-size:1.2rem;
+            color:#fbbf24; text-shadow:0 0 20px rgba(251,191,36,.3);
+            transition:all .3s; text-align:center;
+        }
+        #status-msg.win { animation:winPulse .6s ease-in-out infinite alternate; }
+        #status-msg.draw { color:#aaa; }
+        @keyframes winPulse{0%{transform:scale(1)}100%{transform:scale(1.06)}}
+
+        .grid {
+            display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
+            padding:18px; background:rgba(255,255,255,.04);
+            border:2px solid rgba(255,255,255,.08); border-radius:24px;
+            backdrop-filter:blur(10px); box-shadow:0 20px 60px rgba(0,0,0,.4);
+        }
+
+        .cell {
+            width:130px; height:130px;
+            background:rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.1);
+            border-radius:18px; display:flex; align-items:center; justify-content:center;
+            font-size:3.5rem; font-weight:900; font-family:'Fredoka One',cursive;
+            cursor:pointer; transition:all .25s cubic-bezier(.4,0,.2,1);
+            color:transparent; position:relative;
+        }
+        .cell-num {
+            font-size:1.4rem; color:rgba(255,255,255,.18);
+            font-family:'Fredoka One',cursive; pointer-events:none;
+        }
+        .cell:hover:not(.taken) {
+            transform:translateY(-4px) scale(1.04);
+            border-color:rgba(251,191,36,.5);
+            box-shadow:0 8px 30px rgba(251,191,36,.15);
+        }
+        .cell.taken { cursor:default; }
+        .cell.taken:hover { transform:none; box-shadow:none; }
+
+        .cell.x {
+            color:#ef4444; background:rgba(239,68,68,.08);
+            border-color:rgba(239,68,68,.3); text-shadow:0 0 25px rgba(239,68,68,.4);
+            animation:placeToken .4s cubic-bezier(.34,1.56,.64,1);
+        }
+        .cell.o {
+            color:#3b82f6; background:rgba(59,130,246,.08);
+            border-color:rgba(59,130,246,.3); text-shadow:0 0 25px rgba(59,130,246,.4);
+            animation:placeToken .4s cubic-bezier(.34,1.56,.64,1);
+        }
+        @keyframes placeToken{0%{transform:scale(0) rotate(-20deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+
+        .cell.win-cell { animation:winGlow .6s ease-in-out infinite alternate; }
+        .cell.win-cell.x { box-shadow:0 0 35px rgba(239,68,68,.6); border-color:#ef4444; }
+        .cell.win-cell.o { box-shadow:0 0 35px rgba(59,130,246,.6); border-color:#3b82f6; }
+        @keyframes winGlow{0%{transform:scale(1)}100%{transform:scale(1.07)}}
+
+        .controls { display:flex; gap:14px; }
+        .btn {
+            font-family:'Nunito',sans-serif; font-weight:900; font-size:.95rem;
+            letter-spacing:1.5px; text-transform:uppercase;
+            padding:13px 32px; border-radius:14px; cursor:pointer; transition:all .2s;
+        }
+        .btn-reset {
+            border:none;
+            background:linear-gradient(135deg,#f97316,#ec4899); color:white;
+            box-shadow:0 4px 20px rgba(249,115,22,.3);
+        }
+        .btn-reset:hover { transform:translateY(-2px); box-shadow:0 6px 30px rgba(249,115,22,.45); }
+        .btn-new {
+            border:2px solid rgba(255,255,255,.15);
+            background:rgba(255,255,255,.06); color:rgba(255,255,255,.7);
+        }
+        .btn-new:hover {
+            background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.3);
+            color:white; transform:translateY(-2px);
+        }
+        .btn:active { transform:scale(.96); }
+
+        /* ── RPS Overlay ── */
+        #overlay {
+            display:none; position:fixed; inset:0;
+            background:rgba(0,0,0,.88); backdrop-filter:blur(12px);
+            flex-direction:column; align-items:center; justify-content:center; z-index:50;
+        }
+        .battle-card {
+            background:linear-gradient(145deg,rgba(30,20,60,.95),rgba(20,15,50,.98));
+            border:2px solid rgba(255,255,255,.1); border-radius:30px;
+            padding:36px 44px; text-align:center;
+            max-width:480px; width:92%;
+            box-shadow:0 30px 80px rgba(0,0,0,.6);
+            animation:cardIn .35s cubic-bezier(.34,1.56,.64,1);
+        }
+        @keyframes cardIn{0%{transform:scale(.7) translateY(40px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+
+        .battle-icon { font-size:3.5rem; margin-bottom:10px; }
+        .battle-title {
+            font-family:'Fredoka One',cursive; font-size:1.5rem;
+            color:#fbbf24; margin-bottom:6px;
+        }
+        .battle-sub {
+            font-size:.95rem; color:rgba(255,255,255,.45); font-weight:700;
+            letter-spacing:1px; margin-bottom:24px;
+        }
+
+        .rps-result {
+            display:flex; gap:30px; justify-content:center; align-items:center;
+            margin-bottom:20px; min-height:90px;
+        }
+        .rps-hand {
+            text-align:center; font-family:'Fredoka One',cursive;
+        }
+        .rps-hand .label { font-size:.85rem; margin-bottom:4px; letter-spacing:1px; }
+        .rps-hand.x-hand .label { color:#fca5a5; }
+        .rps-hand.o-hand .label { color:#93c5fd; }
+        .rps-hand .emoji {
+            font-size:3rem; display:block; min-height:3.2rem;
+        }
+        .rps-hand .choice-text { font-size:.8rem; color:rgba(255,255,255,.4); margin-top:2px; }
+        .rps-vs { font-family:'Fredoka One',cursive; font-size:1.2rem; color:rgba(255,255,255,.2); }
+        .rps-verdict {
+            font-family:'Fredoka One',cursive; font-size:1.3rem;
+            min-height:1.6em; margin-bottom:16px;
+        }
+        .rps-verdict.x-wins { color:#ef4444; }
+        .rps-verdict.o-wins { color:#3b82f6; }
+        .rps-verdict.tie { color:#fbbf24; }
+        .battle-btn {
+            font-family:'Fredoka One',cursive; font-size:1.1rem;
+            padding:14px 40px; border-radius:16px; border:none;
+            background:linear-gradient(135deg,#f97316,#ec4899); color:white;
+            cursor:pointer; transition:all .2s; letter-spacing:1px;
+            box-shadow:0 4px 20px rgba(249,115,22,.3);
+        }
+        .battle-btn:hover { transform:translateY(-2px); box-shadow:0 6px 30px rgba(249,115,22,.45); }
+        .battle-btn:active { transform:scale(.96); }
+        .continue-btn {
+            font-family:'Fredoka One',cursive; font-size:.95rem;
+            padding:12px 32px; border-radius:14px; border:2px solid rgba(34,197,94,.5);
+            background:rgba(34,197,94,.12); color:#86efac;
+            cursor:pointer; transition:all .2s; letter-spacing:1px; display:none;
+        }
+        .continue-btn:hover { background:rgba(34,197,94,.25); transform:translateY(-2px); }
+
+        .wc-section { margin-top:8px; border-top:1px solid rgba(255,255,255,.08); padding-top:16px; }
+        .wc-overlay-btn {
+            font-family:'Fredoka One',cursive; font-size:.9rem;
+            padding:10px 22px; border-radius:14px; border:2px solid rgba(251,191,36,.5);
+            background:rgba(251,191,36,.1); color:#fbbf24;
+            cursor:pointer; transition:all .2s; letter-spacing:1px;
+        }
+        .wc-overlay-btn:hover { background:rgba(251,191,36,.25); transform:translateY(-2px); box-shadow:0 4px 16px rgba(251,191,36,.3); }
+        .wc-overlay-btn:disabled {
+            border-color:rgba(255,255,255,.08); background:rgba(255,255,255,.03);
+            color:rgba(255,255,255,.2); cursor:default; transform:none; box-shadow:none;
+        }
+
+        .confetti-piece { position:fixed; pointer-events:none; z-index:100; }
+
+        @media (max-width:500px) {
+            h1 { font-size:2rem; }
+            .cell { width:90px; height:90px; font-size:2.4rem; }
+            .battle-card { padding:24px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rock Tac Toe</h1>
+
+        <div class="score-bar">
+            <div class="score-box score-x">
+                X <span class="score-num" id="scoreX">0</span>
+            </div>
+            <div class="vs-badge">VS</div>
+            <div class="score-box score-o">
+                O <span class="score-num" id="scoreO">0</span>
+            </div>
+        </div>
+
+        <div class="wc-bar">
+            <div class="wc-badge available" id="wcX">X WILDCARD</div>
+            <div class="wc-badge available" id="wcO">O WILDCARD</div>
+        </div>
+
+        <div class="turn-row">
+            <div class="turn-dot" id="turnDot"></div>
+            <div id="status-msg">Player X picks a square!</div>
+        </div>
+
+        <div class="grid" id="board"></div>
+
+        <div class="controls">
+            <button class="btn btn-reset" onclick="resetGame()">Reset</button>
+            <button class="btn btn-new" onclick="newMatch()">New Match</button>
+        </div>
+    </div>
+
+    <!-- RPS Battle Overlay -->
+    <div id="overlay">
+        <div class="battle-card">
+            <div class="battle-icon">&#9994;&#9996;&#9995;</div>
+            <div class="battle-title" id="battleTitle">Battle for Square 1!</div>
+            <div class="battle-sub">Each player gets a random hand. May the odds be with you!</div>
+
+            <div class="rps-result">
+                <div class="rps-hand x-hand">
+                    <div class="label">PLAYER X</div>
+                    <div class="emoji" id="handX">?</div>
+                    <div class="choice-text" id="choiceX"></div>
+                </div>
+                <div class="rps-vs">VS</div>
+                <div class="rps-hand o-hand">
+                    <div class="label">PLAYER O</div>
+                    <div class="emoji" id="handO">?</div>
+                    <div class="choice-text" id="choiceO"></div>
+                </div>
+            </div>
+
+            <div class="rps-verdict" id="verdict"></div>
+
+            <button class="battle-btn" id="battleBtn" onclick="rollRPS()">Battle!</button>
+            <button class="continue-btn" id="continueBtn" onclick="continueAfterRPS()">Continue</button>
+
+            <div class="wc-section">
+                <button class="wc-overlay-btn" id="wcBtnX" onclick="useWildcard('X')">X Uses Wildcard</button>
+                <button class="wc-overlay-btn" id="wcBtnO" onclick="useWildcard('O')">O Uses Wildcard</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    /* ── Audio ── */
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    function ensureAudio() { if (!audioCtx) audioCtx = new AudioCtx(); }
+
+    function playPlace(isX) {
+        ensureAudio();
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime(isX ? 600 : 400, audioCtx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(isX ? 900 : 250, audioCtx.currentTime + 0.1);
+        g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+        o.start(); o.stop(audioCtx.currentTime + 0.15);
+    }
+
+    function playWin() {
+        ensureAudio();
+        [523,659,784,1047].forEach((f,i) => {
+            const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+            o.connect(g); g.connect(audioCtx.destination);
+            o.type = 'square'; o.frequency.value = f;
+            g.gain.setValueAtTime(0.07, audioCtx.currentTime + i * 0.12);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.12 + 0.3);
+            o.start(audioCtx.currentTime + i * 0.12);
+            o.stop(audioCtx.currentTime + i * 0.12 + 0.3);
+        });
+    }
+
+    /* ── Game State ── */
+    const boardEl = document.getElementById('board');
+    const statusMsg = document.getElementById('status-msg');
+    const turnDot = document.getElementById('turnDot');
+    const overlay = document.getElementById('overlay');
+    const battleTitle = document.getElementById('battleTitle');
+
+    let gameState = Array(9).fill(null);
+    let currentPlayer = 'X';
+    let gameActive = true;
+    let scores = { X: 0, O: 0 };
+    let wildcards = { X: true, O: true };
+    let targetCell = null;
+
+    const winPatterns = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+    ];
+
+    function updateTurn() {
+        turnDot.className = 'turn-dot';
+        if (gameActive) turnDot.classList.add(currentPlayer === 'X' ? 'x-turn' : 'o-turn');
+    }
+
+    function updateWCBadges() {
+        document.getElementById('wcX').className = 'wc-badge ' + (wildcards.X ? 'available' : 'used');
+        document.getElementById('wcO').className = 'wc-badge ' + (wildcards.O ? 'available' : 'used');
+    }
+
+    function updateOverlayWCButtons() {
+        document.getElementById('wcBtnX').disabled = !wildcards.X;
+        document.getElementById('wcBtnO').disabled = !wildcards.O;
+    }
+
+    function createBoard() {
+        boardEl.innerHTML = '';
+        gameState.forEach((val, i) => {
+            const div = document.createElement('div');
+            div.classList.add('cell');
+            if (val) {
+                div.innerText = val;
+                div.classList.add('taken', val.toLowerCase());
+            } else {
+                const num = document.createElement('span');
+                num.className = 'cell-num';
+                num.innerText = i + 1;
+                div.appendChild(num);
+            }
+            div.onclick = () => handleClick(i);
+            boardEl.appendChild(div);
+        });
+        updateTurn();
+    }
+
+    const RPS_CHOICES = [
+        { name: 'Rock',     emoji: '\u270A' },
+        { name: 'Paper',    emoji: '\u270B' },
+        { name: 'Scissors', emoji: '\u270C' }
+    ];
+    let rpsWinner = null;
+
+    function handleClick(i) {
+        if (!gameActive || gameState[i]) return;
+        targetCell = i;
+        battleTitle.innerText = 'Battle for Square ' + (i + 1) + '!';
+        document.getElementById('handX').innerText = '?';
+        document.getElementById('handO').innerText = '?';
+        document.getElementById('choiceX').innerText = '';
+        document.getElementById('choiceO').innerText = '';
+        document.getElementById('verdict').innerText = '';
+        document.getElementById('verdict').className = 'rps-verdict';
+        document.getElementById('battleBtn').style.display = '';
+        document.getElementById('continueBtn').style.display = 'none';
+        rpsWinner = null;
+        updateOverlayWCButtons();
+        overlay.style.display = 'flex';
+    }
+
+    function rollRPS() {
+        const xPick = RPS_CHOICES[Math.floor(Math.random() * 3)];
+        const oPick = RPS_CHOICES[Math.floor(Math.random() * 3)];
+
+        document.getElementById('handX').innerText = xPick.emoji;
+        document.getElementById('handO').innerText = oPick.emoji;
+        document.getElementById('choiceX').innerText = xPick.name;
+        document.getElementById('choiceO').innerText = oPick.name;
+
+        const verdict = document.getElementById('verdict');
+
+        if (xPick.name === oPick.name) {
+            verdict.innerText = "It's a tie! Roll again!";
+            verdict.className = 'rps-verdict tie';
+            return;
+        }
+
+        const xWins = (xPick.name === 'Rock' && oPick.name === 'Scissors') ||
+                      (xPick.name === 'Paper' && oPick.name === 'Rock') ||
+                      (xPick.name === 'Scissors' && oPick.name === 'Paper');
+
+        if (xWins) {
+            verdict.innerText = 'X wins the square!';
+            verdict.className = 'rps-verdict x-wins';
+            rpsWinner = 'X';
+        } else {
+            verdict.innerText = 'O wins the square!';
+            verdict.className = 'rps-verdict o-wins';
+            rpsWinner = 'O';
+        }
+        document.getElementById('battleBtn').style.display = 'none';
+        document.getElementById('continueBtn').style.display = 'inline-block';
+    }
+
+    function continueAfterRPS() {
+        if (rpsWinner) placeOnBoard(rpsWinner);
+    }
+
+    function useWildcard(player) {
+        if (!wildcards[player]) return;
+        wildcards[player] = false;
+        updateWCBadges();
+        placeOnBoard(player);
+    }
+
+    function placeOnBoard(winner) {
+        overlay.style.display = 'none';
+        gameState[targetCell] = winner;
+
+        const cell = boardEl.children[targetCell];
+        cell.innerText = winner;
+        cell.classList.add('taken', winner.toLowerCase());
+        playPlace(winner === 'X');
+
+        const win = checkWin();
+        if (win) {
+            statusMsg.innerText = 'Player ' + winner + ' Wins the Game!';
+            statusMsg.className = 'win';
+            scores[winner]++;
+            document.getElementById('score' + winner).innerText = scores[winner];
+            highlightWin(win);
+            gameActive = false;
+            playWin();
+            launchConfetti();
+            updateTurn();
+            return;
+        }
+        if (!gameState.includes(null)) {
+            statusMsg.innerText = "It's a Draw!";
+            statusMsg.className = 'draw';
+            gameActive = false;
+            updateTurn();
+            return;
+        }
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        statusMsg.innerText = 'Player ' + currentPlayer + ' picks a square!';
+        statusMsg.className = '';
+        updateTurn();
+    }
+
+    function checkWin() {
+        for (let p of winPatterns) {
+            const [a,b,c] = p;
+            if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) return p;
+        }
+        return null;
+    }
+
+    function highlightWin(pattern) {
+        pattern.forEach(i => boardEl.children[i].classList.add('win-cell'));
+    }
+
+    function resetGame() {
+        gameState = Array(9).fill(null);
+        currentPlayer = 'X';
+        gameActive = true;
+        wildcards = { X: true, O: true };
+        updateWCBadges();
+        overlay.style.display = 'none';
+        statusMsg.innerText = "Player X picks a square!";
+        statusMsg.className = '';
+        createBoard();
+    }
+
+    function newMatch() {
+        scores = { X: 0, O: 0 };
+        document.getElementById('scoreX').innerText = '0';
+        document.getElementById('scoreO').innerText = '0';
+        resetGame();
+    }
+
+    function launchConfetti() {
+        const colors = ['#ef4444','#3b82f6','#fbbf24','#22c55e','#ec4899','#8b5cf6','#06b6d4','#f97316'];
+        for (let i = 0; i < 50; i++) {
+            const el = document.createElement('div');
+            el.className = 'confetti-piece';
+            const s = Math.random() * 8 + 5;
+            Object.assign(el.style, {
+                width: s + 'px', height: s + 'px',
+                background: colors[Math.floor(Math.random() * colors.length)],
+                borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+                left: Math.random() * 100 + 'vw', top: '-10px', opacity: '1'
+            });
+            document.body.appendChild(el);
+            const xd = (Math.random() - 0.5) * 200;
+            const dur = Math.random() * 1400 + 1400;
+            const rot = Math.random() * 720 - 360;
+            el.animate([
+                { transform: 'translateY(0) translateX(0) rotate(0deg)', opacity: 1 },
+                { transform: 'translateY(100vh) translateX(' + xd + 'px) rotate(' + rot + 'deg)', opacity: 0 }
+            ], { duration: dur, easing: 'cubic-bezier(0.25,0.46,0.45,0.94)' }).onfinish = () => el.remove();
+        }
+    }
+
+    createBoard();
+    updateWCBadges();
+</script>
+</body>
+</html>

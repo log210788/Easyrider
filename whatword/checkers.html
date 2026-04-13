@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkers - Conversation Game</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    padding: 10px;
+  }
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  }
+  #turn-indicator {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: background 0.3s;
+  }
+  #turn-indicator.red { background: #c0392b; }
+  #turn-indicator.black { background: #2c3e50; }
+
+  #board-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    width: min(90vw, 500px);
+    height: min(90vw, 500px);
+    border: 4px solid #e2b06f;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  }
+
+  .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: default;
+  }
+  .cell.light { background: #f0d9b5; }
+  .cell.dark { background: #b58863; }
+  .cell.valid-move {
+    cursor: pointer;
+  }
+  .cell.valid-move::after {
+    content: '';
+    width: 30%;
+    height: 30%;
+    background: rgba(46, 204, 113, 0.7);
+    border-radius: 50%;
+    position: absolute;
+    animation: pulse 1s infinite;
+  }
+  .cell.valid-jump::after {
+    content: '';
+    width: 40%;
+    height: 40%;
+    background: rgba(231, 76, 60, 0.7);
+    border-radius: 50%;
+    position: absolute;
+    animation: pulse 0.7s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.2); opacity: 1; }
+  }
+
+  .piece {
+    width: 75%;
+    height: 75%;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.15s, box-shadow 0.15s;
+    z-index: 2;
+  }
+  .piece:hover { transform: scale(1.08); }
+  .piece.red-piece {
+    background: radial-gradient(circle at 35% 35%, #ff6b6b, #c0392b);
+    border: 3px solid #922b21;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4), inset 0 -2px 4px rgba(0,0,0,0.2);
+  }
+  .piece.black-piece {
+    background: radial-gradient(circle at 35% 35%, #636e72, #2d3436);
+    border: 3px solid #1a1a1a;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4), inset 0 -2px 4px rgba(0,0,0,0.2);
+  }
+  .piece.selected {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 4px #f1c40f, 0 4px 15px rgba(241, 196, 15, 0.6);
+  }
+  .piece.king::after {
+    content: '♛';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.6em;
+    color: #f1c40f;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  }
+  .piece-num {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.85em;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    z-index: 3;
+    pointer-events: none;
+    user-select: none;
+  }
+  .piece.king .piece-num {
+    top: 28%;
+    font-size: 0.7em;
+  }
+
+  #prompt-box {
+    margin-top: 14px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 16px 24px;
+    max-width: min(90vw, 500px);
+    width: 100%;
+    text-align: center;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+  #prompt-box .label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #f1c40f;
+    margin-bottom: 6px;
+  }
+  #prompt-box .prompt-text {
+    font-size: 1.2rem;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  #thai-text {
+    font-size: 1.1rem;
+    color: #a8e6cf;
+    margin-top: 6px;
+    display: none;
+    line-height: 1.5;
+  }
+  #thai-text.show { display: block; }
+  #translate-btn {
+    margin-top: 10px;
+    padding: 6px 18px;
+    border: 2px solid #a8e6cf;
+    border-radius: 16px;
+    background: transparent;
+    color: #a8e6cf;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  #translate-btn:hover {
+    background: #a8e6cf;
+    color: #1a1a2e;
+  }
+
+  #score-bar {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 8px;
+    font-size: 1rem;
+  }
+  .score { padding: 4px 14px; border-radius: 10px; font-weight: 600; }
+  .score.red { background: #c0392b; }
+  .score.black { background: #2c3e50; }
+
+  #reset-btn {
+    margin-top: 12px;
+    padding: 8px 28px;
+    border: none;
+    border-radius: 20px;
+    background: #e67e22;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #reset-btn:hover { background: #d35400; }
+
+  #winner-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  #winner-overlay.show { display: flex; }
+  #winner-box {
+    background: #fff;
+    color: #333;
+    padding: 40px 50px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  #winner-box h2 { font-size: 2rem; margin-bottom: 10px; }
+  #winner-box button {
+    margin-top: 16px;
+    padding: 10px 30px;
+    border: none;
+    border-radius: 20px;
+    background: #27ae60;
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  #winner-box button:hover { background: #219a52; }
+</style>
+</head>
+<body>
+
+<h1>Checkers Conversation Game</h1>
+<div id="score-bar">
+  <span class="score red">🔴 Red: <span id="red-score">12</span></span>
+  <span class="score black">⚫ Black: <span id="black-score">12</span></span>
+</div>
+<div id="turn-indicator" class="red">Red's Turn</div>
+
+<div id="board-container">
+  <div id="board"></div>
+</div>
+
+<div id="prompt-box">
+  <div class="label">Conversation Prompt</div>
+  <div class="prompt-text" id="prompt-text">Make a move to get a question!</div>
+  <div id="thai-text"></div>
+  <button id="translate-btn" onclick="toggleThai()">🇹🇭 ภาษาไทย</button>
+</div>
+
+<button id="reset-btn" onclick="initGame()">New Game</button>
+
+<div id="winner-overlay">
+  <div id="winner-box">
+    <h2 id="winner-msg"></h2>
+    <p>Great talking!</p>
+    <button onclick="initGame(); document.getElementById('winner-overlay').classList.remove('show');">Play Again</button>
+  </div>
+</div>
+
+<script>
+const prompts = [
+  // Daily life
+  "What do you usually do in the morning?",
+  "What time do you wake up?",
+  "What do you eat for breakfast?",
+  "What do you do after work?",
+  "Do you cook at home or eat out?",
+  "What time do you go to bed?",
+  "What do you do on the weekend?",
+  "Do you like mornings or nights?",
+
+  // Work & study
+  "What is your job?",
+  "Do you like your job? Why?",
+  "What do you want to learn?",
+  "Is your job easy or difficult?",
+  "What time do you start work?",
+  "Do you work with many people?",
+  "What is the best thing about your job?",
+  "Do you want a different job? What job?",
+
+  // Food & drink
+  "What is your favorite food?",
+  "Can you cook? What can you cook?",
+  "What food do you not like?",
+  "Do you like coffee or tea?",
+  "What did you eat yesterday?",
+  "Do you like spicy food?",
+  "What is a popular food in your country?",
+  "Do you eat fruit every day?",
+
+  // Free time & hobbies
+  "What do you do for fun?",
+  "Do you like watching movies? What kind?",
+  "Do you like music? What kind?",
+  "Do you play any sports?",
+  "Do you use social media? Which one?",
+  "What is your favorite TV show?",
+  "Do you like reading? What do you read?",
+  "Do you play video games?",
+
+  // Travel & places
+  "Do you like to travel?",
+  "What country do you want to visit?",
+  "Where did you go on your last holiday?",
+  "Do you like the beach or the mountains?",
+  "What is a beautiful place in your country?",
+  "Do you like to travel alone or with friends?",
+  "Have you been to another country?",
+  "Where do you want to go this year?",
+
+  // Family & friends
+  "Do you have brothers or sisters?",
+  "Who do you live with?",
+  "Tell me about your best friend.",
+  "What do you do with your family?",
+  "Do you see your family often?",
+  "Who is the funniest person you know?",
+  "Do you have a pet?",
+  "What do you and your friends do together?",
+
+  // Home & neighborhood
+  "Where do you live?",
+  "Do you like your neighborhood?",
+  "Is your home big or small?",
+  "What is near your home?",
+  "Is it noisy or quiet where you live?",
+  "How do you go to work? Bus? Car? Walk?",
+
+  // Shopping & money
+  "Do you like shopping?",
+  "Where do you usually shop?",
+  "What did you buy this week?",
+  "Do you shop online?",
+  "What do you spend the most money on?",
+
+  // Health & body
+  "Do you exercise? What do you do?",
+  "How do you feel today?",
+  "Do you sleep well?",
+  "What do you do when you are sick?",
+  "Do you walk a lot?",
+
+  // Past & future
+  "What did you do last weekend?",
+  "What are your plans for tomorrow?",
+  "What did you do yesterday evening?",
+  "Where were you this morning?",
+  "What do you want to do next year?",
+
+  // Opinions & preferences
+  "Do you like hot weather or cold weather?",
+  "Dogs or cats — which do you like?",
+  "What makes you happy?",
+  "What is something difficult for you?",
+  "Morning person or night person?",
+  "What is the best day of the week? Why?",
+  "City life or country life?",
+
+  // English learning
+  "Why are you learning English?",
+  "What is easy about English?",
+  "What is hard about English?",
+  "Do you practice English every day?",
+  "Do you watch English movies or shows?",
+  "How long have you studied English?",
+
+  // Situational / fun
+  "If you have one free day, what do you do?",
+  "You have $100 to spend. What do you buy?",
+  "Your friend is sad. What do you say?",
+  "You are at a restaurant. What do you order?",
+  "A tourist asks for help. What do you say?",
+  "Describe your perfect weekend.",
+  "Tell me three things in your bag.",
+  "What did you have for dinner last night?",
+  "If you can eat only one food forever, what is it?",
+  "What is one thing you do every single day?"
+];
+
+const thaiTranslations = [
+  // Daily life
+  "ตอนเช้าคุณทำอะไรเป็นปกติ?",
+  "คุณตื่นนอนกี่โมง?",
+  "คุณกินอะไรเป็นอาหารเช้า?",
+  "หลังเลิกงานคุณทำอะไร?",
+  "คุณทำอาหารเองหรือกินข้าวนอกบ้าน?",
+  "คุณเข้านอนกี่โมง?",
+  "วันหยุดสุดสัปดาห์คุณทำอะไร?",
+  "คุณชอบตอนเช้าหรือตอนกลางคืน?",
+  // Work & study
+  "คุณทำงานอะไร?",
+  "คุณชอบงานของคุณไหม? ทำไม?",
+  "คุณอยากเรียนอะไร?",
+  "งานของคุณง่ายหรือยาก?",
+  "คุณเริ่มทำงานกี่โมง?",
+  "คุณทำงานกับคนเยอะไหม?",
+  "สิ่งที่ดีที่สุดเกี่ยวกับงานของคุณคืออะไร?",
+  "คุณอยากเปลี่ยนงานไหม? งานอะไร?",
+  // Food & drink
+  "อาหารที่คุณชอบที่สุดคืออะไร?",
+  "คุณทำอาหารเป็นไหม? ทำอะไรได้บ้าง?",
+  "อาหารอะไรที่คุณไม่ชอบ?",
+  "คุณชอบกาแฟหรือชา?",
+  "เมื่อวานคุณกินอะไร?",
+  "คุณชอบอาหารเผ็ดไหม?",
+  "อาหารยอดนิยมในประเทศคุณคืออะไร?",
+  "คุณกินผลไม้ทุกวันไหม?",
+  // Free time & hobbies
+  "คุณทำอะไรเพื่อความสนุก?",
+  "คุณชอบดูหนังไหม? แบบไหน?",
+  "คุณชอบเพลงไหม? แนมไหน?",
+  "คุณเล่นกีฬาอะไรไหม?",
+  "คุณใช้โซเชียลมีเดียไหม? ตัมไหน?",
+  "รายการทีวีที่คุณชอบที่สุดคืออะไร?",
+  "คุณชอบอ่านหนังสือไหม? อ่านอะไร?",
+  "คุณเล่นเกมไหม?",
+  // Travel & places
+  "คุณชอบเดินทางไหม?",
+  "คุณอยากไปประเทศไหน?",
+  "วันหยุดที่ผ่านมาคุณไปไหน?",
+  "คุณชอบทะเลหรือภูเขา?",
+  "สถานที่สวยในประเทศคุณคือที่ไหน?",
+  "คุณชอบเดินทางคนเดียวหรือไปกับเพื่อน?",
+  "คุณเคยไปต่างประเทศไหม?",
+  "ปีนี้คุณอยากไปไหน?",
+  // Family & friends
+  "คุณมีพี่น้องไหม?",
+  "คุณอยู่กับใคร?",
+  "เล่าเกี่ยวกับเพื่อนสนิทของคุณให้ฟังหน่อย",
+  "คุณทำอะไรกับครอบครัว?",
+  "คุณเจอครอบครัวบ่อยไหม?",
+  "คนที่ตลกที่สุดที่คุณรู้จักคือใคร?",
+  "คุณมีสัตว์เลี้ยงไหม?",
+  "คุณกับเพื่อนทำอะไรด้วยกัน?",
+  // Home & neighborhood
+  "คุณอยู่ที่ไหน?",
+  "คุณชอบละแวกบ้านของคุณไหม?",
+  "บ้านคุณใหญ่หรือเล็ก?",
+  "ใกล้บ้านคุณมีอะไรบ้าง?",
+  "ที่ที่คุณอยู่เสียงดังหรือเงียบ?",
+  "คุณไปทำงานยังไง? รถเมล์? รถยนต์? เดิน?",
+  // Shopping & money
+  "คุณชอบช็อปปิ้งไหม?",
+  "ปกติคุณซื้อของที่ไหน?",
+  "สัปดาห์นี้คุณซื้ออะไร?",
+  "คุณซื้อของออนไลน์ไหม?",
+  "คุณใช้เงินกับอะไรมากที่สุด?",
+  // Health & body
+  "คุณออกกำลังกายไหม? ทำอะไร?",
+  "วันนี้คุณรู้สึกอย่างไร?",
+  "คุณนอนหลับดีไหม?",
+  "เวลาไม่สบายคุณทำยังไง?",
+  "คุณเดินเยอะไหม?",
+  // Past & future
+  "สุดสัปดาห์ที่ผ่านมาคุณทำอะไร?",
+  "พรุ่งนี้คุณมีแผนอะไร?",
+  "เมื่อวานตอนเย็นคุณทำอะไร?",
+  "เช้านี้คุณอยู่ที่ไหน?",
+  "ปีหน้าคุณอยากทำอะไร?",
+  // Opinions & preferences
+  "คุณชอบอากาศร้อนหรืออากาศหนาว?",
+  "หมาหรือแมว — คุณชอบอะไร?",
+  "อะไรทำให้คุณมีความสุข?",
+  "อะไรที่ยากสำหรับคุณ?",
+  "คุณเป็นคนตื่นเช้าหรือนอนดึก?",
+  "วันที่ดีที่สุดในสัปดาห์คือวันอะไร? ทำไม?",
+  "ชีวิตในเมืองหรือชีวิตชนบท?",
+  // English learning
+  "ทำไมคุณเรียนภาษาอังกฤษ?",
+  "อะไรที่ง่ายเกี่ยวกับภาษาอังกฤษ?",
+  "อะไรที่ยากเกี่ยวกับภาษาอังกฤษ?",
+  "คุณฝึกภาษาอังกฤษทุกวันไหม?",
+  "คุณดูหนังหรือรายการภาษาอังกฤษไหม?",
+  "คุณเรียนภาษาอังกฤษมานานเท่าไหร่?",
+  // Situational / fun
+  "ถ้ามีวันว่างหนึ่งวัน คุณจะทำอะไร?",
+  "คุณมี $100 จะซื้ออะไร?",
+  "เพื่อนคุณเศร้า คุณจะพูดอะไร?",
+  "คุณอยู่ที่ร้านอาหาร คุณจะสั่งอะไร?",
+  "นักท่องเที่ยวขอความช่วย คุณจะพูดอะไร?",
+  "บอกเล่าวันหยุดสุดสัปดาห์ในฝันของคุณ",
+  "บอกสามสิ่งที่อยู่ในกระเป๋าของคุณ",
+  "เมื่อคืนคุณกินอะไรเป็นมื้อเย็น?",
+  "ถ้ากินได้แค่อาหารเดียวตลอดชีวิต จะเป็นอะไร?",
+  "สิ่งหนึ่งที่คุณทำทุกวันคืออะไร?"
+];
+
+let currentPromptIdx = -1;
+let usedPrompts = [];
+let board = [];   // 8x8: null, {color:'red'|'black', king:false}
+let currentTurn = 'red';
+let selectedPiece = null; // {row, col}
+let validMoves = [];      // [{row, col, jumpRow?, jumpCol?}]
+
+function initGame() {
+  board = [];
+  for (let r = 0; r < 8; r++) {
+    board[r] = [];
+    for (let c = 0; c < 8; c++) {
+      board[r][c] = null;
+      if ((r + c) % 2 === 1) {
+        if (r < 3) board[r][c] = { color: 'black', king: false, num: 0 };
+        if (r > 4) board[r][c] = { color: 'red', king: false, num: 0 };
+      }
+    }
+  }
+  // Assign numbers 1-12 to each color
+  let redNum = 1, blackNum = 1;
+  for (let r = 7; r >= 0; r--)
+    for (let c = 0; c < 8; c++)
+      if (board[r][c] && board[r][c].color === 'red') board[r][c].num = redNum++;
+  for (let r = 0; r < 8; r++)
+    for (let c = 0; c < 8; c++)
+      if (board[r][c] && board[r][c].color === 'black') board[r][c].num = blackNum++;
+
+  currentTurn = 'red';
+  selectedPiece = null;
+  validMoves = [];
+  usedPrompts = [];
+  currentPromptIdx = -1;
+  updateTurnIndicator();
+  updateScores();
+  render();
+  document.getElementById('prompt-text').textContent = 'Make a move to get a question!';
+  document.getElementById('thai-text').textContent = '';
+  document.getElementById('thai-text').classList.remove('show');
+}
+
+function updateTurnIndicator() {
+  const el = document.getElementById('turn-indicator');
+  el.textContent = currentTurn === 'red' ? "Red's Turn" : "Black's Turn";
+  el.className = currentTurn;
+}
+
+function updateScores() {
+  let red = 0, black = 0;
+  for (let r = 0; r < 8; r++)
+    for (let c = 0; c < 8; c++)
+      if (board[r][c]) board[r][c].color === 'red' ? red++ : black++;
+  document.getElementById('red-score').textContent = red;
+  document.getElementById('black-score').textContent = black;
+  if (red === 0) showWinner('Black');
+  if (black === 0) showWinner('Red');
+}
+
+function showWinner(color) {
+  document.getElementById('winner-msg').textContent = color + ' Wins! 🎉';
+  document.getElementById('winner-overlay').classList.add('show');
+}
+
+function getValidMoves(r, c) {
+  const piece = board[r][c];
+  if (!piece) return [];
+  const moves = [];
+  const dirs = [];
+  if (piece.color === 'red' || piece.king) dirs.push(-1); // up
+  if (piece.color === 'black' || piece.king) dirs.push(1); // down
+  const sides = [-1, 1];
+
+  for (const dr of dirs) {
+    for (const dc of sides) {
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+        if (!board[nr][nc]) {
+          moves.push({ row: nr, col: nc, isJump: false });
+        } else if (board[nr][nc].color !== piece.color) {
+          const jr = nr + dr, jc = nc + dc;
+          if (jr >= 0 && jr < 8 && jc >= 0 && jc < 8 && !board[jr][jc]) {
+            moves.push({ row: jr, col: jc, isJump: true, jumpRow: nr, jumpCol: nc });
+          }
+        }
+      }
+    }
+  }
+  return moves;
+}
+
+function hasJumpMoves(color) {
+  for (let r = 0; r < 8; r++)
+    for (let c = 0; c < 8; c++)
+      if (board[r][c] && board[r][c].color === color) {
+        const moves = getValidMoves(r, c);
+        if (moves.some(m => m.isJump)) return true;
+      }
+  return false;
+}
+
+function hasAnyMoves(color) {
+  for (let r = 0; r < 8; r++)
+    for (let c = 0; c < 8; c++)
+      if (board[r][c] && board[r][c].color === color)
+        if (getValidMoves(r, c).length > 0) return true;
+  return false;
+}
+
+function selectPiece(r, c) {
+  if (!board[r][c] || board[r][c].color !== currentTurn) return;
+
+  const mustJump = hasJumpMoves(currentTurn);
+  let moves = getValidMoves(r, c);
+  if (mustJump) moves = moves.filter(m => m.isJump);
+  if (moves.length === 0) return;
+
+  selectedPiece = { row: r, col: c };
+  validMoves = moves;
+  render();
+}
+
+function movePiece(target) {
+  const move = validMoves.find(m => m.row === target.row && m.col === target.col);
+  if (!move) return;
+
+  const sr = selectedPiece.row, sc = selectedPiece.col;
+  board[move.row][move.col] = board[sr][sc];
+  board[sr][sc] = null;
+
+  let captured = false;
+  if (move.isJump) {
+    board[move.jumpRow][move.jumpCol] = null;
+    captured = true;
+  }
+
+  // King promotion
+  if (board[move.row][move.col].color === 'red' && move.row === 0)
+    board[move.row][move.col].king = true;
+  if (board[move.row][move.col].color === 'black' && move.row === 7)
+    board[move.row][move.col].king = true;
+
+  // Check for chain jump
+  if (captured) {
+    const nextJumps = getValidMoves(move.row, move.col).filter(m => m.isJump);
+    if (nextJumps.length > 0) {
+      selectedPiece = { row: move.row, col: move.col };
+      validMoves = nextJumps;
+      updateScores();
+      render();
+      showPrompt();
+      return; // don't switch turns yet
+    }
+  }
+
+  selectedPiece = null;
+  validMoves = [];
+  currentTurn = currentTurn === 'red' ? 'black' : 'red';
+  updateTurnIndicator();
+  updateScores();
+  render();
+  showPrompt();
+
+  // Check if next player has moves
+  if (!hasAnyMoves(currentTurn)) {
+    const winner = currentTurn === 'red' ? 'Black' : 'Red';
+    setTimeout(() => showWinner(winner), 300);
+  }
+}
+
+function showPrompt() {
+  if (usedPrompts.length >= prompts.length) usedPrompts = [];
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * prompts.length);
+  } while (usedPrompts.includes(idx));
+  usedPrompts.push(idx);
+  currentPromptIdx = idx;
+  document.getElementById('prompt-text').textContent = prompts[idx];
+  document.getElementById('thai-text').textContent = '';
+  document.getElementById('thai-text').classList.remove('show');
+}
+
+function toggleThai() {
+  const el = document.getElementById('thai-text');
+  if (currentPromptIdx < 0) return;
+  if (el.classList.contains('show')) {
+    el.classList.remove('show');
+  } else {
+    el.textContent = thaiTranslations[currentPromptIdx] || '';
+    el.classList.add('show');
+  }
+}
+
+function onCellClick(r, c) {
+  // If clicking a valid move destination
+  if (selectedPiece && validMoves.find(m => m.row === r && m.col === c)) {
+    movePiece({ row: r, col: c });
+    return;
+  }
+  // If clicking own piece
+  if (board[r][c] && board[r][c].color === currentTurn) {
+    selectPiece(r, c);
+    return;
+  }
+  // Deselect
+  selectedPiece = null;
+  validMoves = [];
+  render();
+}
+
+function render() {
+  const boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
+
+      const isValid = validMoves.find(m => m.row === r && m.col === c);
+      if (isValid) {
+        cell.classList.add(isValid.isJump ? 'valid-jump' : 'valid-move');
+      }
+
+      cell.addEventListener('click', () => onCellClick(r, c));
+
+      if (board[r][c]) {
+        const piece = document.createElement('div');
+        piece.className = 'piece ' + board[r][c].color + '-piece';
+        if (board[r][c].king) piece.classList.add('king');
+        if (selectedPiece && selectedPiece.row === r && selectedPiece.col === c) {
+          piece.classList.add('selected');
+        }
+        const numSpan = document.createElement('span');
+        numSpan.className = 'piece-num';
+        numSpan.textContent = board[r][c].num;
+        piece.appendChild(numSpan);
+        cell.appendChild(piece);
+      }
+
+      boardEl.appendChild(cell);
+    }
+  }
+}
+
+initGame();
+</script>
+</body>
+</html>

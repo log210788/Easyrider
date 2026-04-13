@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Match - 2 Player!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sky: #fff9f0;
+      --yellow: #FFD93D;
+      --orange: #FF6B35;
+      --pink: #FF6B9D;
+      --purple: #9B59B6;
+      --blue: #4ECDC4;
+      --green: #95E06C;
+      --red: #FF4757;
+      --card-back: #7c6fff;
+      --card-back2: #a98bff;
+      --shadow: rgba(0,0,0,0.12);
+      --text-dark: #3a3060;
+      --p1-color: #4ECDC4;
+      --p2-color: #FF6B9D;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      background: var(--sky);
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      padding: 10px;
+      gap: 10px;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────── */
+    .instructions-panel {
+      position: relative; z-index: 1;
+      width: 180px; flex-shrink: 0;
+      background: white;
+      border-radius: 20px;
+      padding: 14px 12px;
+      box-shadow: 0 6px 22px var(--shadow);
+      display: flex; flex-direction: column;
+    }
+    .panel-title { font-family: 'Fredoka One', cursive; font-size: 17px; color: var(--orange); text-align: center; }
+
+    /* Player Score Boxes */
+    .player-score {
+      padding: 10px; border-radius: 15px; margin-top: 10px;
+      text-align: center; border: 3px solid transparent; transition: all 0.3s;
+    }
+    .player-score.active { transform: scale(1.05); box-shadow: 0 4px 12px var(--shadow); }
+    .p1.active { border-color: var(--p1-color); background: #e0f9f7; }
+    .p2.active { border-color: var(--p2-color); background: #ffeef4; }
+    .score-label { font-size: 11px; font-weight: 800; color: var(--text-dark); }
+    .score-num { font-family: 'Fredoka One'; font-size: 24px; }
+
+    .instr-divider { height: 3px; background: linear-gradient(90deg, var(--yellow), var(--orange), var(--pink)); border-radius: 50px; margin: 10px 0; }
+    .instr-text { font-family: 'Sarabun', sans-serif; font-size: 11.5px; color: var(--text-dark); font-weight: 600; line-height: 1.45; }
+
+    /* ── Main game column ─────────────────────────────── */
+    .wrapper { flex: 1; display: flex; flex-direction: column; height: 100%; position: relative; z-index: 1; }
+    header { text-align: center; margin-bottom: 4px; }
+    .title { font-family: 'Fredoka One'; font-size: clamp(24px, 3.5vw, 44px); color: var(--orange); text-shadow: 3px 3px 0 var(--yellow); }
+    
+    .turn-display {
+        font-family: 'Fredoka One'; font-size: 20px; text-align: center; margin-bottom: 5px;
+        transition: color 0.3s;
+    }
+
+    .controls-row { display: flex; align-items: center; justify-content: center; gap: 7px; margin-bottom: 6px; }
+    .diff-btn {
+      font-family: 'Fredoka One'; font-size: 12px; border: 2px solid transparent; border-radius: 50px; padding: 4px 12px;
+      cursor: pointer; background: white; box-shadow: 0 3px 8px var(--shadow);
+    }
+    .diff-btn.active { background: var(--purple); color: white; }
+
+    .grid-wrap { flex: 1; display: flex; align-items: center; justify-content: center; }
+    .grid { display: grid; gap: 6px; }
+
+    /* Card */
+    .card { perspective: 600px; cursor: pointer; }
+    .card-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.32s; }
+    .card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
+    .card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .card-back { background: linear-gradient(135deg, var(--card-back), var(--card-back2)); color: white; font-family: 'Fredoka One'; }
+    .card-front { background: white; transform: rotateY(180deg); box-shadow: 0 3px 0 #ddd; }
+    .card-word { font-family: 'Fredoka One'; color: var(--text-dark); font-size: 10px; }
+
+    /* Win overlay */
+    .overlay { display:none; position:fixed; inset:0; background:rgba(60,40,120,0.8); z-index:100; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
+    .overlay.show { display:flex; }
+    .win-box { background:white; border-radius:26px; padding:32px; text-align:center; max-width:360px; width:90%; }
+  </style>
+</head>
+<body>
+
+<aside class="instructions-panel">
+  <div class="panel-title">🏆 Score</div>
+  
+  <div class="player-score p1 active" id="p1-score-box">
+    <div class="score-label">PLAYER 1</div>
+    <div class="score-num" id="p1-score">0</div>
+  </div>
+
+  <div class="player-score p2" id="p2-score-box">
+    <div class="score-label">PLAYER 2</div>
+    <div class="score-num" id="p2-score">0</div>
+  </div>
+
+  <div class="instr-divider"></div>
+  <div class="instr-text">
+    <b>วิธีเล่น (2 Players):</b><br>
+    • ผลัดกันเปิดการ์ด 2 ใบ<br>
+    • ถ้าเจอคู่ ได้คะแนนและเล่นต่อ!<br>
+    • ถ้าไม่เจอ เปลี่ยนตาผู้เล่นอื่น
+  </div>
+  
+  <button class="diff-btn" style="margin-top:auto; background: var(--orange); color:white;" onclick="startGame()">Reset Game</button>
+</aside>
+
+<div class="wrapper">
+  <header>
+    <div class="title">Memory Match! 🧠</div>
+    <div class="turn-display" id="turn-text" style="color: var(--p1-color);">Player 1's Turn</div>
+  </header>
+
+  <div class="controls-row">
+    <button class="diff-btn easy active" id="btn-easy" onclick="setDiff('easy')">🌱 Easy</button>
+    <button class="diff-btn medium" id="btn-medium" onclick="setDiff('medium')">🌟 Medium</button>
+    <button class="diff-btn hard" id="btn-hard" onclick="setDiff('hard')">🔥 Hard</button>
+  </div>
+
+  <div class="grid-wrap">
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="win-box">
+    <div style="font-size: 50px;">🎉</div>
+    <div class="title" id="winner-name" style="font-size: 32px;">Player 1 Wins!</div>
+    <div id="final-stats" style="margin: 15px 0; font-weight: 800; color: var(--purple);"></div>
+    <button class="diff-btn" style="background: var(--pink); color: white; padding: 10px 20px;" onclick="startGame()">Play Again!</button>
+  </div>
+</div>
+
+<script>
+  const EMOJIS = [
+    {e:'🐶',w:'Dog'},{e:'🐱',w:'Cat'},{e:'Mouse',w:'Mouse'},{e:'🐹',w:'Hamster'},
+    {e:'🐰',w:'Rabbit'},{e:'🦊',w:'Fox'},{e:'🐻',w:'Bear'},{e:'🐼',w:'Panda'},
+    {e:'🐨',w:'Koala'},{e:'🐯',w:'Tiger'},{e:'🦁',w:'Lion'},{e:'🐸',w:'Frog'},
+    {e:'🐙',w:'Octopus'},{e:'🦋',w:'Butterfly'},{e:'🌈',w:'Rainbow'},{e:'🍦',w:'Ice Cream'}
+  ];
+
+  const CONFIGS = {
+    easy: {pairs:8, cols:4},
+    medium: {pairs:12, cols:6},
+    hard: {pairs:16, cols:8}
+  };
+
+  let difficulty = 'easy';
+  let currentPlayer = 1;
+  let scores = { 1: 0, 2: 0 };
+  let flipped = [];
+  let lock = false;
+  let matchedCount = 0;
+
+  function setDiff(d) {
+    difficulty = d;
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + d).classList.add('active');
+    startGame();
+  }
+
+  function startGame() {
+    scores = { 1: 0, 2: 0 };
+    currentPlayer = 1;
+    matchedCount = 0;
+    flipped = [];
+    lock = false;
+    updateUI();
+    
+    const cfg = CONFIGS[difficulty];
+    const pool = [...EMOJIS].sort(() => Math.random() - 0.5).slice(0, cfg.pairs);
+    const deck = [...pool, ...pool].sort(() => Math.random() - 0.5);
+
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    grid.style.gridTemplateColumns = `repeat(${cfg.cols}, 70px)`;
+
+    deck.forEach((item, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.width = '70px'; card.style.height = '90px';
+      card.dataset.emoji = item.e;
+      card.innerHTML = `
+        <div class="card-inner">
+          <div class="card-face card-back">${i+1}</div>
+          <div class="card-face card-front">
+            <div style="text-align:center">
+                <div style="font-size:24px">${item.e}</div>
+                <div class="card-word">${item.w}</div>
+            </div>
+          </div>
+        </div>`;
+      card.addEventListener('click', () => flipCard(card));
+      grid.appendChild(card);
+    });
+    document.getElementById('overlay').classList.remove('show');
+  }
+
+  function flipCard(card) {
+    if (lock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+    card.classList.add('flipped');
+    flipped.push(card);
+
+    if (flipped.length === 2) {
+      lock = true;
+      const [a, b] = flipped;
+      
+      if (a.dataset.emoji === b.dataset.emoji) {
+        // MATCH FOUND
+        scores[currentPlayer]++;
+        matchedCount++;
+        a.classList.add('matched');
+        b.classList.add('matched');
+        flipped = [];
+        lock = false;
+        updateUI();
+        if (matchedCount === CONFIGS[difficulty].pairs) endGame();
+      } else {
+        // NO MATCH
+        setTimeout(() => {
+          a.classList.remove('flipped');
+          b.classList.remove('flipped');
+          currentPlayer = currentPlayer === 1 ? 2 : 1;
+          flipped = [];
+          lock = false;
+          updateUI();
+        }, 1000);
+      }
+    }
+  }
+
+  function updateUI() {
+    document.getElementById('p1-score').textContent = scores[1];
+    document.getElementById('p2-score').textContent = scores[2];
+    
+    document.getElementById('p1-score-box').classList.toggle('active', currentPlayer === 1);
+    document.getElementById('p2-score-box').classList.toggle('active', currentPlayer === 2);
+    
+    const turnText = document.getElementById('turn-text');
+    turnText.textContent = `Player ${currentPlayer}'s Turn`;
+    turnText.style.color = currentPlayer === 1 ? 'var(--p1-color)' : 'var(--p2-color)';
+  }
+
+  function endGame() {
+    let winMsg = "";
+    if (scores[1] > scores[2]) winMsg = "Player 1 Wins!";
+    else if (scores[2] > scores[1]) winMsg = "Player 2 Wins!";
+    else winMsg = "It's a Draw!";
+
+    document.getElementById('winner-name').textContent = winMsg;
+    document.getElementById('final-stats').textContent = `Score: ${scores[1]} vs ${scores[2]}`;
+    document.getElementById('overlay').classList.add('show');
+  }
+
+  startGame();
+</script>
+</body>
+</html>

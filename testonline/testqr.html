@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Teacher Lewis1 – OBS Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue:       #2E86C1;
+    --blue-dark:  #1A5276;
+    --blue-light: #5DADE2;
+    --sun:        #F5B041;
+    --sun-light:  #FAD7A0;
+    --green:      #27AE60;
+    --green-light:#6FCF97;
+    --coral:      #E74C3C;
+    --white:      #FFFFFF;
+    --panel-bg:   rgba(15, 40, 70, 0.92);
+    --bar-bg:     rgba(15, 40, 70, 0.88);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  .canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 1280px; height: 720px;
+    transform-origin: top left;
+    font-family: 'Nunito', sans-serif;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  /* ══ TOP TICKER — 44px ══ */
+  .ticker {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 44px;
+    background: linear-gradient(90deg, #0d3558, var(--blue), #0d3558);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    z-index: 50;
+    border-bottom: 2px solid var(--sun);
+  }
+  .ticker-lang {
+    flex-shrink: 0;
+    height: 100%;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    background: rgba(0,0,0,0.3);
+    border-right: 1px solid rgba(255,255,255,0.15);
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--sun-light);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .ticker-track {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+  }
+  .ticker-text {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: 0.4px;
+  }
+
+  /* ══ SIDE PANEL — left 0, top 44px, bottom 160px, width 240px ══ */
+  .side-panel {
+    position: absolute;
+    top: 44px; left: 0;
+    width: 240px;
+    bottom: 0;
+    background: var(--panel-bg);
+    border-right: 2px solid rgba(255,255,255,0.10);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 16px;
+    gap: 14px;
+    z-index: 20;
+    overflow: hidden;
+  }
+
+  .avatar-wrap {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    border: 3px solid var(--sun);
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 0 22px rgba(245,176,65,0.45);
+  }
+  .avatar-wrap img { width:100%; height:100%; object-fit:cover; }
+  .avatar-fallback {
+    width:100%; height:100%;
+    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    display:flex; align-items:center; justify-content:center;
+    font-size:42px;
+  }
+
+  .sp-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 23px;
+    color: var(--white);
+    text-align: center;
+    line-height: 1.1;
+  }
+  .sp-name span { color: var(--sun-light); }
+
+  .sp-role {
+    font-size: 10px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .sp-flag {
+    background: rgba(255,255,255,0.09);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .avail-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(39,174,96,0.15);
+    border: 1px solid rgba(39,174,96,0.35);
+    border-radius: 30px;
+    padding: 7px 14px;
+    width: 100%;
+    justify-content: center;
+  }
+  .avail-dot {
+    width: 9px; height: 9px;
+    background: #4CAF50;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #4CAF50;
+    animation: pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:.9} 50%{transform:scale(1.3);opacity:1} }
+  .avail-text {
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--green-light);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .sp-divider { width:100%; height:1px; background:rgba(255,255,255,0.10); flex-shrink:0; }
+
+  .sp-cards { width:100%; display:flex; flex-direction:column; gap:8px; }
+  .sp-card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 11px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .sp-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; }
+  .sc-green::before { background: linear-gradient(#27AE60,#2ECC71); }
+  .sc-blue::before  { background: linear-gradient(var(--blue-light),var(--blue)); }
+  .sp-card-icon { font-size:20px; flex-shrink:0; }
+  .sp-card-lbl  { font-size:9px; font-weight:900; color:rgba(255,255,255,0.4); letter-spacing:2px; text-transform:uppercase; margin-bottom:2px; }
+  .sp-card-val  { font-family:'Fredoka One',cursive; font-size:13px; color:var(--white); line-height:1.1; }
+
+  .qr-wrap {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    padding: 12px 0 10px;
+    border-top: 1px solid rgba(255,255,255,0.10);
+    flex-shrink: 0;
+  }
+  .qr-lbl { font-size:10px; font-weight:900; color:var(--sun-light); letter-spacing:1.5px; text-transform:uppercase; }
+  .qr-box {
+    width:96px; height:96px;
+    background:white; padding:6px;
+    border-radius:11px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+    flex-shrink: 0;
+  }
+  .qr-box img { width:100%; height:100%; object-fit:contain; display:block; }
+
+  /* ══ BOTTOM BAR — height 160px ══ */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 240px; right: 0;
+    height: 160px;
+    background: var(--bar-bg);
+    border-top: 2px solid var(--sun);
+    border-left: 2px solid rgba(255,255,255,0.10);
+    display: flex;
+    align-items: center;
+    padding: 0 32px 0 28px;
+    gap: 28px;
+    z-index: 20;
+    overflow: hidden;
+  }
+
+  /* Name */
+  .bb-name { flex-shrink:0; padding-right:28px; border-right:1px solid rgba(255,255,255,0.15); }
+  .bb-hello { font-size:11px; font-weight:900; color:var(--sun-light); letter-spacing:3px; text-transform:uppercase; margin-bottom:2px; }
+  .bb-title { font-family:'Fredoka One',cursive; font-size:42px; color:var(--white); line-height:1; }
+  .bb-title span { color:var(--sun-light); }
+  .bb-sub { font-size:13px; font-weight:800; color:rgba(255,255,255,0.5); letter-spacing:1.5px; margin-top:4px; }
+
+  /* Countdown */
+  .bb-countdown { flex-shrink:0; padding-right:28px; border-right:1px solid rgba(255,255,255,0.15); }
+  .bb-cd-header { font-size:10px; font-weight:900; color:var(--sun-light); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+  .bb-urgency {
+    font-size:9px; font-weight:900;
+    background:rgba(231,76,60,0.18); color:#FF8A80;
+    border:1px solid rgba(231,76,60,0.35);
+    padding:2px 9px; border-radius:20px;
+    animation:popScale 2s ease-in-out infinite;
+  }
+  @keyframes popScale{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+  .bb-cd-units { display:flex; align-items:center; gap:5px; }
+  .bb-cd-unit {
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:10px; padding:6px 12px;
+    text-align:center; min-width:52px;
+  }
+  .bb-cd-num { font-family:'Fredoka One',cursive; font-size:32px; color:var(--white); line-height:1; display:block; }
+  .bb-cd-lbl { font-size:9px; font-weight:900; color:var(--sun-light); text-transform:uppercase; letter-spacing:1px; display:block; margin-top:1px; }
+  .bb-cd-sep { font-family:'Fredoka One',cursive; font-size:28px; color:rgba(255,255,255,0.3); animation:blink 1s ease-in-out infinite; }
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.1}}
+
+  /* CTA */
+  .bb-cta { flex:1; display:flex; flex-direction:column; gap:10px; min-width:0; }
+  .bb-btn {
+    display:flex; align-items:center; gap:12px;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:12px; padding:12px 16px;
+  }
+  .bb-btn-icon { font-size:22px; flex-shrink:0; }
+  .bb-btn-lbl { font-size:10px; font-weight:900; color:var(--sun-light); letter-spacing:2px; text-transform:uppercase; margin-bottom:3px; }
+  .bb-btn-val { font-family:'Fredoka One',cursive; font-size:18px; color:var(--white); line-height:1; }
+  .bb-badge {
+    margin-left:auto; flex-shrink:0;
+    font-size:10px; font-weight:900;
+    padding:4px 12px; border-radius:20px;
+    letter-spacing:1px; text-transform:uppercase;
+  }
+  .badge-green { background:#D5F5E3; color:var(--green); }
+  .badge-blue  { background:rgba(93,173,226,0.18); color:var(--blue-light); border:1px solid rgba(93,173,226,0.35); }
+</style>
+</head>
+<body>
+<div class="canvas" id="canvas">
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-lang" id="ticker-lang">🇬🇧 EN</div>
+    <div class="ticker-track">
+      <div class="ticker-text" id="ticker-text"></div>
+    </div>
+  </div>
+
+  <!-- SIDE PANEL -->
+  <div class="side-panel">
+    <div class="avatar-wrap">
+      <img src="logo.png" alt="Teacher Lewis1"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="avatar-fallback" style="display:none;">👨‍🏫</div>
+    </div>
+    <div class="sp-name">Teacher <span>Lewis1</span></div>
+    <div class="sp-role">Private English Tutor</div>
+    <div class="sp-flag">🇬🇧 Native English Speaker</div>
+    <div class="avail-pill">
+      <div class="avail-dot"></div>
+      <div class="avail-text">Open for Students!</div>
+    </div>
+    <div class="sp-divider"></div>
+    <div class="sp-cards">
+      <div class="sp-card sc-green">
+        <div class="sp-card-icon">💬</div>
+        <div>
+          <div class="sp-card-lbl">Chat With Me</div>
+          <div class="sp-card-val">Lewis1 Contact</div>
+        </div>
+      </div>
+      <div class="sp-card sc-blue">
+        <div class="sp-card-icon">📅</div>
+        <div>
+          <div class="sp-card-lbl">Book a Lesson</div>
+          <div class="sp-card-val">calendly.com/teacherlewis1</div>
+        </div>
+      </div>
+    </div>
+    <div class="qr-wrap">
+      <div class="qr-lbl">📸 Scan to Book</div>
+      <div class="qr-box">
+        <img src="IMG_2587.jpg" alt="QR Code"
+          onerror="this.parentElement.innerHTML='<div style=\'padding:8px;text-align:center;color:#999;font-size:11px;\'>QR Code</div>';">
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="bottom-bar">
+    <div class="bb-name">
+      <div class="bb-hello">👋 Hello! I'm</div>
+      <div class="bb-title">Teacher <span>Lewis1</span></div>
+      <div class="bb-sub">🎉 All Ages · All Levels · Online</div>
+    </div>
+
+    <div class="bb-countdown">
+      <div class="bb-cd-header">
+        ⏰ On Platform For
+        <span class="bb-urgency">Book Now!</span>
+      </div>
+      <div class="bb-cd-units">
+        <div class="bb-cd-unit">
+          <span class="bb-cd-num" id="cd-days">14</span>
+          <span class="bb-cd-lbl">Days</span>
+        </div>
+        <div class="bb-cd-sep">:</div>
+        <div class="bb-cd-unit">
+          <span class="bb-cd-num" id="cd-hours">00</span>
+          <span class="bb-cd-lbl">Hrs</span>
+        </div>
+        <div class="bb-cd-sep">:</div>
+        <div class="bb-cd-unit">
+          <span class="bb-cd-num" id="cd-mins">00</span>
+          <span class="bb-cd-lbl">Min</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bb-cta">
+      <div class="bb-btn">
+        <div class="bb-btn-icon">✉️</div>
+        <div>
+          <div class="bb-btn-lbl">Email / Contact</div>
+          <div class="bb-btn-val">TeacherLewis1</div>
+        </div>
+        <div class="bb-badge badge-green">Online ✓</div>
+      </div>
+      <div class="bb-btn">
+        <div class="bb-btn-icon">📅</div>
+        <div>
+          <div class="bb-btn-lbl">Book a Lesson</div>
+          <div class="bb-btn-val">calendly.com/teacherlewis1</div>
+        </div>
+        <div class="bb-badge badge-blue">Available</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* Scale canvas to fill window */
+function scaleCanvas() {
+  const c = document.getElementById('canvas');
+  const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+  c.style.transform = 'scale(' + s + ')';
+  c.style.left = ((window.innerWidth  - 1280 * s) / 2) + 'px';
+  c.style.top  = ((window.innerHeight - 720  * s) / 2) + 'px';
+}
+scaleCanvas();
+window.addEventListener('resize', scaleCanvas);
+
+/* Countdown — 14 days from load */
+const endTime = Date.now() + 14 * 24 * 60 * 60 * 1000;
+function pad(n){ return String(n).padStart(2,'0'); }
+function tick(){
+  const d = endTime - Date.now();
+  if (d <= 0) return;
+  document.getElementById('cd-days').textContent  = pad(Math.floor(d / 86400000));
+  document.getElementById('cd-hours').textContent = pad(Math.floor((d % 86400000) / 3600000));
+  document.getElementById('cd-mins').textContent  = pad(Math.floor((d % 3600000) / 60000));
+}
+setInterval(tick, 1000); tick();
+
+/* Ticker — scrolls one language all the way across, then switches */
+var LANGS = [
+  {
+    badge: '🇬🇧 ENGLISH',
+    text: '👋 Welcome!  I\'m Teacher Lewis1    ✦    🇬🇧 Native English Speaker    ✦    📅 Book a lesson: calendly.com/teacherlewis1    ✦    🎓 1-on-1 lessons · All Ages · All Levels Welcome    ✦    😊 Fun, Friendly & Effective English Lessons!    ✦'
+  },
+  {
+    badge: '🇹🇭 ภาษาไทย',
+    text: '👋 ยินดีต้อนรับ!  ฉันคือครูลูอิส1    ✦    🇬🇧 เจ้าของภาษาอังกฤษแท้ๆ    ✦    📅 จองบทเรียน: calendly.com/teacherlewis1    ✦    🎓 เรียนส่วนตัว · ทุกวัย · ทุกระดับ    ✦    😊 สนุก เป็นกันเอง และเรียนได้ผลจริง!    ✦'
+  },
+  {
+    badge: '🇻🇳 TIẾNG VIỆT',
+    text: '👋 Xin chào!  Tôi là Teacher Lewis1    ✦    🇬🇧 Người bản ngữ tiếng Anh    ✦    📅 Đặt lịch học: calendly.com/teacherlewis1    ✦    🎓 Học 1-1 · Mọi lứa tuổi · Mọi trình độ    ✦    😊 Vui vẻ, thân thiện và hiệu quả!    ✦'
+  }
+];
+
+var langIdx  = 0;
+var textEl   = document.getElementById('ticker-text');
+var langEl   = document.getElementById('ticker-lang');
+var trackEl  = textEl.parentElement;
+var animTimer = null;
+
+function runTicker() {
+  var lang = LANGS[langIdx];
+
+  /* update badge and text content */
+  langEl.textContent = lang.badge;
+  textEl.style.transition = 'none';
+  textEl.style.transform  = 'translateY(-50%)';
+  textEl.textContent = lang.text;
+
+  /* force reflow so measurements are accurate */
+  void textEl.offsetWidth;
+
+  var textW  = textEl.scrollWidth;
+  var trackW = trackEl.offsetWidth;
+  var startX = trackW + 20;           /* start just off right edge */
+  var endX   = -(textW + 20);         /* end just off left edge */
+  var pixels = startX - endX;
+  var speed  = 130;                   /* px per second */
+  var dur    = Math.round((pixels / speed) * 1000);
+
+  /* jump to start position without animation */
+  textEl.style.transform = 'translateY(-50%) translateX(' + startX + 'px)';
+  void textEl.offsetWidth; /* reflow */
+
+  /* animate to end */
+  textEl.style.transition = 'transform ' + dur + 'ms linear';
+  textEl.style.transform  = 'translateY(-50%) translateX(' + endX + 'px)';
+
+  /* when done, next language */
+  if (animTimer) clearTimeout(animTimer);
+  animTimer = setTimeout(function() {
+    langIdx = (langIdx + 1) % LANGS.length;
+    runTicker();
+  }, dur + 300);
+}
+
+/* Start after fonts are loaded */
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(function(){ setTimeout(runTicker, 200); });
+} else {
+  setTimeout(runTicker, 500);
+}
+</script>
+</body>
+</html>

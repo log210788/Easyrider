@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jobs &amp; Networking Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8f5e9 100%);
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+    color: #1e293b;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 4px;
+  }
+  .header p {
+    font-size: 13px;
+    color: #64748b;
+  }
+
+  /* ── Shell ── */
+  .card-shell {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  /* ── Progress ── */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: #cbd5e1;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #059669);
+    border-radius: 3px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .counter {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+  }
+
+  /* ── Section Badge ── */
+  .section-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 4px 14px;
+    border-radius: 20px;
+    background: #e0f2fe;
+    color: #0369a1;
+    white-space: nowrap;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 28px 24px;
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    animation: fadeUp 0.35s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-type {
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .card-english {
+    font-size: 22px;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.45;
+  }
+  .card-ipa {
+    font-size: 13px;
+    color: #64748b;
+    font-family: 'Courier New', monospace;
+    margin-top: -4px;
+  }
+
+  /* ── Vietnamese reveal ── */
+  .viet-reveal {
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+  }
+  .viet-text {
+    font-size: 16px;
+    color: #059669;
+    font-weight: 600;
+    margin-top: 10px;
+    display: none;
+  }
+
+  /* ── Buttons ── */
+  .reveal-btn {
+    font-size: 13px;
+    font-weight: 600;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    color: #334155;
+    transition: all 0.2s;
+  }
+  .reveal-btn:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+  }
+
+  /* ── Options ── */
+  .options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .option-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+  }
+  .option-card:hover { border-color: #94a3b8; }
+  .option-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .option-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0369a1;
+    background: #e0f2fe;
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+  }
+  .option-english {
+    font-size: 15px;
+    color: #1e293b;
+    margin-top: 8px;
+    display: none;
+    font-weight: 500;
+  }
+  .option-ipa {
+    font-size: 12px;
+    color: #64748b;
+    font-family: 'Courier New', monospace;
+    margin-top: 4px;
+    display: none;
+  }
+  .option-viet {
+    font-size: 14px;
+    color: #059669;
+    font-weight: 500;
+    margin-top: 6px;
+    display: none;
+  }
+
+  .responses-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .responses-section {
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  /* ── Navigation ── */
+  .nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 12px;
+  }
+  .nav-btn {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 10px 22px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .nav-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; box-shadow: none; }
+  .nav-btn.primary {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    border: none;
+  }
+  .nav-btn.primary:hover { filter: brightness(1.05); }
+  .nav-btn.primary:disabled { filter: none; }
+
+  /* ── Pattern boxes ── */
+  .pattern-box {
+    background: #f8fafc;
+    border-left: 4px solid #10b981;
+    border-radius: 0 12px 12px 0;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+  .pattern-box .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+  .pattern-box .pattern {
+    font-size: 16px;
+    color: #1e293b;
+    line-height: 1.5;
+  }
+
+  .fill-blank {
+    display: inline-block;
+    min-width: 130px;
+    border-bottom: 2px dashed #94a3b8;
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 14px;
+    text-align: center;
+    padding-bottom: 2px;
+  }
+
+  .speak-hint {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .speak-hint svg { flex-shrink: 0; }
+
+  /* ── Keyboard nav hint ── */
+  .kbd-hint {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 11px;
+    color: #94a3b8;
+  }
+  .kbd-hint kbd {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: inherit;
+    font-size: 11px;
+  }
+
+  @media (max-width: 480px) {
+    body { padding: 16px 10px 40px; }
+    .card { padding: 20px 16px; border-radius: 12px; }
+    .card-english { font-size: 19px; }
+    .nav-btn { padding: 10px 14px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Jobs &amp; Networking</h1>
+  <p>English conversation flashcards</p>
+</div>
+
+<div class="card-shell">
+  <div class="progress-row">
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+    <span class="counter" id="counter">1 / 19</span>
+  </div>
+  <div id="card-area"></div>
+  <div class="nav-row">
+    <button class="nav-btn" id="prev-btn" onclick="go(-1)">&larr; Back</button>
+    <span class="section-badge" id="section-badge">Part 1</span>
+    <button class="nav-btn primary" id="next-btn" onclick="go(1)">Next &rarr;</button>
+  </div>
+  <div class="kbd-hint">Use <kbd>&larr;</kbd> <kbd>&rarr;</kbd> arrow keys to navigate</div>
+</div>
+
+<script>
+const data = [
+  { type:'q', part:1, en:"What do you do for a living?", ipa:"/w\u028Ct du ju du f\u0254r \u0259 \u02C8l\u026Av\u026A\u014B/", vi:"B\u1EA1n l\u00E0m ngh\u1EC1 g\u00EC \u0111\u1EC3 sinh s\u1ED1ng?",
+    opts:[{l:"A",en:"I work as a marketing manager.",ipa:"/a\u026A w\u025Crk \u00E6z \u0259 \u02C8m\u0251rk\u0259t\u026A\u014B \u02C8m\u00E6n\u0259\u02A4\u0259r/",vi:"T\u00F4i l\u00E0m qu\u1EA3n l\u00FD ti\u1EBFp th\u1ECB."},{l:"B",en:"I am in the finance industry.",ipa:"/a\u026A \u00E6m \u026An \u00F0\u0259 f\u0259\u02C8n\u00E6ns \u02C8\u026And\u0259stri/",vi:"T\u00F4i l\u00E0m trong ng\u00E0nh t\u00E0i ch\u00EDnh."}]},
+  { type:'q', part:1, en:"Which company do you work for?", ipa:"/w\u026A\u02A7 \u02C8k\u028Cmp\u0259ni du ju w\u025Crk f\u0254r/", vi:"B\u1EA1n l\u00E0m vi\u1EC7c cho c\u00F4ng ty n\u00E0o?",
+    opts:[{l:"A",en:'I work for a tech startup called "Nova".',ipa:'/a\u026A w\u025Crk f\u0254r \u0259 t\u025Bk \u02C8st\u0251rt\u02CC\u028Cp k\u0254ld \u02C8no\u028Av\u0259/',vi:'T\u00F4i l\u00E0m cho c\u00F4ng ty kh\u1EDFi nghi\u1EC7p t\u00EAn "Nova".'},{l:"B",en:"It is a large manufacturing firm.",ipa:"/\u026At \u026Az \u0259 l\u0251r\u02A4 \u02CCm\u00E6nj\u0259\u02C8f\u00E6k\u02A7\u0259r\u026A\u014B f\u025Crm/",vi:"\u0110\u00F3 l\u00E0 m\u1ED9t h\u00E3ng s\u1EA3n xu\u1EA5t l\u1EDBn."}]},
+  { type:'q', part:1, en:"How long have you been in that field?", ipa:"/ha\u028A l\u0254\u014B h\u00E6v ju b\u026An \u026An \u00F0\u00E6t fild/", vi:"B\u1EA1n l\u00E0m trong l\u0129nh v\u1EF1c \u0111\u00F3 bao l\u00E2u r\u1ED3i?",
+    opts:[{l:"A",en:"I have been doing this for ten years.",ipa:"/a\u026A h\u00E6v b\u026An \u02C8du\u026A\u014B \u00F0\u026As f\u0254r t\u025Bn j\u026Arz/",vi:"T\u00F4i l\u00E0m ngh\u1EC1 n\u00E0y m\u01B0\u1EDDi n\u0103m r\u1ED3i."},{l:"B",en:"I actually just started recently.",ipa:"/a\u026A \u02C8\u00E6k\u02A7u\u0259li \u02A4\u028Cst \u02C8st\u0251rt\u0259d \u02C8ris\u0259ntli/",vi:"Th\u1EADt ra t\u00F4i m\u1EDBi b\u1EAFt \u0111\u1EA7u g\u1EA7n \u0111\u00E2y."}]},
+  { type:'q', part:1, en:"What does your company actually do?", ipa:"/w\u028Ct d\u028Cz j\u0254r \u02C8k\u028Cmp\u0259ni \u02C8\u00E6k\u02A7u\u0259li du/", vi:"C\u00F4ng ty c\u1EE7a b\u1EA1n th\u1EF1c s\u1EF1 l\u00E0m v\u1EC1 c\u00E1i g\u00EC?",
+    opts:[{l:"A",en:"We specialize in renewable energy.",ipa:"/wi \u02C8sp\u025B\u0283\u0259\u02CCla\u026Az \u026An r\u026A\u02C8nu\u0259b\u0259l \u02C8\u025Bn\u0259r\u02A4i/",vi:"Ch\u00FAng t\u00F4i chuy\u00EAn v\u1EC1 n\u0103ng l\u01B0\u1EE3ng t\u00E1i t\u1EA1o."},{l:"B",en:"We provide consulting services.",ipa:"/wi pr\u0259\u02C8va\u026Ad k\u0259n\u02C8s\u028Clt\u026A\u014B \u02C8s\u025Crv\u0259s\u0259z/",vi:"Ch\u00FAng t\u00F4i cung c\u1EA5p d\u1ECBch v\u1EE5 t\u01B0 v\u1EA5n."}]},
+  { type:'q', part:1, en:"Do you enjoy your line of work?", ipa:"/du ju \u025Bn\u02C8\u02A4\u0254\u026A j\u0254r la\u026An \u028Cv w\u025Crk/", vi:"B\u1EA1n c\u00F3 th\u00EDch ng\u00E0nh ngh\u1EC1 c\u1EE7a m\u00ECnh kh\u00F4ng?",
+    opts:[{l:"A",en:"Yes, I find it very rewarding.",ipa:"/j\u025Bs, a\u026A fa\u026And \u026At \u02C8v\u025Bri r\u026A\u02C8w\u0254rd\u026A\u014B/",vi:"C\u00F3, t\u00F4i th\u1EA5y n\u00F3 r\u1EA5t b\u1ED5 \u00EDch."},{l:"B",en:"It is okay, but I prefer creative work.",ipa:"/\u026At \u026Az \u02CCo\u028A\u02C8ke\u026A, b\u028Ct a\u026A pr\u0259\u02C8f\u025Cr kri\u02C8e\u026At\u026Av w\u025Crk/",vi:"C\u0169ng \u1ED5n, nh\u01B0ng t\u00F4i th\u00EDch vi\u1EC7c s\u00E1ng t\u1EA1o h\u01A1n."}]},
+  { type:'q', part:2, en:"Is your job very stressful?", ipa:"/\u026Az j\u0254r \u02A4\u0251b \u02C8v\u025Bri \u02C8str\u025Bsf\u0259l/", vi:"C\u00F4ng vi\u1EC7c c\u1EE7a b\u1EA1n c\u00F3 \u00E1p l\u1EF1c l\u1EAFm kh\u00F4ng?",
+    opts:[{l:"A",en:"Sometimes, when we have deadlines.",ipa:"/s\u0259m\u02C8ta\u026Amz, w\u025Bn wi h\u00E6v \u02C8d\u025Bd\u02CCla\u026Anz/",vi:"Th\u1EC9nh tho\u1EA3ng, khi c\u00F3 h\u1EA1n ch\u00F3t."},{l:"B",en:"Not really, it is quite relaxed.",ipa:"/n\u0251t \u02C8r\u026Ali, \u026At \u026Az kwa\u026At r\u026A\u02C8l\u00E6kst/",vi:"Kh\u00F4ng h\u1EB3n, n\u00F3 kh\u00E1 tho\u1EA3i m\u00E1i."}]},
+  { type:'q', part:2, en:"Do you have to travel much?", ipa:"/du ju h\u00E6v tu \u02C8tr\u00E6v\u0259l m\u028C\u02A7/", vi:"B\u1EA1n c\u00F3 ph\u1EA3i \u0111i c\u00F4ng t\u00E1c nhi\u1EC1u kh\u00F4ng?",
+    opts:[{l:"A",en:"I travel about once a month.",ipa:"/a\u026A \u02C8tr\u00E6v\u0259l \u0259\u02C8ba\u028At w\u028Cns \u0259 m\u028Cn\u03B8/",vi:"T\u00F4i \u0111i kho\u1EA3ng m\u1ED7i th\u00E1ng m\u1ED9t l\u1EA7n."},{l:"B",en:"No, I am mostly in the office.",ipa:"/no\u028A, a\u026A \u00E6m \u02C8mo\u028Astli \u026An \u00F0i \u02C8\u0254f\u0259s/",vi:"Kh\u00F4ng, t\u00F4i ch\u1EE7 y\u1EBFu \u1EDF v\u0103n ph\u00F2ng."}]},
+  { type:'q', part:2, en:"Are you based here in the city?", ipa:"/\u0251r ju be\u026Ast h\u026Ar \u026An \u00F0\u0259 \u02C8s\u026Ati/", vi:"B\u1EA1n l\u00E0m vi\u1EC7c \u1EDF ngay trong th\u00E0nh ph\u1ED1 \u00E0?",
+    opts:[{l:"A",en:"Yes, our office is right downtown.",ipa:"/j\u025Bs, \u02C8a\u028A\u0259r \u02C8\u0254f\u0259s \u026Az ra\u026At \u02C8da\u028An\u02C8ta\u028An/",vi:"V\u00E2ng, v\u0103n ph\u00F2ng \u1EDF ngay trung t\u00E2m."},{l:"B",en:"No, I work remotely from home.",ipa:"/no\u028A, a\u026A w\u025Crk r\u026A\u02C8mo\u028Atli fr\u028Cm ho\u028Am/",vi:"Kh\u00F4ng, t\u00F4i l\u00E0m vi\u1EC7c t\u1EEB xa t\u1EA1i nh\u00E0."}]},
+  { type:'q', part:2, en:"How did you get into that industry?", ipa:"/ha\u028A d\u026Ad ju g\u025Bt \u02C8\u026Antu \u00F0\u00E6t \u02C8\u026And\u0259stri/", vi:"C\u01A1 duy\u00EAn n\u00E0o \u0111\u01B0a b\u1EA1n \u0111\u1EBFn v\u1EDBi ng\u00E0nh \u0111\u00F3?",
+    opts:[{l:"A",en:"I studied engineering at university.",ipa:"/a\u026A \u02C8st\u028Cdid \u02CC\u025Bn\u02A4\u0259\u02C8n\u026Ar\u026A\u014B \u00E6t \u02CCjun\u0259\u02C8v\u025Crs\u0259ti/",vi:"T\u00F4i \u0111\u00E3 h\u1ECDc k\u1EF9 thu\u1EADt \u1EDF \u0111\u1EA1i h\u1ECDc."},{l:"B",en:"My friend introduced me to it.",ipa:"/ma\u026A fr\u025Bnd \u02CC\u026Antr\u0259\u02C8dust mi tu \u026At/",vi:"B\u1EA1n t\u00F4i gi\u1EDBi thi\u1EC7u cho t\u00F4i."}]},
+  { type:'q', part:2, en:"Are you working on anything interesting?", ipa:"/\u0251r ju \u02C8w\u025Crk\u026A\u014B \u0251n \u02C8\u025Bni\u02CC\u03B8\u026A\u014B \u02C8\u026Antr\u0259st\u026A\u014B/", vi:"B\u1EA1n c\u00F3 \u0111ang l\u00E0m d\u1EF1 \u00E1n n\u00E0o th\u00FA v\u1ECB kh\u00F4ng?",
+    opts:[{l:"A",en:"We are launching a new app soon.",ipa:"/wi \u0251r \u02C8l\u0254n\u02A7\u026A\u014B \u0259 nu \u00E6p sun/",vi:"Ch\u00FAng t\u00F4i s\u1EAFp ra m\u1EAFt \u1EE9ng d\u1EE5ng m\u1EDBi."},{l:"B",en:"Just the usual projects right now.",ipa:"/\u02A4\u028Cst \u00F0\u0259 \u02C8ju\u0292\u0259w\u0259l \u02C8pr\u0251\u02A4\u025Bkts ra\u026At na\u028A/",vi:"Ch\u1EC9 l\u00E0 c\u00E1c d\u1EF1 \u00E1n b\u00ECnh th\u01B0\u1EDDng th\u00F4i."}]},
+  { type:'s', part:3, en:"I work for an international logistics firm.", ipa:"/a\u026A w\u025Crk f\u0254r \u0259n \u02CC\u026Ant\u0259r\u02C8n\u00E6\u0283\u0259n\u0259l lo\u028A\u02C8\u02A4\u026Ast\u026Aks f\u025Crm/", vi:"T\u00F4i l\u00E0m cho m\u1ED9t h\u00E3ng v\u1EADn t\u1EA3i qu\u1ED1c t\u1EBF." },
+  { type:'s', part:3, en:"Actually, I run my own small business.", ipa:"/\u02C8\u00E6k\u02A7u\u0259li, a\u026A r\u028Cn ma\u026A o\u028An sm\u0254l \u02C8b\u026Azn\u0259s/", vi:"Th\u1EADt ra, t\u00F4i t\u1EF1 kinh doanh nh\u1ECF." },
+  { type:'s', part:3, en:"I am thinking about changing careers soon.", ipa:"/a\u026A \u00E6m \u02C8\u03B8\u026A\u014Bk\u026A\u014B \u0259\u02C8ba\u028At \u02C8\u02A7e\u026An\u02A4\u026A\u014B k\u0259\u02C8r\u026Arz sun/", vi:"T\u00F4i \u0111ang \u0111\u1ECBnh s\u1EDBm \u0111\u1ED5i ngh\u1EC1." },
+  { type:'s', part:3, en:"The job is tough, but the pay is good.", ipa:"/\u00F0\u0259 \u02A4\u0251b \u026Az t\u028Cf, b\u028Ct \u00F0\u0259 pe\u026A \u026Az g\u028Ad/", vi:"C\u00F4ng vi\u1EC7c v\u1EA5t v\u1EA3 nh\u01B0ng l\u01B0\u01A1ng t\u1ED1t." },
+  { type:'s', part:3, en:"I commute to the industrial park daily.", ipa:"/a\u026A k\u0259\u02C8mjut tu \u00F0i \u026An\u02C8d\u028Cstri\u0259l p\u0251rk \u02C8de\u026Ali/", vi:"T\u00F4i \u0111i l\u00E0m \u1EDF khu c\u00F4ng nghi\u1EC7p m\u1ED7i ng\u00E0y." },
+  { type:'p', part:4 },
+  { type:'p2', part:4 },
+  { type:'p3', part:4 },
+  { type:'p4', part:4 },
+];
+
+let cur = 0;
+const total = data.length;
+
+function sectionLabel(p) {
+  return p===1 ? "Part 1 \u2014 Questions & Answers"
+       : p===2 ? "Part 2 \u2014 Conversation"
+       : p===3 ? "Part 3 \u2014 Useful Statements"
+       :         "Part 4 \u2014 Practice";
+}
+
+function buildCard(i) {
+  const d = data[i];
+  document.getElementById('counter').textContent = (i+1)+' / '+total;
+  document.getElementById('prog').style.width = Math.round(((i+1)/total)*100)+'%';
+  document.getElementById('section-badge').textContent = sectionLabel(d.part);
+  document.getElementById('prev-btn').disabled = i===0;
+  const nb = document.getElementById('next-btn');
+  if (i===total-1) {
+    nb.textContent = 'Finish \u2713';
+    nb.classList.add('primary');
+  } else {
+    nb.innerHTML = 'Next &rarr;';
+    nb.classList.add('primary');
+  }
+
+  let html = '';
+
+  if (d.type==='q') {
+    html = `<div class="card">
+      <div class="card-type">Question ${i+1}</div>
+      <div class="card-english">${d.en}</div>
+      <div class="card-ipa">${d.ipa}</div>
+      <div class="viet-reveal">
+        <button class="reveal-btn" onclick="revealEl(this,'qvi')">Show Vietnamese</button>
+        <div class="viet-text" id="qvi">${d.vi}</div>
+      </div>
+      <div class="responses-section">
+        <div class="responses-label">Responses</div>
+        <div class="options-grid">`;
+    d.opts.forEach((o,idx)=>{
+      html += `<div class="option-card">
+        <div class="option-header">
+          <div class="option-label">${o.l}</div>
+          <button class="reveal-btn" style="font-size:12px;padding:5px 12px;" onclick="revealOption(this,${idx})">Show answer</button>
+        </div>
+        <div class="option-english" id="oen${idx}">${o.en}</div>
+        <div class="option-ipa" id="oipa${idx}">${o.ipa}</div>
+        <div class="option-viet" id="ovi${idx}">${o.vi}</div>
+      </div>`;
+    });
+    html += `</div>
+        <button class="reveal-btn" style="margin-top:12px;" onclick="revealAllOpts(this)">Show all answers</button>
+      </div>
+    </div>`;
+  }
+
+  else if (d.type==='s') {
+    html = `<div class="card">
+      <div class="card-type">Useful Statement</div>
+      <div class="card-english" style="display:none;" id="s-en">${d.en}</div>
+      <div class="card-ipa" style="display:none;" id="s-ipa">${d.ipa}</div>
+      <div style="margin-bottom:4px;">
+        <button class="reveal-btn" id="s-en-btn" onclick="revealStatement()">Show English</button>
+      </div>
+      <div class="viet-reveal" style="border-top:none;padding-top:0;">
+        <button class="reveal-btn" onclick="revealEl(this,'s-vi')">Show Vietnamese</button>
+        <div class="viet-text" id="s-vi">${d.vi}</div>
+      </div>
+    </div>`;
+  }
+
+  else if (d.type==='p') {
+    html = `<div class="card">
+      <div class="card-type">Part 4 \u2014 Practice Pattern</div>
+      <div class="pattern-box">
+        <div class="label">Structure</div>
+        <div class="pattern">\u201CI work as a <strong>[Job Title]</strong> for a company that makes <strong>[Product/Service]</strong>.\u201D</div>
+      </div>
+      <div class="pattern-box" style="border-color:#3b82f6;">
+        <div class="label">Example</div>
+        <div class="pattern">I work as a <strong style="color:#2563eb">manager</strong> for a company that makes <strong style="color:#2563eb">furniture</strong>.</div>
+      </div>
+    </div>`;
+  }
+
+  else if (d.type==='p2'||d.type==='p3'||d.type==='p4') {
+    const n = d.type==='p2'?1:d.type==='p3'?2:3;
+    html = `<div class="card">
+      <div class="card-type">Your Turn \u2014 Sentence ${n}</div>
+      <div style="font-size:17px;color:#1e293b;line-height:2;">
+        I work as a <span class="fill-blank">job title</span> for a company that makes <span class="fill-blank">product / service</span>.
+      </div>
+      <div class="speak-hint">
+        <svg width="16" height="16" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        Speak your answer aloud, then move on.
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('card-area').innerHTML = html;
+}
+
+function revealEl(btn, id) {
+  btn.style.display='none';
+  const el = document.getElementById(id);
+  el.style.display='block';
+  el.style.animation='fadeUp 0.25s ease';
+}
+
+function revealStatement() {
+  document.getElementById('s-en-btn').style.display='none';
+  ['s-en','s-ipa'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.style.display='block';
+    el.style.animation='fadeUp 0.25s ease';
+  });
+}
+
+function revealOption(btn, idx) {
+  btn.style.display='none';
+  ['oen','oipa'].forEach(p=>{
+    const el = document.getElementById(p+idx);
+    if(el){ el.style.display='block'; el.style.animation='fadeUp 0.25s ease'; }
+  });
+}
+
+function revealAllOpts(btn) {
+  btn.style.display='none';
+  [0,1].forEach(i=>{
+    const eb=document.querySelector(`[onclick="revealOption(this,${i})"]`);
+    if(eb) eb.style.display='none';
+    ['oen','oipa','ovi'].forEach(p=>{
+      const el=document.getElementById(p+i);
+      if(el){ el.style.display='block'; el.style.animation='fadeUp 0.25s ease'; }
+    });
+  });
+}
+
+function go(dir) {
+  const next = cur+dir;
+  if(next<0||next>=total) return;
+  cur = next;
+  buildCard(cur);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowRight') go(1);
+  if(e.key==='ArrowLeft') go(-1);
+});
+
+buildCard(0);
+</script>
+</body>
+</html>

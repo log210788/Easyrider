@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced ESL Conversation Bingo</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #0f172a;
+            margin: 0;
+            padding: 20px;
+            color: #f8fafc;
+        }
+        h1 { color: #38bdf8; text-align: center; margin-bottom: 5px; font-weight: 800; }
+        .subtitle { margin-bottom: 30px; font-size: 0.9rem; color: #94a3b8; text-align: center; max-width: 500px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .cell {
+            aspect-ratio: 1 / 1;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .card-number {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 0.7rem;
+            color: #475569;
+        }
+
+        .emoji { font-size: 1.6rem; margin-bottom: 12px; }
+        .text { font-size: 0.85rem; font-weight: 500; line-height: 1.5; color: #e2e8f0; }
+        .task { font-size: 0.7rem; color: #fbbf24; font-weight: bold; margin-top: 10px; text-transform: uppercase; border-top: 1px solid #334155; padding-top: 8px; }
+
+        .cell:hover { border-color: #38bdf8; background: #1e293b; transform: scale(1.02); }
+
+        .cell.active {
+            background-color: #38bdf8;
+            color: #0f172a;
+            border-color: #7dd3fc;
+        }
+        .cell.active .text, .cell.active .card-number { color: #0f172a; }
+        .cell.active .task { color: #0369a1; border-top-color: #0369a1; }
+
+        button {
+            margin-top: 40px;
+            padding: 14px 45px;
+            font-size: 1rem;
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover { background: #7dd3fc; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <h1>The Deep Talk Challenge 🎙️</h1>
+    <div class="subtitle">Don't just ask! You must listen to their full explanation before you can click the square.</div>
+
+    <div class="grid" id="bingoGrid"></div>
+
+    <button onclick="generateBoard()">New Discussion Topics 🎲</button>
+
+    <script>
+        const cards = [
+            { icon: "☕", text: "Can explain why they prefer their morning routine over any other", task: "Ask: What happens if you skip it?" },
+            { icon: "🌍", text: "Has traveled to a place that completely changed their perspective", task: "Ask: What was the biggest culture shock?" },
+            { icon: "💼", text: "Would choose a different career path if they could go back 10 years", task: "Ask: What is stopping you now?" },
+            { icon: "🧠", text: "Believes that AI will eventually do more good than harm for society", task: "Ask: Give one specific example." },
+            { icon: "🏙️", text: "Can describe the perfect 'dream home' in great detail", task: "Ask: Where would it be located?" },
+            { icon: "⏳", text: "Has a hobby they have practiced consistently for over five years", task: "Ask: How did you first get started?" },
+            { icon: "🎬", text: "Can argue why a specific movie or book is 'underrated' by others", task: "Ask: Why should I watch/read it?" },
+            { icon: "🥦", text: "Has tried a strict diet or fitness regime that actually worked", task: "Ask: What was the hardest part?" },
+            { icon: "📱", text: "Thinks social media has made people more lonely than before", task: "Ask: Do you agree or disagree?" },
+            { icon: "🎵", text: "Can name a song that brings back a very specific childhood memory", task: "Ask: What does it remind you of?" },
+            { icon: "🤝", text: "Has a friend they have known since they were a small child", task: "Ask: What is the secret to staying friends?" },
+            { icon: "🚀", text: "Would be willing to live on Mars if they were offered a one-way ticket", task: "Ask: Who would you miss most?" },
+            { icon: "💸", text: "Has bought something expensive that they now completely regret", task: "Ask: Why did you buy it originally?" },
+            { icon: "🗣️", text: "Can explain a slang word in their native language to a foreigner", task: "Ask: Give an example sentence." },
+            { icon: "🕯️", text: "Prefers a quiet night in rather than a loud night out with friends", task: "Ask: What is your ideal 'quiet' activity?" },
+            { icon: "🎓", text: "Remembers a teacher who had a significant impact on their life", task: "Ask: What was the best lesson they taught?" }
+        ];
+
+        function generateBoard() {
+            const grid = document.getElementById('bingoGrid');
+            grid.innerHTML = '';
+            const shuffled = [...cards].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach((item, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.innerHTML = `
+                    <div class="card-number">${index + 1}</div>
+                    <div class="emoji">${item.icon}</div>
+                    <div class="text">${item.text}</div>
+                    <div class="task">${item.task}</div>
+                `;
+                cell.onclick = function() { this.classList.toggle('active'); checkWin(); };
+                grid.appendChild(cell);
+            });
+        }
+
+        function checkWin() {
+            const cells = document.querySelectorAll('.cell');
+            const active = Array.from(cells).map(c => c.classList.contains('active'));
+            const p = [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],[0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15],[0,5,10,15],[3,6,9,12]];
+            if (p.some(pattern => pattern.every(i => active[i]))) {
+                setTimeout(() => alert("BINGO! You've successfully navigated the conversation. 🏆"), 200);
+            }
+        }
+        generateBoard();
+    </script>
+</body>
+</html>

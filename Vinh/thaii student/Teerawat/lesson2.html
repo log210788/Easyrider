@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESL Lesson: Laura's Typical Day</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --bg: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 3px solid var(--secondary);
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .lesson-grid { grid-template-columns: 1fr; }
+        }
+
+        .grammar-box {
+            background: #eef2f7;
+            padding: 20px;
+            border-left: 5px solid var(--secondary);
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .exercise-section {
+            background: #fff;
+        }
+
+        .q-row {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .q-num {
+            font-weight: bold;
+            margin-right: 10px;
+            color: var(--secondary);
+            min-width: 25px;
+        }
+
+        input[type="text"] {
+            border: none;
+            border-bottom: 2px solid #bdc3c7;
+            padding: 5px;
+            font-size: 16px;
+            width: 100%;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-bottom-color: var(--secondary);
+        }
+
+        .hint {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover { background-color: #2980b9; }
+
+        .pro-tip {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Past Simple: Laura’s Working Day</h1>
+        <p>Convert the typical routine into what happened <strong>yesterday</strong>.</p>
+    </header>
+
+    <div class="lesson-grid">
+        <div class="grammar-box">
+            <h3>Grammar Reference</h3>
+            <table>
+                <tr><th>Present</th><th>Past</th></tr>
+                <tr><td>Get up</td><td><strong>Got up</strong></td></tr>
+                <tr><td>Have</td><td><strong>Had</strong></td></tr>
+                <tr><td>Take (time)</td><td><strong>Took</strong></td></tr>
+                <tr><td>Start</td><td><strong>Started</strong></td></tr>
+                <tr><td>Go</td><td><strong>Went</strong></td></tr>
+                <tr><td>Sleep</td><td><strong>Slept</strong></td></tr>
+            </table>
+            
+            <div class="pro-tip">
+                <strong>Negative Rule:</strong><br>
+                Use <em>didn't</em> + <u>original verb</u>.<br>
+                <em>Example: She <strong>didn't go</strong> out.</em>
+            </div>
+        </div>
+
+        <div class="exercise-section">
+            <h3>Yesterday was a typical day...</h3>
+            
+            <div class="q-row">
+                <span class="q-num">1</span>
+                <div>She <strong>got up</strong> at 7 o’clock.</div>
+            </div>
+
+            <div class="q-row">
+                <span class="q-num">2</span>
+                <input type="text" placeholder="She had a big breakfast.">
+            </div>
+
+            <div class="q-row">
+                <span class="q-num">3</span>
+                <input type="text" placeholder="She went to work.">
+            </div>
+
+            <div class="q-row">
+                <span class="q-num">4</span>
+                <input type="text" placeholder="It took her 30 mins to get to work.">
+            </div>
+
+            <div class="q-row">
+                <span class="q-num">5</span>
+                <input type="text" placeholder="She started work at 8.45.">
+            </div>
+
+            <div class="q-row">
+                <span class="q-num">6</span>
+                <input type="text" placeholder="She didn't have lunch.">
+            </div>
+
+            <div class="q-row">
+                <span class="q-num">7</span>
+                <input type="text" placeholder="She finished work at 5 o'clock.">
+            </div>
+
+            <div class="q-row">
+                <span class="q-num">8</span>
+                <input type="text" placeholder="She was tired when she got home.">
+            </div>
+
+            <div class="q-row">
+                <span class="q-num">9</span>
+                <input type="text" placeholder="She cooked a meal.">
+            </div>
+
+            <div class="q-row">
+                <span class="q-num">10</span>
+                <input type="text" placeholder="She didn't go out.">
+            </div>
+
+            <div class="q-row">
+                <span class="q-num">11</span>
+                <input type="text" placeholder="She went to bed at 11 o'clock.">
+            </div>
+
+            <div class="q-row">
+                <span class="q-num">12</span>
+                <input type="text" placeholder="She slept well last night.">
+            </div>
+
+            <button onclick="alert('Great job! Review your answers with your teacher.')">Check My Answers</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

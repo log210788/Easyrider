@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Teacher Lewis1 – Overlay Controller</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue:      #2E86C1;
+    --blue-dark: #1A5276;
+    --sun:       #F5B041;
+    --sun-light: #FAD7A0;
+    --green:     #27AE60;
+    --panel:     rgba(15,40,70,0.95);
+    --card:      rgba(255,255,255,0.07);
+    --border:    rgba(255,255,255,0.12);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    min-height:100vh;
+    background:linear-gradient(135deg,#0a1f3c 0%,#0d3558 60%,#0a1f3c 100%);
+    font-family:'Nunito',sans-serif; color:white; padding:28px 24px;
+  }
+
+  header { display:flex; align-items:center; gap:16px; margin-bottom:28px; padding-bottom:18px; border-bottom:2px solid rgba(245,176,65,0.3); }
+  .hdr-icon { font-size:34px; }
+  .hdr-title { font-family:'Fredoka One',cursive; font-size:26px; color:white; }
+  .hdr-title span { color:var(--sun-light); }
+  .hdr-sub { font-size:11px; font-weight:900; color:rgba(255,255,255,0.4); letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
+
+  .server-status {
+    margin-left:auto; display:flex; align-items:center; gap:8px;
+    border-radius:30px; padding:8px 18px;
+    font-size:12px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase;
+    transition: background 0.3s, color 0.3s;
+  }
+  .server-status.ok  { background:rgba(39,174,96,0.15); color:#6FCF97; border:1px solid rgba(39,174,96,0.35); }
+  .server-status.err { background:rgba(231,76,60,0.15); color:#FF8A80; border:1px solid rgba(231,76,60,0.35); }
+  .status-dot { width:9px; height:9px; border-radius:50%; animation:pulse 1.5s ease-in-out infinite; }
+  .ok  .status-dot { background:#4CAF50; box-shadow:0 0 8px #4CAF50; }
+  .err .status-dot { background:#E74C3C; box-shadow:0 0 8px #E74C3C; }
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media(max-width:700px){ .grid{ grid-template-columns:1fr; } }
+
+  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px 22px; }
+  .card-title { font-size:10px; font-weight:900; color:var(--sun-light); letter-spacing:2.5px; text-transform:uppercase; margin-bottom:14px; }
+  .card-title .muted{ color:rgba(255,255,255,0.35); font-weight:900; letter-spacing:2px; margin-left:8px; }
+
+  label { display:block; font-size:11px; font-weight:900; color:rgba(255,255,255,0.45); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; margin-top:14px; }
+  label:first-of-type { margin-top:0; }
+
+  input[type=text], textarea {
+    width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15);
+    border-radius:10px; color:white; font-family:'Nunito',sans-serif;
+    font-weight:800; font-size:15px; padding:10px 14px; outline:none;
+    transition:border-color 0.2s; resize:vertical;
+  }
+  input[type=text]:focus, textarea:focus { border-color:var(--sun); box-shadow:0 0 0 3px rgba(245,176,65,0.15); }
+  textarea { min-height:60px; line-height:1.4; }
+
+  .hint { font-size:11px; color:rgba(255,255,255,0.3); font-weight:700; margin-top:5px; line-height:1.4; }
+
+  .send-btn {
+    width:100%; margin-top:16px;
+    background:linear-gradient(90deg,#F5B041,#E67E22);
+    border:none; border-radius:12px;
+    font-family:'Fredoka One',cursive; font-size:22px; color:#1A1A1A;
+    padding:14px 0; cursor:pointer;
+    transition:transform 0.15s, box-shadow 0.15s;
+    box-shadow:0 4px 20px rgba(245,176,65,0.3);
+  }
+  .send-btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(245,176,65,0.45); }
+  .send-btn:active { transform:translateY(0); }
+
+  .clear-btn {
+    width:100%; margin-top:10px;
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);
+    border-radius:10px; color:rgba(255,255,255,0.5);
+    font-family:'Nunito',sans-serif; font-weight:900; font-size:13px;
+    letter-spacing:1px; text-transform:uppercase; padding:10px 0; cursor:pointer;
+    transition:background 0.2s,color 0.2s;
+  }
+  .clear-btn:hover { background:rgba(231,76,60,0.15); color:#FF8A80; border-color:rgba(231,76,60,0.3); }
+
+  .preset-btn {
+    display:flex; align-items:center; justify-content:space-between;
+    width:100%; border-radius:10px; padding:10px 14px; text-align:left;
+    background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14);
+    color:rgba(255,255,255,0.75); font-family:'Nunito',sans-serif;
+    font-weight:800; font-size:13px; cursor:pointer;
+    transition:background 0.15s,color 0.15s,border-color 0.15s;
+    margin-bottom:8px;
+  }
+  .preset-btn:hover { background:rgba(245,176,65,0.15); border-color:rgba(245,176,65,0.4); color:var(--sun-light); }
+  .preset-tag { font-size:10px; opacity:.4; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+
+  .preview-box { background:rgba(0,0,0,0.35); border:1px dashed rgba(255,255,255,0.18); border-radius:12px; padding:14px 18px; margin-top:12px; }
+  .preview-label { font-size:9px; color:rgba(255,255,255,0.25); font-weight:900; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; }
+  .preview-eyebrow { font-size:9px; font-weight:900; color:rgba(255,255,255,0.3); letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; }
+  .preview-msg { font-family:'Fredoka One',cursive; font-size:24px; color:white; line-height:1.2; }
+  .preview-msg .hl { color:var(--sun-light); }
+  .preview-sub { font-size:11px; color:rgba(255,255,255,0.35); font-weight:700; margin-top:4px; }
+
+  /* ══ Stars control ══ */
+  .stars-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+  .star-pill{
+    flex:1;
+    min-width:64px;
+    display:flex; align-items:center; justify-content:center;
+    padding:10px 12px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.14);
+    color:rgba(255,255,255,0.75);
+    font-weight:900;
+    letter-spacing:0.5px;
+    cursor:pointer;
+    user-select:none;
+    transition:transform 0.12s, background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .star-pill:hover{ transform:translateY(-1px); background:rgba(245,176,65,0.14); border-color:rgba(245,176,65,0.35); color:var(--sun-light); }
+  .star-pill.active{ background:rgba(245,176,65,0.22); border-color:rgba(245,176,65,0.55); color:var(--sun-light); box-shadow:0 0 0 3px rgba(245,176,65,0.12); }
+  .star-big{ font-size:18px; margin-right:6px; }
+  .stars-actions{ display:flex; gap:10px; margin-top:12px; }
+  .mini-btn{
+    flex:1;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.14);
+    background:rgba(255,255,255,0.06);
+    color:rgba(255,255,255,0.7);
+    font-weight:900;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    padding:10px 12px;
+    cursor:pointer;
+    transition:background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+  }
+  .mini-btn:hover{ transform:translateY(-1px); background:rgba(255,255,255,0.10); border-color:rgba(255,255,255,0.22); color:white; }
+  .mini-btn.warn:hover{ background:rgba(231,76,60,0.16); border-color:rgba(231,76,60,0.35); color:#FF8A80; }
+
+  .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  select{
+    width:100%;
+    background:rgba(0,0,0,0.3);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:10px;
+    color:white;
+    font-family:'Nunito',sans-serif;
+    font-weight:800;
+    font-size:14px;
+    padding:10px 12px;
+    outline:none;
+  }
+  select:focus{ border-color:var(--sun); box-shadow:0 0 0 3px rgba(245,176,65,0.15); }
+  .tiny{
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:rgba(255,255,255,0.35);
+  }
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.12);
+    color:rgba(255,255,255,0.75);
+    font-weight:900;
+    cursor:pointer;
+    user-select:none;
+  }
+  .chip:hover{ border-color:rgba(245,176,65,0.35); color:var(--sun-light); background:rgba(245,176,65,0.12); }
+  .counter{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:12px;
+    background:rgba(0,0,0,0.28);
+    border:1px solid rgba(255,255,255,0.12);
+  }
+  .counter .val{
+    font-family:'Fredoka One',cursive;
+    font-size:22px;
+    color:white;
+  }
+  .counter .lbl{ font-size:10px; font-weight:900; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.35); }
+  .icon-btn{
+    width:40px; height:40px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.14);
+    background:rgba(255,255,255,0.06);
+    color:white;
+    cursor:pointer;
+    transition:transform 0.15s, background 0.15s, border-color 0.15s;
+    user-select:none;
+    flex-shrink:0;
+  }
+  .icon-btn:hover{ transform:translateY(-1px); background:rgba(255,255,255,0.10); border-color:rgba(255,255,255,0.22); }
+  .icon-btn.sun:hover{ background:rgba(245,176,65,0.14); border-color:rgba(245,176,65,0.35); }
+  .icon-btn.bad:hover{ background:rgba(231,76,60,0.14); border-color:rgba(231,76,60,0.35); }
+  .queue-item{
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:12px;
+    padding:10px 12px;
+    margin-bottom:10px;
+  }
+  .queue-item-top{ display:flex; gap:10px; align-items:center; justify-content:space-between; }
+  .queue-item-name{ font-weight:900; color:rgba(255,255,255,0.85); }
+  .queue-item-meta{ font-size:10px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.35); }
+
+  .toast {
+    position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(60px);
+    background:linear-gradient(90deg,#27AE60,#2ECC71);
+    color:white; font-family:'Fredoka One',cursive; font-size:18px;
+    padding:12px 32px; border-radius:50px; box-shadow:0 6px 24px rgba(0,0,0,0.4);
+    transition:transform 0.35s cubic-bezier(.34,1.56,.64,1),opacity 0.3s;
+    opacity:0; pointer-events:none; z-index:999; white-space:nowrap;
+  }
+  .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-icon">🎛️</div>
+  <div>
+    <div class="hdr-title">Teacher <span>Lewis1</span> — Controller</div>
+    <div class="hdr-sub">Type a message → pushes to OBS overlay instantly</div>
+  </div>
+  <div class="server-status err" id="srv-status">
+    <div class="status-dot"></div>
+    <span id="srv-label">Connecting…</span>
+  </div>
+</header>
+
+<div class="grid">
+
+  <!-- LEFT: Composer -->
+  <div>
+    <div class="card">
+      <div class="card-title">📢 Live Class Message</div>
+
+      <label>Eyebrow Label</label>
+      <input type="text" id="eyebrow" value="CLASS UPDATE" maxlength="30" placeholder="HOMEWORK / QUESTION / WELL DONE">
+
+      <label>Main Message</label>
+      <textarea id="message" rows="2" placeholder="e.g. Open your textbook to page 12!&#10;Use *asterisks* for gold highlight"></textarea>
+      <div class="hint">💡 Wrap words in *asterisks* to make them <span style="color:var(--sun-light)">gold</span></div>
+
+      <label>Sub-text (optional)</label>
+      <input type="text" id="sub" maxlength="80" placeholder="e.g. Take your time — no rush!">
+
+      <label>Today's Topic (side panel)</label>
+      <input type="text" id="topic" maxlength="40" placeholder="e.g. Present Simple Tense">
+
+      <button class="send-btn" onclick="sendMessage()">📤 Send to Overlay</button>
+      <button class="clear-btn" onclick="clearMessage()">✕ Clear Overlay</button>
+    </div>
+
+    <div style="margin-top:14px;">
+      <div class="preview-label">👁 Preview</div>
+      <div class="preview-box">
+        <div class="preview-eyebrow" id="prev-eyebrow">CLASS UPDATE</div>
+        <div class="preview-msg" id="prev-msg"><span style="opacity:.3">Your message here…</span></div>
+        <div class="preview-sub" id="prev-sub"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Presets -->
+  <div>
+    <div class="card">
+      <div class="card-title">⚡ Quick Send</div>
+      <div id="preset-list"></div>
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="card-title">👩‍🎓 Students & Rewards <span class="muted">per-student</span></div>
+
+      <label>Active Student</label>
+      <div class="row">
+        <select id="student-select"></select>
+        <button class="icon-btn sun" title="New student" onclick="addStudent()">➕</button>
+        <button class="icon-btn bad" title="Remove student" onclick="removeStudent()">🗑</button>
+      </div>
+      <div class="hint">Tip: pick a student, then award stars/points/badges. The overlay shows the active student.</div>
+
+      <label>Points</label>
+      <div class="row">
+        <div class="counter">
+          <div>
+            <div class="lbl">Points</div>
+            <div class="val" id="points-val">0</div>
+          </div>
+          <div class="row" style="gap:8px;flex-wrap:nowrap;">
+            <button class="icon-btn bad" onclick="addPoints(-1)">−</button>
+            <button class="icon-btn sun" onclick="addPoints(1)">+</button>
+          </div>
+        </div>
+        <button class="mini-btn" style="flex:1;" onclick="sendRewards()">Send Rewards</button>
+      </div>
+
+      <label>Badge</label>
+      <div class="row">
+        <select id="badge-select"></select>
+        <button class="mini-btn" style="flex:1;" onclick="sendBadge()">Show Badge</button>
+        <button class="mini-btn warn" style="flex:1;" onclick="clearBadge()">Clear</button>
+      </div>
+
+      <label>Stars (0–3)</label>
+      <div class="stars-row" id="stars-row-2">
+        <div class="star-pill active" data-stars="0"><span class="star-big">✕</span>0</div>
+        <div class="star-pill" data-stars="1"><span class="star-big">⭐</span>1</div>
+        <div class="star-pill" data-stars="2"><span class="star-big">⭐</span>2</div>
+        <div class="star-pill" data-stars="3"><span class="star-big">⭐</span>3</div>
+      </div>
+      <div class="stars-actions">
+        <button class="mini-btn" onclick="awardStars()">Award Stars</button>
+        <button class="mini-btn warn" onclick="resetRewards()">Reset Student</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="card-title">⏱ Timers</div>
+      <label>Countdown (seconds)</label>
+      <div class="row">
+        <input type="text" id="timer-secs" value="30" maxlength="4" style="flex:1;">
+        <button class="mini-btn" style="flex:1;" onclick="startTimer()">Start</button>
+        <button class="mini-btn warn" style="flex:1;" onclick="stopTimer()">Stop</button>
+      </div>
+      <div class="hint">Shows a big countdown on the overlay (enter seconds, e.g., 10 or 30).</div>
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="card-title">🎨 Theme</div>
+      <div class="row">
+        <select id="theme-select">
+          <option value="classic">Classic</option>
+          <option value="kids">Kids</option>
+          <option value="dark">Dark</option>
+        </select>
+        <button class="mini-btn" style="flex:1;" onclick="sendTheme()">Apply Theme</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="card-title">📱 QR Code Panels</div>
+      <div class="hint" style="margin-bottom:12px;">Slide in a QR code panel from the right. Only one shows at a time.</div>
+      <label>TikTok</label>
+      <div class="row">
+        <button class="mini-btn" style="flex:1;" onclick="showQR('tiktok')">🎵 Show TikTok QR</button>
+        <button class="mini-btn warn" style="flex:1;" onclick="hideQR('tiktok')">✕ Hide</button>
+      </div>
+      <label>Preply</label>
+      <div class="row">
+        <button class="mini-btn" style="flex:1;" onclick="showQR('preply')">� Show Preply QR</button>
+        <button class="mini-btn warn" style="flex:1;" onclick="hideQR('preply')">✕ Hide</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="card-title">🎵 Audio Settings</div>
+      <label>Sound Effects</label>
+      <div class="row">
+        <div class="counter">
+          <div>
+            <div class="lbl">Audio</div>
+            <div class="val" id="audio-status">ON</div>
+          </div>
+          <button class="icon-btn sun" id="audio-toggle" title="Toggle audio" onclick="toggleAudio()">🔊</button>
+        </div>
+      </div>
+      <div class="hint">Enable/disable sound effects for stars, badges, and messages.</div>
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="card-title">🧩 Templates & Queue</div>
+      <label>Template</label>
+      <select id="template-select"></select>
+      <div class="hint">Templates can use <b>{name}</b> (active student name).</div>
+
+      <label>Duration (seconds)</label>
+      <input type="text" id="dur-secs" value="30" maxlength="3">
+
+      <div class="row" style="margin-top:12px;">
+        <button class="mini-btn" style="flex:1;" onclick="addToQueue()">Add Current Message</button>
+        <button class="mini-btn warn" style="flex:1;" onclick="clearQueue()">Clear Queue</button>
+      </div>
+
+      <div style="margin-top:12px;">
+        <div class="tiny">Queue</div>
+        <div id="queue-list"></div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <button class="mini-btn" style="flex:1;" onclick="playQueue()">Play Queue</button>
+        <button class="mini-btn warn" style="flex:1;" onclick="stopQueue()">Stop Queue</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="card-title">🎲 Random Picker</div>
+      <label>Prompts (one per line)</label>
+      <textarea id="prompt-list" rows="4" placeholder="What did you do yesterday?&#10;Tell me your favorite food&#10;Use 3 adjectives"></textarea>
+      <div class="row" style="margin-top:10px;">
+        <button class="mini-btn" style="flex:1;" onclick="pickRandomPrompt()">Pick & Send</button>
+        <button class="mini-btn" style="flex:1;" onclick="savePrompts()">Save</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="card-title">📅 Future Events & Classes</div>
+      
+      <label>Event Title</label>
+      <input type="text" id="event-title" placeholder="e.g. TikTok Live - Beginner English" maxlength="50">
+      
+      <label>Date & Time</label>
+      <input type="text" id="event-datetime" placeholder="e.g. Tomorrow 3:00 PM" maxlength="30">
+      
+      <label>Platform</label>
+      <select id="event-platform">
+        <option value="tiktok">🎵 TikTok Live</option>
+        <option value="zoom">💻 Zoom</option>
+        <option value="youtube">📺 YouTube Live</option>
+        <option value="instagram">📷 Instagram Live</option>
+        <option value="other">🌐 Other</option>
+      </select>
+      
+      <label>Available Spaces</label>
+      <div class="row">
+        <input type="text" id="event-spaces" value="5" maxlength="3" style="flex:1;">
+        <select id="event-status" style="flex:1;">
+          <option value="available">✅ Available</option>
+          <option value="limited">⚠️ Limited</option>
+          <option value="full">🔴 Full</option>
+        </select>
+      </div>
+      
+      <label>Description (optional)</label>
+      <input type="text" id="event-desc" placeholder="e.g. Perfect for beginners - join us!" maxlength="80">
+      
+      <div class="row" style="margin-top:12px;">
+        <button class="mini-btn" style="flex:1;" onclick="addEvent()">Add Event</button>
+        <button class="mini-btn" style="flex:1;" onclick="clearEventForm()">Clear</button>
+      </div>
+      
+      <div style="margin-top:12px;">
+        <div class="tiny">Upcoming Events</div>
+        <div id="events-list"></div>
+      </div>
+      
+      <div class="row" style="margin-top:10px;">
+        <button class="mini-btn" style="flex:1;" onclick="showEventsOnOverlay()">Show on Overlay</button>
+        <button class="mini-btn warn" style="flex:1;" onclick="hideEventsOnOverlay()">Hide from Overlay</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="card-title">� Save a Custom Preset</div>
+      <label>Preset Name</label>
+      <input type="text" id="c-name" placeholder="e.g. Homework reminder" maxlength="30">
+      <label>Message</label>
+      <input type="text" id="c-msg" placeholder="e.g. Write 5 sentences!" maxlength="100">
+      <label>Eyebrow</label>
+      <input type="text" id="c-eyebrow" placeholder="HOMEWORK" maxlength="30">
+      <label>Sub-text</label>
+      <input type="text" id="c-sub" maxlength="80">
+      <button class="send-btn" style="font-size:15px;padding:10px;" onclick="savePreset()">💾 Save Preset</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── Helpers ── */
+function safeJsonParse(s, fallback){
+  try{ return JSON.parse(s); }catch(e){ return fallback; }
+}
+function now(){ return Date.now(); }
+function clamp(n,min,max){ n=Number(n); if(!isFinite(n)) return min; return Math.max(min,Math.min(max,Math.round(n))); }
+function postMessage(payload){
+  return fetch('/message',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).then(function(r){return r.json();});
+}
+
+/* ── Presets ── */
+var BUILT_IN=[
+  {name:'📖 Open Your Book',   eyebrow:'ACTIVITY',   message:"*Open* your textbook!",     sub:"We're starting now 😊"},
+  {name:'🎉 Great Work!',       eyebrow:'WELL DONE',  message:"*Amazing* work today!",     sub:"I'm so proud of you!"},
+  {name:'⏸ Short Break',       eyebrow:'BREAK TIME', message:"5-minute *break*!",          sub:"Back soon — rest your eyes!"},
+  {name:'🤔 Think & Answer',    eyebrow:'YOUR TURN',  message:"What do *you* think?",      sub:"Take your time, no rush!"},
+  {name:'📝 Homework',          eyebrow:'HOMEWORK',   message:"Write *5 sentences*",        sub:"Due next lesson!"},
+  {name:'🔇 Listen Carefully',  eyebrow:'LISTEN',     message:"*Listen* carefully!",        sub:"I'll ask you a question after"},
+  {name:'🌟 Starting Soon',     eyebrow:'WELCOME',    message:"Class *starting soon!*",    sub:"Get ready 😊"},
+  {name:'👋 Class Over!',        eyebrow:'SEE YOU',    message:"*Great* class today!",      sub:"See you next time!"},
+];
+var custom=[];
+try{custom=JSON.parse(localStorage.getItem('tl1_presets')||'[]');}catch(e){}
+
+function renderPresets(){
+  var list=document.getElementById('preset-list');
+  list.innerHTML='';
+  BUILT_IN.concat(custom).forEach(function(p,i){
+    var btn=document.createElement('button');
+    btn.className='preset-btn';
+    btn.innerHTML='<span>'+p.name+'</span><span class="preset-tag">'+p.eyebrow+'</span>';
+    btn.addEventListener('click',function(){
+      document.getElementById('eyebrow').value=p.eyebrow||'CLASS UPDATE';
+      document.getElementById('message').value=p.message||'';
+      document.getElementById('sub').value=p.sub||'';
+      updatePreview();
+      sendMessage();
+    });
+    if(i>=BUILT_IN.length){
+      var del=document.createElement('span');
+      del.textContent=' ✕';
+      del.style.cssText='color:rgba(255,100,100,0.5);font-size:13px;cursor:pointer;margin-left:8px;';
+      del.addEventListener('click',function(e){
+        e.stopPropagation();
+        custom.splice(i-BUILT_IN.length,1);
+        localStorage.setItem('tl1_presets',JSON.stringify(custom));
+        renderPresets();
+      });
+      btn.appendChild(del);
+    }
+    list.appendChild(btn);
+  });
+}
+renderPresets();
+
+function savePreset(){
+  var n=document.getElementById('c-name').value.trim();
+  var m=document.getElementById('c-msg').value.trim();
+  if(!n||!m){alert('Please fill in a name and message.');return;}
+  custom.push({name:n,message:m,eyebrow:document.getElementById('c-eyebrow').value.trim()||'UPDATE',sub:document.getElementById('c-sub').value.trim()});
+  localStorage.setItem('tl1_presets',JSON.stringify(custom));
+  renderPresets();
+  ['c-name','c-msg','c-eyebrow','c-sub'].forEach(function(id){document.getElementById(id).value='';});
+  showToast('💾 Preset saved!');
+}
+
+/* ── Preview ── */
+function hl(t){ return (t||'').replace(/\*(.*?)\*/g,'<span class="hl">$1</span>'); }
+function updatePreview(){
+  document.getElementById('prev-eyebrow').textContent=(document.getElementById('eyebrow').value||'CLASS UPDATE').toUpperCase();
+  var m=document.getElementById('message').value;
+  document.getElementById('prev-msg').innerHTML=m?hl(m):'<span style="opacity:.3">Your message here…</span>';
+  document.getElementById('prev-sub').textContent=document.getElementById('sub').value||'';
+}
+['eyebrow','message','sub'].forEach(function(id){ document.getElementById(id).addEventListener('input',updatePreview); });
+
+/* ── Students + rewards state ── */
+var STUD_KEY='tl1_students_v1';
+var ACTIVE_KEY='tl1_active_student_v1';
+var students = safeJsonParse(localStorage.getItem(STUD_KEY)||'null', null) || [
+  {id:'class', name:'Class', stars:0, points:0, badge:''}
+];
+var activeStudentId = localStorage.getItem(ACTIVE_KEY) || (students[0] && students[0].id) || 'class';
+var currentStars=0; // UI selection for awarding
+var queue = safeJsonParse(localStorage.getItem('tl1_queue_v1')||'[]', []) || [];
+var queuePlaying=false;
+var queueStopToken=0;
+
+var BADGES=[
+  '', 'Great Listener', 'Pronunciation Pro', 'Super Speaker', 'Vocabulary Star', 'Amazing Effort', 'Perfect Grammar', 'Brave Try'
+];
+var TEMPLATES=[
+  {name:'👏 Praise', eyebrow:'WELL DONE', message:'Great job, *{name}*!', sub:'Keep going!'},
+  {name:'🗣 Speak', eyebrow:'SPEAKING', message:'{name}, tell me *3 sentences*.', sub:'Take your time 😊'},
+  {name:'👂 Listen', eyebrow:'LISTEN', message:'*Listen* carefully!', sub:'I will ask you a question'},
+  {name:'📝 Homework', eyebrow:'HOMEWORK', message:'{name}, write *5 sentences*.', sub:'Due next lesson'},
+  {name:'⏸ Break', eyebrow:'BREAK', message:'2-minute *break*!', sub:'Back soon'}
+];
+
+function saveStudents(){
+  localStorage.setItem(STUD_KEY, JSON.stringify(students));
+  localStorage.setItem(ACTIVE_KEY, activeStudentId);
+}
+function getStudent(){
+  return students.find(function(s){return s.id===activeStudentId;}) || students[0];
+}
+function renderStudents(){
+  var sel=document.getElementById('student-select');
+  sel.innerHTML='';
+  students.forEach(function(s){
+    var opt=document.createElement('option');
+    opt.value=s.id;
+    opt.textContent=s.name;
+    sel.appendChild(opt);
+  });
+  sel.value=activeStudentId;
+  var st=getStudent();
+  document.getElementById('points-val').textContent=String(st.points||0);
+  currentStars = clamp(st.stars||0,0,3);
+  renderStarPills('#stars-row-2', currentStars);
+  renderBadges();
+}
+function renderBadges(){
+  var bsel=document.getElementById('badge-select');
+  bsel.innerHTML='';
+  BADGES.forEach(function(b){
+    var opt=document.createElement('option');
+    opt.value=b;
+    opt.textContent=b?('🏅 '+b):'— None —';
+    bsel.appendChild(opt);
+  });
+  bsel.value=(getStudent().badge||'');
+}
+
+function addStudent(){
+  var name=prompt('Student name?');
+  if(!name) return;
+  name=name.trim();
+  if(!name) return;
+  var id=('s_'+now()+'_'+Math.random().toString(16).slice(2,6));
+  students.push({id:id, name:name.slice(0,40), stars:0, points:0, badge:''});
+  activeStudentId=id;
+  saveStudents();
+  renderStudents();
+  showToast('✅ Student added');
+  sendActiveStudent();
+}
+function removeStudent(){
+  if(students.length<=1){ alert('You need at least one student.'); return; }
+  var st=getStudent();
+  if(!confirm('Remove '+st.name+'?')) return;
+  students = students.filter(function(s){ return s.id !== st.id; });
+  activeStudentId = students[0].id;
+  saveStudents();
+  renderStudents();
+  showToast('🗑 Student removed');
+  sendActiveStudent();
+}
+document.getElementById('student-select').addEventListener('change', function(){
+  activeStudentId=this.value;
+  saveStudents();
+  renderStudents();
+  sendActiveStudent();
+});
+
+function renderStarPills(rootSel, val){
+  document.querySelectorAll(rootSel+' .star-pill').forEach(function(p){
+    p.classList.toggle('active', Number(p.getAttribute('data-stars')) === val);
+  });
+}
+document.querySelectorAll('#stars-row-2 .star-pill').forEach(function(p){
+  p.addEventListener('click', function(){
+    currentStars = Number(p.getAttribute('data-stars'))||0;
+    renderStarPills('#stars-row-2', currentStars);
+  });
+});
+
+function sendActiveStudent(){
+  var st=getStudent();
+  postMessage({ type:'state', activeStudentId: st.id, student: st, _ts: now() })
+    .then(function(d){ /* noop */ })
+    .catch(function(){});
+}
+
+function addPoints(delta){
+  var st=getStudent();
+  st.points = clamp((st.points||0)+delta, 0, 999);
+  saveStudents();
+  renderStudents();
+  // Send as a tally adjustment so it always accumulates correctly on the overlay
+  postMessage({ type:'points', activeStudentId: st.id, student: st, deltaPoints: delta, _ts: now() })
+    .then(function(d){ /* silent */ })
+    .catch(function(){ /* silent */ });
+}
+function sendRewards(){
+  var st=getStudent();
+  st.stars = clamp(st.stars||0,0,3);
+  st.points = clamp(st.points||0,0,999);
+  st.badge = document.getElementById('badge-select').value || '';
+  saveStudents();
+  renderStudents();
+  postMessage({ type:'rewards', activeStudentId: st.id, student: st, roar: true, _ts: now() })
+    .then(function(d){ showToast(d.pushed>0?'⭐ Rewards sent':'⚠ No OBS connected'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+function awardStars(){
+  var st=getStudent();
+  st.stars = clamp(currentStars,0,3);
+  saveStudents();
+  renderStudents();
+  postMessage({ type:'rewards', activeStudentId: st.id, student: st, roar: true, _ts: now() })
+    .then(function(d){ showToast(d.pushed>0?'🦁 Star roar!':'⚠ No OBS connected'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+function resetRewards(){
+  var st=getStudent();
+  st.stars=0; st.points=0; st.badge='';
+  saveStudents();
+  renderStudents();
+  postMessage({ type:'rewards', activeStudentId: st.id, student: st, roar: false, _ts: now() })
+    .then(function(d){ showToast(d.pushed>0?'↩ Reset sent':'⚠ No OBS connected'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+function sendBadge(){
+  var st=getStudent();
+  st.badge=document.getElementById('badge-select').value||'';
+  saveStudents();
+  postMessage({ type:'badge', activeStudentId: st.id, student: st, badge: st.badge, _ts: now() })
+    .then(function(d){ showToast(d.pushed>0?'🏅 Badge shown':'⚠ No OBS connected'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+function clearBadge(){
+  document.getElementById('badge-select').value='';
+  sendBadge();
+}
+
+/* ── Send via POST to server ── */
+function buildPayload(){
+  var st=getStudent();
+  return {
+    message: document.getElementById('message').value.trim(),
+    eyebrow: document.getElementById('eyebrow').value.trim()||'CLASS UPDATE',
+    sub:     document.getElementById('sub').value.trim(),
+    topic:   document.getElementById('topic').value.trim(),
+    durationMs: clamp(document.getElementById('dur-secs').value||30, 1, 120) * 1000,
+    type: 'message',
+    activeStudentId: st.id,
+    student: st,
+    _ts:     Date.now()
+  };
+}
+
+function sendMessage(){
+  postMessage(buildPayload())
+    .then(function(d){ showToast(d.pushed>0?'✓ Sent to OBS!':'⚠ No OBS connected'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+
+function clearMessage(){
+  document.getElementById('message').value='';
+  document.getElementById('sub').value='';
+  document.getElementById('eyebrow').value='CLASS UPDATE';
+  updatePreview();
+  postMessage({ type:'message', message:'', eyebrow:'CLASS UPDATE', sub:'', durationMs: 1, _ts: now() }).catch(function(){});
+  showToast('🗑 Overlay cleared');
+}
+
+/* ── Server status check ── */
+var srvEl=document.getElementById('srv-status');
+var srvLbl=document.getElementById('srv-label');
+function checkServer(){
+  fetch('/status')
+    .then(function(r){ return r.json(); })
+    .then(function(s){
+      srvEl.className='server-status ok';
+      srvLbl.textContent='Online · OBS '+(s.clients||0);
+    })
+    .catch(function(){
+      srvEl.className='server-status err';
+      srvLbl.textContent='Server Offline';
+    });
+}
+checkServer(); setInterval(checkServer,5000);
+
+/* ── Timers ── */
+var timerToken=0;
+function startTimer(){
+  var secs = clamp(document.getElementById('timer-secs').value||30, 0, 9999);
+  var ms = secs * 1000;
+  timerToken++;
+  postMessage({ type:'timer', mode:'countdown', state:'start', ms: ms, startedAt: now(), token: timerToken, _ts: now() })
+    .then(function(d){ showToast(d.pushed>0?'⏱ Timer started':'⚠ No OBS connected'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+function stopTimer(){
+  timerToken++;
+  postMessage({ type:'timer', mode:'countdown', state:'stop', token: timerToken, _ts: now() })
+    .then(function(d){ showToast(d.pushed>0?'⏹ Timer stopped':'⚠ No OBS connected'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+
+/* ── QR Code Panels ── */
+function showQR(platform){
+  postMessage({ type: platform + '-qr', show: true, _ts: now() })
+    .then(function(d){ showToast(d.pushed>0?'📱 '+platform+' QR shown':'⚠ No OBS connected'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+function hideQR(platform){
+  postMessage({ type: platform + '-qr', show: false, _ts: now() })
+    .then(function(d){ showToast(d.pushed>0?'✕ '+platform+' QR hidden':'⚠ No OBS connected'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+
+/* ── Audio ── */
+function toggleAudio(){
+  var enabled = localStorage.getItem('tl1_audio_enabled') !== 'false';
+  enabled = !enabled;
+  localStorage.setItem('tl1_audio_enabled', String(enabled));
+  
+  var statusEl = document.getElementById('audio-status');
+  var toggleEl = document.getElementById('audio-toggle');
+  
+  if(enabled) {
+    statusEl.textContent = 'ON';
+    toggleEl.textContent = '🔊';
+    showToast('🔊 Audio enabled');
+  } else {
+    statusEl.textContent = 'OFF';
+    toggleEl.textContent = '🔇';
+    showToast('🔇 Audio disabled');
+  }
+  
+  // Notify overlay
+  postMessage({ type:'audio', enabled: enabled, _ts: now() }).catch(function(){});
+}
+
+function initAudioStatus(){
+  var enabled = localStorage.getItem('tl1_audio_enabled') !== 'false';
+  var statusEl = document.getElementById('audio-status');
+  var toggleEl = document.getElementById('audio-toggle');
+  
+  if(enabled) {
+    statusEl.textContent = 'ON';
+    toggleEl.textContent = '🔊';
+  } else {
+    statusEl.textContent = 'OFF';
+    toggleEl.textContent = '🔇';
+  }
+}
+
+/* ── Theme ── */
+function sendTheme(){
+  var t=document.getElementById('theme-select').value||'classic';
+  postMessage({ type:'theme', theme: t, _ts: now() })
+    .then(function(d){ showToast(d.pushed>0?'🎨 Theme applied':'⚠ No OBS connected'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+
+/* ── Templates ── */
+function renderTemplates(){
+  var sel=document.getElementById('template-select');
+  sel.innerHTML='';
+  TEMPLATES.forEach(function(t,idx){
+    var opt=document.createElement('option');
+    opt.value=String(idx);
+    opt.textContent=t.name;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', applyTemplateFromSelect);
+}
+function applyTemplateFromSelect(){
+  var idx=Number(document.getElementById('template-select').value||0);
+  var t=TEMPLATES[idx] || TEMPLATES[0];
+  var st=getStudent();
+  document.getElementById('eyebrow').value=t.eyebrow;
+  document.getElementById('message').value=(t.message||'').replace(/\{name\}/g, st.name||'');
+  document.getElementById('sub').value=(t.sub||'').replace(/\{name\}/g, st.name||'');
+  updatePreview();
+}
+
+/* ── Queue ── */
+function saveQueue(){
+  localStorage.setItem('tl1_queue_v1', JSON.stringify(queue));
+}
+function renderQueue(){
+  var wrap=document.getElementById('queue-list');
+  wrap.innerHTML='';
+  if(!queue.length){
+    wrap.innerHTML='<div class="hint">No queued items yet.</div>';
+    return;
+  }
+  queue.forEach(function(it, idx){
+    var div=document.createElement('div');
+    div.className='queue-item';
+    div.innerHTML =
+      '<div class="queue-item-top">'+
+        '<div class="queue-item-name">'+(it.eyebrow||'UPDATE')+'</div>'+
+        '<div class="queue-item-meta">'+Math.round((it.durationMs||10000)/1000)+'s</div>'+
+      '</div>'+
+      '<div class="hint" style="margin-top:6px;">'+(it.message||'').replace(/</g,'&lt;')+'</div>'+
+      '<div class="row" style="margin-top:10px;">'+
+        '<button class="mini-btn warn" style="flex:1;" data-del="'+idx+'">Remove</button>'+
+      '</div>';
+    div.querySelector('[data-del]').addEventListener('click', function(){
+      var i=Number(this.getAttribute('data-del'));
+      queue.splice(i,1);
+      saveQueue(); renderQueue();
+    });
+    wrap.appendChild(div);
+  });
+}
+function addToQueue(){
+  var p=buildPayload();
+  queue.push({ eyebrow:p.eyebrow, message:p.message, sub:p.sub, topic:p.topic, durationMs:p.durationMs });
+  saveQueue(); renderQueue();
+  showToast('➕ Added to queue');
+}
+function clearQueue(){
+  queue=[];
+  saveQueue(); renderQueue();
+  showToast('🧹 Queue cleared');
+}
+function playQueue(){
+  if(!queue.length){ showToast('⚠ Queue empty'); return; }
+  queuePlaying=true;
+  queueStopToken++;
+  var myToken=queueStopToken;
+  var st=getStudent();
+  var payload={ type:'queue', activeStudentId: st.id, student: st, queue: queue, _ts: now() };
+  postMessage(payload)
+    .then(function(d){ showToast(d.pushed>0?'▶ Playing queue':'⚠ No OBS connected'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+function stopQueue(){
+  queuePlaying=false;
+  queueStopToken++;
+  postMessage({ type:'queue', state:'stop', _ts: now() })
+    .then(function(d){ showToast(d.pushed>0?'⏹ Queue stopped':'⚠ No OBS connected'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+
+/* ── Random picker ── */
+function savePrompts(){
+  localStorage.setItem('tl1_prompts_v1', document.getElementById('prompt-list').value||'');
+  showToast('💾 Prompts saved');
+}
+function loadPrompts(){
+  var s=localStorage.getItem('tl1_prompts_v1');
+  if(s) document.getElementById('prompt-list').value=s;
+}
+function pickRandomPrompt(){
+  var lines=(document.getElementById('prompt-list').value||'').split(/\r?\n/).map(function(x){return x.trim();}).filter(Boolean);
+  if(!lines.length){ showToast('⚠ Add some prompts'); return; }
+  var pick=lines[Math.floor(Math.random()*lines.length)];
+  document.getElementById('eyebrow').value='YOUR TURN';
+  document.getElementById('message').value=pick;
+  document.getElementById('sub').value='';
+  updatePreview();
+  sendMessage();
+}
+
+/* ── Toast ── */
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2200);
+}
+
+/* Enter to send */
+document.getElementById('message').addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
+});
+
+/* ── Poll for timer-ended events ── */
+(function(){
+  var lastSeen = 0;
+  function poll(){
+    fetch('/last-message')
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d.type === 'timer-ended' && d.ts && d.ts > lastSeen && (d.now - d.ts) < 5000) {
+          lastSeen = d.ts;
+          showToast('⏰ Timer finished!');
+        }
+      })
+      .catch(function(){});
+  }
+  setInterval(poll, 2000);
+})();
+
+/* ── Events Management ── */
+var EVENTS_KEY='tl1_events_v1';
+var events = safeJsonParse(localStorage.getItem(EVENTS_KEY)||'[]', []) || [];
+var eventsVisibleOnOverlay = false;
+
+function saveEvents(){
+  localStorage.setItem(EVENTS_KEY, JSON.stringify(events));
+}
+
+function renderEvents(){
+  var wrap=document.getElementById('events-list');
+  wrap.innerHTML='';
+  if(!events.length){
+    wrap.innerHTML='<div class="hint">No upcoming events yet.</div>';
+    return;
+  }
+  events.forEach(function(evt, idx){
+    var div=document.createElement('div');
+    div.className='queue-item';
+    
+    var statusIcon = evt.status === 'available' ? '✅' : evt.status === 'limited' ? '⚠️' : '🔴';
+    var platformIcon = {
+      'tiktok': '🎵',
+      'zoom': '💻', 
+      'youtube': '📺',
+      'instagram': '📷',
+      'other': '🌐'
+    }[evt.platform] || '🌐';
+    
+    div.innerHTML =
+      '<div class="queue-item-top">'+
+        '<div class="queue-item-name">'+platformIcon+' '+evt.title+'</div>'+
+        '<div class="queue-item-meta">'+statusIcon+' '+evt.spaces+' spaces</div>'+
+      '</div>'+
+      '<div class="hint" style="margin-top:6px;">📅 '+evt.datetime+'</div>'+
+      (evt.desc ? '<div class="hint" style="margin-top:4px;">'+evt.desc+'</div>' : '')+
+      '<div class="row" style="margin-top:10px;">'+
+        '<button class="mini-btn" style="flex:1;" data-edit="'+idx+'">Edit</button>'+
+        '<button class="mini-btn warn" style="flex:1;" data-del="'+idx+'">Delete</button>'+
+      '</div>';
+    
+    div.querySelector('[data-del]').addEventListener('click', function(){
+      var i=Number(this.getAttribute('data-del'));
+      if(confirm('Delete this event?')) {
+        events.splice(i,1);
+        saveEvents(); renderEvents();
+        showToast('🗑 Event deleted');
+        if(eventsVisibleOnOverlay) updateEventsOnOverlay();
+      }
+    });
+    
+    div.querySelector('[data-edit]').addEventListener('click', function(){
+      var i=Number(this.getAttribute('data-edit'));
+      var evt = events[i];
+      document.getElementById('event-title').value = evt.title || '';
+      document.getElementById('event-datetime').value = evt.datetime || '';
+      document.getElementById('event-platform').value = evt.platform || 'tiktok';
+      document.getElementById('event-spaces').value = evt.spaces || '5';
+      document.getElementById('event-status').value = evt.status || 'available';
+      document.getElementById('event-desc').value = evt.desc || '';
+      events.splice(i,1);
+      saveEvents(); renderEvents();
+      showToast('✏️ Editing event - make changes and click Add Event');
+    });
+    
+    wrap.appendChild(div);
+  });
+}
+
+function addEvent(){
+  var title = document.getElementById('event-title').value.trim();
+  var datetime = document.getElementById('event-datetime').value.trim();
+  var platform = document.getElementById('event-platform').value;
+  var spaces = document.getElementById('event-spaces').value.trim();
+  var status = document.getElementById('event-status').value;
+  var desc = document.getElementById('event-desc').value.trim();
+  
+  if(!title || !datetime){
+    showToast('⚠ Please fill in title and date/time');
+    return;
+  }
+  
+  events.push({
+    id: 'evt_' + Date.now(),
+    title: title,
+    datetime: datetime,
+    platform: platform,
+    spaces: spaces,
+    status: status,
+    desc: desc,
+    createdAt: Date.now()
+  });
+  
+  saveEvents();
+  renderEvents();
+  clearEventForm();
+  showToast('✅ Event added!');
+  
+  if(eventsVisibleOnOverlay) updateEventsOnOverlay();
+}
+
+function clearEventForm(){
+  document.getElementById('event-title').value = '';
+  document.getElementById('event-datetime').value = '';
+  document.getElementById('event-platform').value = 'tiktok';
+  document.getElementById('event-spaces').value = '5';
+  document.getElementById('event-status').value = 'available';
+  document.getElementById('event-desc').value = '';
+}
+
+function showEventsOnOverlay(){
+  if(!events.length){
+    showToast('⚠ Add some events first');
+    return;
+  }
+  eventsVisibleOnOverlay = true;
+  updateEventsOnOverlay();
+  showToast('📅 Events shown on overlay');
+}
+
+function hideEventsOnOverlay(){
+  eventsVisibleOnOverlay = false;
+  postMessage({ type: 'events', show: false, _ts: now() })
+    .then(function(d){ showToast('📅 Events hidden from overlay'); })
+    .catch(function(){ showToast('❌ Server not running'); });
+}
+
+function updateEventsOnOverlay(){
+  postMessage({ 
+    type: 'events', 
+    show: eventsVisibleOnOverlay,
+    events: eventsVisibleOnOverlay ? events.slice(0,3) : [], // Show max 3 events
+    _ts: now() 
+  }).catch(function(){});
+}
+
+// Initialize events on load
+renderEvents();
+
+/* init */
+renderStudents();
+renderTemplates();
+applyTemplateFromSelect();
+renderQueue();
+renderEvents();
+initAudioStatus();
+sendActiveStudent();
+</script>
+</body>
+</html>

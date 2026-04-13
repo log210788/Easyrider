@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Match! Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sky: #fff9f0; --yellow: #FFD93D; --orange: #FF6B35; --pink: #FF6B9D;
+      --purple: #9B59B6; --blue: #4ECDC4; --green: #95E06C; --red: #FF4757;
+      --card-back: #7c6fff; --card-back2: #a98bff; --shadow: rgba(0,0,0,0.12);
+      --text-dark: #3a3060;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; font-family: 'Nunito', sans-serif; background: var(--sky); }
+    
+    body { display: flex; padding: 10px; gap: 10px; }
+
+    /* Sidebar */
+    .instructions-panel {
+      width: 200px; background: white; border-radius: 20px; padding: 15px;
+      box-shadow: 0 6px 22px var(--shadow); display: flex; flex-direction: column; z-index: 10;
+    }
+    .panel-title { font-family: 'Fredoka One'; font-size: 18px; color: var(--orange); text-align: center; }
+    .best-score-box { margin-top: 15px; padding: 10px; background: #f8f4ff; border-radius: 12px; font-size: 13px; color: var(--purple); }
+    .best-val { font-weight: 800; color: var(--orange); float: right; }
+
+    /* Main Area */
+    .wrapper { flex: 1; display: flex; flex-direction: column; position: relative; }
+    header { text-align: center; margin-bottom: 5px; }
+    .title { font-family: 'Fredoka One'; font-size: clamp(24px, 4vw, 40px); color: var(--orange); text-shadow: 2px 2px 0 var(--yellow); }
+
+    .controls-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .stat-bubble { background: white; padding: 5px 15px; border-radius: 50px; box-shadow: 0 3px 10px var(--shadow); font-weight: 800; font-size: 14px; }
+    
+    .diff-btn { 
+      font-family: 'Fredoka One'; border: none; padding: 5px 12px; border-radius: 50px; 
+      cursor: pointer; background: white; transition: 0.2s; box-shadow: 0 3px 8px var(--shadow);
+    }
+    .diff-btn.active { background: var(--orange); color: white; }
+
+    .grid-wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
+    .grid { display: grid; gap: 8px; }
+
+    /* Card Styling */
+    .card { perspective: 1000px; cursor: pointer; }
+    .card-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.4s; }
+    .card.flipped .card-inner { transform: rotateY(180deg); }
+    .card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .card-back { background: linear-gradient(135deg, var(--card-back), var(--card-back2)); color: white; font-family: 'Fredoka One'; font-size: 24px; }
+    .card-front { background: white; transform: rotateY(180deg); border: 2px solid #eee; }
+    .card-emoji { font-size: 2rem; }
+    .card-word { font-size: 0.7rem; font-weight: 800; color: var(--text-dark); }
+    
+    .card.matched .card-front { border-color: var(--green); background: #f0fff4; }
+    .card.shake .card-inner { animation: shake 0.4s; }
+    @keyframes shake { 0%,100%{transform:rotateY(180deg) translateX(0)} 25%{transform:rotateY(180deg) translateX(-5px)} 75%{transform:rotateY(180deg) translateX(5px)} }
+
+    /* Overlay */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .overlay.show { display: flex; }
+    .win-box { background: white; padding: 30px; border-radius: 25px; text-align: center; max-width: 300px; animation: pop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.49); }
+    @keyframes pop { from{transform:scale(0.5)} to{transform:scale(1)} }
+    
+    .new-game-btn { 
+      margin-top: 15px; font-family: 'Fredoka One'; background: var(--orange); color: white; 
+      border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; width: 100%;
+    }
+
+    .confetti { position: absolute; width: 8px; height: 8px; pointer-events: none; z-index: 99; border-radius: 50%; }
+  </style>
+</head>
+<body>
+
+<aside class="instructions-panel">
+  <div class="panel-title">Memory Match</div>
+  <div class="best-score-box">
+    <div>Easy Best: <span class="best-val" id="best-easy">--</span></div>
+    <div style="margin-top:5px">Med Best: <span class="best-val" id="best-medium">--</span></div>
+    <div style="margin-top:5px">Hard Best: <span class="best-val" id="best-hard">--</span></div>
+  </div>
+  <button class="new-game-btn" onclick="startGame()" style="font-size: 14px;">🔄 Reset Game</button>
+</aside>
+
+<div class="wrapper">
+  <header>
+    <div class="title">Find the Pairs! 🧠</div>
+  </header>
+
+  <div class="controls-row">
+    <div class="stat-bubble">👆 Tries: <span id="moves">0</span></div>
+    <div class="stat-bubble">⏱️ Time: <span id="timer">0:00</span></div>
+    <button class="diff-btn active" onclick="setDiff(this,'easy')">Easy</button>
+    <button class="diff-btn" onclick="setDiff(this,'medium')">Med</button>
+    <button class="diff-btn" onclick="setDiff(this,'hard')">Hard</button>
+  </div>
+
+  <div class="grid-wrap">
+    <div id="grid" class="grid"></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="win-box">
+    <h2 style="color: var(--orange); font-family: 'Fredoka One'; font-size: 32px;">YOU WIN!</h2>
+    <p id="win-msg" style="margin: 10px 0; font-weight: bold; color: var(--purple);"></p>
+    <button class="new-game-btn" onclick="startGame()">Play Again</button>
+  </div>
+</div>
+
+<script>
+  // --- Audio Engine ---
+  let audioCtx = null;
+  function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function playSound(freq, type = 'sine', duration = 0.2) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  }
+
+  // --- Game Data ---
+  const EMOJIS = [{e:'🐶',w:'Dog'},{e:'🐱',w:'Cat'},{e:'🐭',w:'Mouse'},{e:'🐹',w:'Hamster'},{e:'🐰',w:'Rabbit'},{e:'🦊',w:'Fox'},{e:'🐻',w:'Bear'},{e:'🐼',w:'Panda'},{e:'🐨',w:'Koala'},{e:'🐯',w:'Tiger'},{e:'🦁',w:'Lion'},{e:'🐸',w:'Frog'},{e:'🐙',w:'Octopus'},{e:'🦋',w:'Butterfly'},{e:'🌈',w:'Rainbow'},{e:'🍦',w:'Ice Cream'},{e:'🚀',w:'Rocket'},{e:'🎈',w:'Balloon'}];
+  const CONFIGS = { easy: {p:8, c:4}, medium: {p:12, c:6}, hard: {p:18, c:9} };
+  
+  let difficulty = 'easy', flipped = [], matched = 0, moves = 0, seconds = 0, timerInterval = null, isLock = false;
+
+  // --- Core Functions ---
+  function setDiff(btn, d) {
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    difficulty = d;
+    startGame();
+  }
+
+  function updateBestScores() {
+    ['easy','medium','hard'].forEach(d => {
+      const best = localStorage.getItem('best_'+d);
+      document.getElementById('best-'+d).textContent = best ? best : '--';
+    });
+  }
+
+  function startGame() {
+    initAudio();
+    clearInterval(timerInterval);
+    flipped = []; matched = 0; moves = 0; seconds = 0; isLock = false;
+    document.getElementById('moves').textContent = '0';
+    document.getElementById('timer').textContent = '0:00';
+    document.getElementById('overlay').classList.remove('show');
+    updateBestScores();
+
+    const cfg = CONFIGS[difficulty];
+    const pool = [...EMOJIS].sort(() => Math.random() - 0.5).slice(0, cfg.p);
+    const deck = [...pool, ...pool].sort(() => Math.random() - 0.5);
+
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    grid.style.gridTemplateColumns = `repeat(${cfg.c}, 1fr)`;
+
+    // Calculate card size
+    const wrap = document.querySelector('.grid-wrap');
+    const cardW = Math.min(100, (wrap.clientWidth - 50) / cfg.c);
+    
+    deck.forEach((item, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.width = cardW + 'px';
+      card.style.height = (cardW * 1.2) + 'px';
+      card.innerHTML = `
+        <div class="card-inner">
+          <div class="card-face card-back">${i+1}</div>
+          <div class="card-face card-front">
+            <span class="card-emoji">${item.e}</span>
+            <span class="card-word">${item.w}</span>
+          </div>
+        </div>`;
+      card.onclick = () => flipCard(card, item.e);
+      grid.appendChild(card);
+    });
+  }
+
+  function flipCard(card, emoji) {
+    if (isLock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+    
+    if (moves === 0 && flipped.length === 0) {
+      timerInterval = setInterval(() => {
+        seconds++;
+        const m = Math.floor(seconds/60), s = String(seconds%60).padStart(2,'0');
+        document.getElementById('timer').textContent = `${m}:${s}`;
+      }, 1000);
+    }
+
+    playSound(440);
+    card.classList.add('flipped');
+    flipped.push({card, emoji});
+
+    if (flipped.length === 2) {
+      moves++;
+      document.getElementById('moves').textContent = moves;
+      isLock = true;
+      checkMatch();
+    }
+  }
+
+  function checkMatch() {
+    const [a, b] = flipped;
+    if (a.emoji === b.emoji) {
+      setTimeout(() => {
+        a.card.classList.add('matched');
+        b.card.classList.add('matched');
+        matched++;
+        playSound(880, 'triangle');
+        flipped = []; isLock = false;
+        if (matched === CONFIGS[difficulty].p) winGame();
+      }, 500);
+    } else {
+      setTimeout(() => {
+        a.card.classList.add('shake');
+        b.card.classList.add('shake');
+        playSound(200, 'square');
+        setTimeout(() => {
+          a.card.classList.remove('flipped', 'shake');
+          b.card.classList.remove('flipped', 'shake');
+          flipped = []; isLock = false;
+        }, 400);
+      }, 500);
+    }
+  }
+
+  function winGame() {
+    clearInterval(timerInterval);
+    const bestKey = 'best_' + difficulty;
+    const currentBest = localStorage.getItem(bestKey);
+    let msg = "You matched them all!";
+    
+    if (!currentBest || moves < parseInt(currentBest)) {
+      localStorage.setItem(bestKey, moves);
+      msg = "🎉 NEW BEST SCORE: " + moves + " tries!";
+    }
+    
+    document.getElementById('win-msg').textContent = msg;
+    document.getElementById('overlay').classList.add('show');
+    playSound(1200, 'sine', 0.5);
+  }
+
+  // Handle Audio Context on first click
+  document.addEventListener('click', initAudio, { once: true });
+  
+  // Initial Start
+  startGame();
+</script>
+
+</body>
+</html>

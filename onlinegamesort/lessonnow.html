@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentence Slam & Pachinko!</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito', sans-serif; background: #0d0d2b; }
+  .screen { position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .screen.hidden { display: none; }
+  .head-bubble { position: fixed; top: 58px; right: 14px; width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 3px solid rgba(255,255,255,0.3); z-index: 999; outline: 3px dashed rgba(180,100,255,0.35); outline-offset: 4px; }
+  .top-bar { background: #111; padding: 11px 18px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; padding-right: 120px; }
+  .top-bar-title { color: white; font-size: 16px; font-weight: 800; }
+  .live-badge { background: #ff3b5c; color: white; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 5px; }
+  .tiktok-bottom { background: #111; padding: 8px 20px 12px; display: flex; justify-content: space-around; align-items: center; flex-shrink: 0; }
+  .tb-icon { color: #ffffff44; font-size: 20px; }
+
+  @keyframes popIn { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+  @keyframes bounceAnim { 0%{transform:translateY(0)} 50%{transform:translateY(-12px)} 100%{transform:translateY(0)} }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+  @keyframes wiggle { 0%,100%{transform:rotate(-2deg)} 50%{transform:rotate(2deg)} }
+  @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+  @keyframes ballEarned { 0%{transform:scale(0) translateY(0);opacity:1} 60%{transform:scale(1.4) translateY(-20px);opacity:1} 100%{transform:scale(1) translateY(-40px);opacity:0} }
+
+  /* INTRO */
+  #screenIntro { background: linear-gradient(170deg, #0d0d2b 0%, #1a0a3a 100%); }
+  .intro-body { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; padding:24px; gap:18px; text-align:center; }
+  .intro-emoji { font-size:64px; animation:bounceAnim 1.5s infinite; }
+  .intro-title { font-size:28px; font-weight:900; color:white; line-height:1.2; }
+  .intro-sub { font-size:15px; font-weight:700; color:rgba(255,255,255,0.55); line-height:1.6; }
+  .intro-cards { display:flex; gap:10px; width:100%; }
+  .intro-card { flex:1; background:rgba(255,255,255,0.07); border:2px solid rgba(255,255,255,0.12); border-radius:16px; padding:12px 8px; text-align:center; }
+  .intro-card-emoji { font-size:24px; }
+  .intro-card-text { font-size:12px; font-weight:800; color:rgba(255,255,255,0.7); margin-top:4px; line-height:1.3; }
+  .big-action-btn { width:100%; padding:18px; border-radius:20px; border:none; font-family:'Nunito',sans-serif; font-size:22px; font-weight:900; cursor:pointer; background:#ff3b5c; color:white; box-shadow:0 6px 0 #c41230; animation:wiggle 1s ease-in-out infinite; }
+  .big-action-btn:active { transform:scale(0.96); animation:none; }
+
+  /* SLAM */
+  #screenSlam { background: linear-gradient(170deg, #0d0d2b 0%, #1a0a3a 100%); }
+  .slam-body { flex:1; display:flex; flex-direction:column; align-items:center; padding:12px 14px; gap:10px; overflow:hidden; }
+  .slam-top-row { display:flex; align-items:center; justify-content:space-between; width:100%; gap:10px; }
+  .card-counter { background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.15); border-radius:20px; padding:5px 14px; font-size:13px; font-weight:900; color:rgba(255,255,255,0.7); }
+  .score-badge { background:linear-gradient(135deg,#f59e0b,#ff3b5c); border-radius:20px; padding:5px 14px; font-size:13px; font-weight:900; color:white; display:flex; align-items:center; gap:5px; }
+  .progress-bar-bg { width:100%; height:10px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden; flex-shrink:0; }
+  .progress-bar-fill { height:100%; border-radius:10px; background:linear-gradient(90deg,#22c55e,#f59e0b); transition:width 0.4s ease; }
+  .picture-card { background:white; border-radius:28px; width:100%; padding:16px; text-align:center; box-shadow:0 8px 40px rgba(255,59,92,0.25); animation:slideUp 0.4s cubic-bezier(.34,1.56,.64,1); flex-shrink:0; }
+  .picture-emoji { font-size:80px; line-height:1; margin-bottom:8px; }
+  .picture-word { font-size:26px; font-weight:900; color:#1e1b4b; margin-bottom:6px; }
+  .sentence-prompt { display:inline-block; background:#fdf4ff; border:2px solid #e9d5ff; border-radius:20px; padding:5px 16px; font-size:14px; font-weight:800; color:#9333ea; }
+  .example-box { background:rgba(255,255,255,0.06); border:2px solid rgba(255,255,255,0.1); border-radius:16px; padding:10px 14px; width:100%; text-align:center; flex-shrink:0; }
+  .example-label { font-size:10px; font-weight:900; color:rgba(255,255,255,0.4); letter-spacing:1.5px; margin-bottom:4px; }
+  .example-sentence { font-size:17px; font-weight:900; color:rgba(255,255,255,0.85); line-height:1.4; }
+  .example-sentence span { color:#fbbf24; }
+  .judge-row { display:flex; gap:10px; width:100%; flex-shrink:0; }
+  .judge-btn { flex:1; padding:16px 8px; border-radius:20px; border:none; font-family:'Nunito',sans-serif; font-size:17px; font-weight:900; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; transition:transform 0.12s; }
+  .judge-btn .j-em { font-size:32px; }
+  .judge-btn:active { transform:scale(0.93); }
+  .judge-yes { background:#22c55e; color:white; box-shadow:0 5px 0 #15803d; }
+  .judge-no { background:#6b7280; color:white; box-shadow:0 4px 0 #4b5563; }
+  .judge-great { background:linear-gradient(135deg,#f59e0b,#ff3b5c); color:white; box-shadow:0 5px 0 #b45309; }
+
+  /* BALL EARNED POPUP */
+  .ball-popup { position:fixed; top:40%; left:50%; transform:translate(-50%,-50%); font-size:52px; font-weight:900; color:white; text-align:center; pointer-events:none; z-index:300; animation:ballEarned 1.2s ease forwards; text-shadow:0 4px 20px rgba(0,0,0,0.5); }
+
+  /* FEEDBACK FLASH */
+  .feedback-flash { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:72px; pointer-events:none; z-index:200; animation:popIn 0.3s ease forwards; }
+
+  /* PACHINKO */
+  #screenPachinko { background: linear-gradient(170deg, #0a0a1f 0%, #1a0533 100%); }
+  .pachinko-body { flex:1; display:flex; flex-direction:column; align-items:center; padding:6px 10px 6px; gap:5px; overflow:hidden; }
+  .pachinko-header { display:flex; align-items:center; justify-content:space-between; width:100%; flex-shrink:0; gap:6px; }
+  .pachinko-stat { background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.15); border-radius:14px; padding:5px 10px; text-align:center; flex:1; }
+  .pachinko-stat-val { font-size:18px; font-weight:900; color:white; }
+  .pachinko-stat-lbl { font-size:9px; font-weight:700; color:rgba(255,255,255,0.45); }
+  .pachinko-stat-val.highlight { color:#fbbf24; }
+  .pachinko-stat-val.hi-green { color:#22c55e; }
+  .pachinko-score-row { display:flex; gap:6px; width:100%; flex-shrink:0; }
+  .bucket-score { flex:1; border-radius:10px; padding:4px 2px; text-align:center; border:2px solid rgba(255,255,255,0.15); }
+  .bucket-pts { font-size:15px; font-weight:900; color:white; }
+  .bucket-lbl { font-size:8px; font-weight:700; color:rgba(255,255,255,0.5); }
+  .pachinko-machine { width:100%; flex:1; position:relative; min-height:0; }
+  #pachinkoCanvas { width:100%; height:100%; display:block; border-radius:12px; border:2px solid rgba(255,255,255,0.1); }
+  .lane-btn-row { display:flex; gap:5px; width:100%; flex-shrink:0; }
+  .lane-btn { flex:1; padding:10px 4px; border-radius:12px; border:none; font-family:'Nunito',sans-serif; font-size:16px; font-weight:900; cursor:pointer; color:white; display:flex; flex-direction:column; align-items:center; gap:1px; transition:transform 0.1s; }
+  .lane-btn .lane-num { font-size:20px; font-weight:900; }
+  .lane-btn .lane-arrow { font-size:12px; opacity:0.8; }
+  .lane-btn:active { transform:scale(0.92); }
+  .lane-btn:disabled { opacity:0.3; cursor:default; }
+  .back-to-slam { width:100%; padding:10px; border-radius:14px; border:none; font-family:'Nunito',sans-serif; font-size:15px; font-weight:900; cursor:pointer; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); flex-shrink:0; }
+
+  /* END */
+  #screenEnd { background: linear-gradient(170deg, #0d0d2b 0%, #1a0a3a 100%); }
+  .end-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; gap:10px; text-align:center; overflow-y:auto; }
+  .end-trophy { font-size:60px; animation:bounceAnim 1s infinite; }
+  .end-title { font-size:24px; font-weight:900; color:white; }
+  .end-score { font-size:58px; font-weight:900; color:#fbbf24; }
+  .end-score-lbl { font-size:14px; color:rgba(255,255,255,0.5); font-weight:700; }
+  .end-highscore { font-size:13px; font-weight:800; color:#22c55e; }
+  .end-stars { font-size:30px; letter-spacing:3px; }
+  .end-stats { display:flex; gap:8px; width:100%; }
+  .end-stat { flex:1; background:rgba(255,255,255,0.07); border:2px solid rgba(255,255,255,0.12); border-radius:14px; padding:9px 6px; text-align:center; }
+  .end-stat-val { font-size:24px; font-weight:900; color:white; }
+  .end-stat-lbl { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); }
+  .end-msg { font-size:16px; font-weight:800; color:rgba(255,255,255,0.85); line-height:1.5; max-width:280px; }
+  .play-again-btn { width:100%; padding:18px; border-radius:20px; border:none; font-family:'Nunito',sans-serif; font-size:22px; font-weight:900; cursor:pointer; background:#ff3b5c; color:white; box-shadow:0 6px 0 #c41230; flex-shrink:0; margin-top:4px; animation:wiggle 1s ease-in-out infinite; }
+  .play-again-btn:active { transform:scale(0.96); animation:none; }
+
+  /* CONFETTI */
+  .confetti-container { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:500; }
+  .confetti-piece { position:absolute; top:-10px; animation:fall linear forwards; }
+</style>
+</head>
+<body>
+<div class="confetti-container" id="confetti"></div>
+<div class="head-bubble"></div>
+
+<!-- INTRO -->
+<div class="screen" id="screenIntro">
+  <div class="top-bar"><div class="top-bar-title">🍎 Sentence Slam!</div><div class="live-badge">LIVE</div></div>
+  <div class="intro-body">
+    <div class="intro-emoji">🎰</div>
+    <div class="intro-title">Sentence Slam<br>&amp; Pachinko! 🎯</div>
+    <div class="intro-sub">Say a full sentence about the food picture — then drop a ball in the pachinko machine!</div>
+    <div class="intro-cards">
+      <div class="intro-card"><div class="intro-card-emoji">🍎</div><div class="intro-card-text">See a food picture</div></div>
+      <div class="intro-card"><div class="intro-card-emoji">🗣️</div><div class="intro-card-text">Say a full sentence!</div></div>
+      <div class="intro-card"><div class="intro-card-emoji">🎰</div><div class="intro-card-text">Drop a pachinko ball!</div></div>
+    </div>
+    <button class="big-action-btn" onclick="startGame()">🚀 LET'S PLAY!</button>
+  </div>
+  <div class="tiktok-bottom"><div class="tb-icon">☰</div><div class="tb-icon" style="color:white">❄</div><div class="tb-icon">＋</div><div class="tb-icon">✉</div><div class="tb-icon">☞</div></div>
+</div>
+
+<!-- SLAM -->
+<div class="screen hidden" id="screenSlam">
+  <div class="top-bar"><div class="top-bar-title">🗣️ Say the Sentence!</div><div class="live-badge">LIVE</div></div>
+  <div class="slam-body">
+    <div class="slam-top-row">
+      <div class="card-counter" id="cardCounter">Card 1 of 15</div>
+      <div class="score-badge">🎯 <span id="scoreDisplay">0</span> pts</div>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="picture-card" id="pictureCard">
+      <div class="picture-emoji" id="pictureEmoji">🍎</div>
+      <div class="picture-word" id="pictureWord">Apple</div>
+
+    </div>
+    <div class="example-box">
+      <div class="example-label">💬 EXAMPLE SENTENCE</div>
+      <div class="example-sentence" id="exampleSentence"></div>
+    </div>
+    <div class="judge-row">
+      <button class="judge-btn judge-yes" onclick="judge(true)"><span class="j-em">✅</span>Good! +1🔵</button>
+      <button class="judge-btn judge-great" onclick="judge('great')"><span class="j-em">🌟</span>Amazing! +2🔵</button>
+    </div>
+    <div class="judge-row" style="gap:8px">
+      <button class="judge-btn judge-no" onclick="judge(false)" style="flex:1"><span class="j-em">😬</span>Try Again</button>
+      <button class="judge-btn" onclick="judge('wrong')" style="flex:1;background:#ef4444;color:white;box-shadow:0 5px 0 #b91c1c;"><span class="j-em">❌</span>Wrong — No Points</button>
+    </div>
+  </div>
+  <div class="tiktok-bottom"><div class="tb-icon">☰</div><div class="tb-icon" style="color:white">❄</div><div class="tb-icon">＋</div><div class="tb-icon">✉</div><div class="tb-icon">☞</div></div>
+</div>
+
+<!-- PACHINKO -->
+<div class="screen hidden" id="screenPachinko">
+  <div class="top-bar"><div class="top-bar-title">🎰 Pachinko Time!</div><div class="live-badge">LIVE</div></div>
+  <div class="pachinko-body">
+    <div class="pachinko-header">
+      <div class="pachinko-stat"><div class="pachinko-stat-val highlight" id="pBalls">0</div><div class="pachinko-stat-lbl">🔵 balls</div></div>
+      <div class="pachinko-stat"><div class="pachinko-stat-val" id="pScore">0</div><div class="pachinko-stat-lbl">🎯 score</div></div>
+      <div class="pachinko-stat"><div class="pachinko-stat-val hi-green" id="pHigh">0</div><div class="pachinko-stat-lbl">🏆 best</div></div>
+    </div>
+    <div class="pachinko-score-row" id="bucketScoreRow"></div>
+    <div class="pachinko-machine"><canvas id="pachinkoCanvas"></canvas></div>
+    <div class="lane-btn-row" id="laneBtnRow"></div>
+    <button class="back-to-slam" id="backToSlamBtn" onclick="backToSlam()" style="display:none">➡️ Back to Sentences</button>
+  </div>
+  <div class="tiktok-bottom"><div class="tb-icon">☰</div><div class="tb-icon" style="color:white">❄</div><div class="tb-icon">＋</div><div class="tb-icon">✉</div><div class="tb-icon">☞</div></div>
+</div>
+
+<!-- END -->
+<div class="screen hidden" id="screenEnd">
+  <div class="top-bar"><div class="top-bar-title">🏆 Well Done!</div><div class="live-badge">LIVE</div></div>
+  <div class="end-body">
+    <div class="end-trophy" id="endTrophy">🏆</div>
+    <div class="end-title" id="endTitle">Amazing work!</div>
+    <div class="end-score" id="endScore">0</div>
+    <div class="end-score-lbl">total points</div>
+    <div class="end-highscore" id="endHighscore"></div>
+    <div class="end-stars" id="endStars"></div>
+    <div class="end-stats">
+      <div class="end-stat"><div class="end-stat-val" id="statSentences">0</div><div class="end-stat-lbl">sentences ✅</div></div>
+      <div class="end-stat"><div class="end-stat-val" id="statBalls">0</div><div class="end-stat-lbl">🔵 balls earned</div></div>
+      <div class="end-stat"><div class="end-stat-val" id="statPachinko">0</div><div class="end-stat-lbl">🎰 pachinko pts</div></div>
+    </div>
+    <div class="end-msg" id="endMsg"></div>
+    <button class="play-again-btn" onclick="resetGame()">🔄 Play Again!</button>
+  </div>
+  <div class="tiktok-bottom"><div class="tb-icon">☰</div><div class="tb-icon" style="color:white">❄</div><div class="tb-icon">＋</div><div class="tb-icon">✉</div><div class="tb-icon">☞</div></div>
+</div>
+
+<script>
+// ══ SOUND ENGINE ══
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function getAudio(){
+  if(!audioCtx) audioCtx = new AudioCtx();
+  return audioCtx;
+}
+
+function playTone(freq, type, duration, vol=0.3){
+  try {
+    const ac = getAudio();
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ac.currentTime);
+    gain.gain.setValueAtTime(vol, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + duration);
+    osc.start(); osc.stop(ac.currentTime + duration);
+  } catch(e){}
+}
+
+function playSuccess(){
+  // Rising cheerful arpeggio
+  [523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,'sine',0.18,0.25),i*80));
+}
+
+function playSuperSuccess(){
+  [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>playTone(f,'sine',0.22,0.3),i*70));
+  setTimeout(()=>playTone(1047,'square',0.3,0.15),400);
+}
+
+function playWrong(){
+  playTone(200,'sawtooth',0.25,0.2);
+  setTimeout(()=>playTone(180,'sawtooth',0.2,0.2),120);
+}
+
+function playPegHit(){
+  playTone(300+Math.random()*200,'triangle',0.06,0.08);
+}
+
+function playBucketLand(pts){
+  if(pts>=10){ playSuperSuccess(); }
+  else if(pts>=5){ playSuccess(); }
+  else { [330,440].forEach((f,i)=>setTimeout(()=>playTone(f,'sine',0.15,0.2),i*80)); }
+}
+
+function playDrop(){
+  playTone(600,'sine',0.1,0.15);
+  setTimeout(()=>playTone(400,'sine',0.1,0.12),100);
+}
+
+function playCardFlip(){
+  playTone(880,'sine',0.08,0.08);
+}
+
+// ══ DATA ══
+const cards = [
+  { emoji:'🍎', word:'Apple',     type:'like',    example:'I <b>like</b> apples. They are <b>red and sweet</b>.' },
+  { emoji:'🍕', word:'Pizza',     type:'like',    example:'I <b>like</b> pizza. It is <b>hot and yummy</b>.' },
+  { emoji:'🍦', word:'Ice Cream', type:'like',    example:'I <b>like</b> ice cream. It is <b>cold and sweet</b>.' },
+  { emoji:'🥦', word:'Broccoli',  type:'dislike', example:'I <b>don\'t like</b> broccoli. It is <b>green and bitter</b>.' },
+  { emoji:'🍌', word:'Banana',    type:'this',    example:'This is a <b>banana</b>. It is <b>yellow and long</b>.' },
+  { emoji:'🍰', word:'Cake',      type:'like',    example:'I <b>like</b> cake. It is <b>sweet and soft</b>.' },
+  { emoji:'🥕', word:'Carrot',    type:'this',    example:'This is a <b>carrot</b>. It is <b>orange and crunchy</b>.' },
+  { emoji:'🍇', word:'Grapes',    type:'like',    example:'I <b>like</b> grapes. They are <b>small and juicy</b>.' },
+  { emoji:'🥛', word:'Milk',      type:'this',    example:'This is <b>milk</b>. It is <b>white and cold</b>.' },
+  { emoji:'🍩', word:'Doughnut',  type:'like',    example:'I <b>like</b> doughnuts. They are <b>round and sweet</b>.' },
+  { emoji:'🧃', word:'Juice',     type:'like',    example:'I <b>like</b> juice. It is <b>cold and fruity</b>.' },
+  { emoji:'🥚', word:'Egg',       type:'dislike', example:'I <b>don\'t like</b> eggs. They have a <b>funny smell</b>.' },
+  { emoji:'🍓', word:'Strawberry',type:'like',    example:'I <b>like</b> strawberries. They are <b>red and sweet</b>.' },
+  { emoji:'🥤', word:'Smoothie',  type:'this',    example:'This is a <b>smoothie</b>. It is <b>thick and fruity</b>.' },
+  { emoji:'🍫', word:'Chocolate', type:'like',    example:'I <b>like</b> chocolate. It is <b>brown and delicious</b>.' },
+];
+
+const prompts = {
+  like:    c => `Say: "I like ${c.word.toLowerCase()}s!"`,
+  dislike: c => `Say: "I don't like ${c.word.toLowerCase()}!"`,
+  this:    c => `Say: "This is a ${c.word.toLowerCase()}!"`
+};
+
+const BUCKETS = [
+  { label:'10 pts!', pts:10, color:'#ff3b5c' },
+  { label:'2 pts',   pts:2,  color:'#3b82f6' },
+  { label:'5 pts',   pts:5,  color:'#f59e0b' },
+  { label:'2 pts',   pts:2,  color:'#3b82f6' },
+  { label:'10 pts!', pts:10, color:'#ff3b5c' },
+];
+
+const LANE_COLORS = ['#ef4444','#f59e0b','#22c55e','#3b82f6','#a855f7'];
+
+// ══ STATE ══
+let shuffledCards=[], cardIdx=0, totalScore=0, sentencesGood=0;
+let ballsEarned=0, pachinkoPts=0, pendingBalls=0, ballsInPlay=0;
+let bucketScores=[0,0,0,0,0];
+let highScore = parseInt(localStorage.getItem('slamHighScore')||'0');
+const confCols=['#ff3b5c','#ffd600','#43e97b','#40c4ff','#e040fb','#ff9100'];
+
+// ══ PACHINKO PHYSICS ══
+let canvas, ctx, cw, ch;
+let pegs=[], balls=[], bucketRects=[];
+let animFrame=null;
+
+function $(id){ return document.getElementById(id); }
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); $(id).classList.remove('hidden'); }
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=~~(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function launchConfetti(){
+  const c=$('confetti'); c.innerHTML='';
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div'); p.className='confetti-piece';
+    const sz=7+Math.random()*8;
+    p.style.cssText=`left:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${confCols[~~(Math.random()*confCols.length)]};border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${1.2+Math.random()*1.2}s;animation-delay:${Math.random()*.5}s`;
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.innerHTML='',3200);
+}
+
+// ══ GAME ══
+function startGame(){
+  shuffledCards=shuffle([...cards]);
+  cardIdx=0; totalScore=0; sentencesGood=0;
+  ballsEarned=0; pachinkoPts=0; pendingBalls=0; ballsInPlay=0;
+  bucketScores=[0,0,0,0,0];
+  showScreen('screenSlam');
+  loadCard();
+}
+
+function loadCard(){
+  if(cardIdx>=shuffledCards.length){ goToPachinko(); return; }
+  const c=shuffledCards[cardIdx];
+  $('cardCounter').textContent=`Card ${cardIdx+1} of ${shuffledCards.length}`;
+  $('progressFill').style.width=(cardIdx/shuffledCards.length*100)+'%';
+  $('pictureEmoji').textContent=c.emoji;
+  $('pictureWord').textContent=c.word;
+  $('exampleSentence').innerHTML=c.example;
+  const card=$('pictureCard');
+  card.style.animation='none';
+  requestAnimationFrame(()=>{ card.style.animation='slideUp 0.4s cubic-bezier(.34,1.56,.64,1)'; });
+  playCardFlip();
+}
+
+function judge(result){
+  if(result===false){
+    playWrong();
+    showFlash('❌');
+    return;
+  }
+  if(result==='wrong'){
+    // Wrong answer — advance to next card, no balls earned
+    playWrong();
+    showFlash('❌');
+    setTimeout(()=>{ cardIdx++; loadCard(); }, 700);
+    return;
+  }
+  const balls = result==='great' ? 2 : 1;
+  totalScore += balls;
+  sentencesGood++;
+  ballsEarned += balls;
+  pendingBalls += balls;
+  $('scoreDisplay').textContent=totalScore;
+  result==='great' ? playSuperSuccess() : playSuccess();
+  showFlash(result==='great'?'🌟':'✅');
+  showBallEarned(balls);
+  launchConfetti();
+  setTimeout(()=>{ cardIdx++; loadCard(); }, 900);
+}
+
+function showFlash(emoji){
+  const ex=document.querySelector('.feedback-flash');
+  if(ex) ex.remove();
+  const el=document.createElement('div');
+  el.className='feedback-flash'; el.textContent=emoji;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),600);
+}
+
+function showBallEarned(count){
+  const el=document.createElement('div');
+  el.className='ball-popup';
+  el.textContent=`+${count} 🔵`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1200);
+}
+
+// ══ PACHINKO ══
+function goToPachinko(){
+  showScreen('screenPachinko');
+  $('pBalls').textContent=pendingBalls;
+  $('pScore').textContent=totalScore;
+  $('pHigh').textContent=highScore;
+  $('backToSlamBtn').style.display=cardIdx>=shuffledCards.length?'none':'block';
+  buildBucketScoreRow();
+  initPachinko();
+  buildLaneBtns();
+}
+
+function buildBucketScoreRow(){
+  const row=$('bucketScoreRow'); row.innerHTML='';
+  BUCKETS.forEach((b,i)=>{
+    const d=document.createElement('div');
+    d.className='bucket-score';
+    d.style.background=b.color+'22'; d.style.borderColor=b.color;
+    d.id='bscore'+i;
+    d.innerHTML=`<div class="bucket-pts" style="color:${b.color}" id="bpts${i}">${bucketScores[i]}</div><div class="bucket-lbl">${b.label}</div>`;
+    row.appendChild(d);
+  });
+}
+
+function initPachinko(){
+  canvas=$('pachinkoCanvas');
+  const wrap=canvas.parentElement;
+  cw=wrap.clientWidth; ch=wrap.clientHeight;
+  canvas.width=cw; canvas.height=ch;
+  ctx=canvas.getContext('2d');
+  pegs=[]; balls=[]; bucketRects=[];
+  buildPegs();
+  buildBuckets();
+  if(animFrame) cancelAnimationFrame(animFrame);
+  loop();
+}
+
+function buildPegs(){
+  // 10 rows x 8 cols — dense staggered grid covering full width
+  // Extra row of pegs just above buckets to prevent direct drops
+  const ROWS=10, COLS=8;
+  const usableW=cw-16;
+  const usableH=ch*0.76;
+  const startY=ch*0.05;
+  const spacingX=usableW/(COLS-1);
+  const spacingY=usableH/(ROWS);
+
+  for(let r=0;r<ROWS;r++){
+    const isOffset=r%2===1;
+    const offset=isOffset ? spacingX/2 : 0;
+    const colsThisRow=isOffset ? COLS-1 : COLS;
+    for(let c=0;c<colsThisRow;c++){
+      const px=8+c*spacingX+offset;
+      const py=startY+spacingY*(r+0.5);
+      if(px>6 && px<cw-6) pegs.push({x:px,y:py,r:5});
+    }
+  }
+
+  // Extra guard row just above buckets — one peg per bucket gap
+  // Placed at bucket boundaries to force deflection
+  const guardY=ch*0.82;
+  const bw=cw/BUCKETS.length;
+  for(let i=0;i<BUCKETS.length;i++){
+    // peg in the centre of each bucket lane
+    pegs.push({x:bw*i+bw/2, y:guardY, r:5});
+    // extra peg at each bucket divider to block straight paths
+    if(i>0) pegs.push({x:bw*i, y:guardY-12, r:4});
+  }
+}
+
+function buildBuckets(){
+  const bw=cw/BUCKETS.length;
+  const by=ch*0.85;
+  const bh=ch*0.14;
+  BUCKETS.forEach((b,i)=>{
+    bucketRects.push({x:i*bw,y:by,w:bw,h:bh,...b,idx:i});
+  });
+}
+
+function buildLaneBtns(){
+  const row=$('laneBtnRow'); row.innerHTML='';
+  const disabled=pendingBalls===0;
+  for(let i=0;i<5;i++){
+    const btn=document.createElement('button');
+    btn.className='lane-btn'; btn.id='laneBtn'+i;
+    btn.style.background=LANE_COLORS[i];
+    btn.style.boxShadow='0 4px 0 '+LANE_COLORS[i]+'99';
+    btn.disabled=disabled;
+    btn.innerHTML=`<span class="lane-num">${i+1}</span><span class="lane-arrow">▼</span>`;
+    btn.onclick=()=>dropFromLane(i);
+    row.appendChild(btn);
+  }
+}
+
+function setLaneBtnsDisabled(val){
+  for(let i=0;i<5;i++){const b=$('laneBtn'+i); if(b) b.disabled=val;}
+}
+
+function dropFromLane(laneIdx){
+  if(pendingBalls<=0) return;
+  pendingBalls--; ballsInPlay++;
+  $('pBalls').textContent=pendingBalls;
+  setLaneBtnsDisabled(true);
+  playDrop();
+  // Map lane 0-4 to x positions spread across canvas
+  const laneW=cw/5;
+  const x=laneW*laneIdx+laneW/2+(Math.random()-0.5)*6;
+  balls.push({x,y:14,vx:(Math.random()-0.5)*1.2,vy:1.5,r:9,done:false,color:LANE_COLORS[laneIdx],stuckTimer:0,lastX:x,lastY:14});
+}
+
+// ══ RENDER LOOP ══
+function loop(){
+  ctx.clearRect(0,0,cw,ch);
+  drawBackground();
+  drawBuckets();
+  drawPegs();
+  updateBalls();
+  drawBalls();
+  animFrame=requestAnimationFrame(loop);
+}
+
+
+
+
+function drawBackground(){
+  // Dark gradient bg
+  const grad=ctx.createLinearGradient(0,0,0,ch);
+  grad.addColorStop(0,'#0a0a1f');
+  grad.addColorStop(1,'#150a2a');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,cw,ch);
+  // Side walls
+  ctx.fillStyle='#2a1a4a';
+  ctx.fillRect(0,0,9,ch); ctx.fillRect(cw-9,0,9,ch);
+  // Lane arrows at top
+  const laneW=cw/5;
+  for(let i=0;i<5;i++){
+    const cx2=laneW*i+laneW/2;
+    ctx.fillStyle=LANE_COLORS[i]+'66';
+    ctx.beginPath();
+    ctx.moveTo(cx2-7,3); ctx.lineTo(cx2+7,3); ctx.lineTo(cx2,14);
+    ctx.closePath(); ctx.fill();
+    // subtle lane bg stripe
+    ctx.fillStyle=LANE_COLORS[i]+'11';
+    ctx.fillRect(laneW*i,0,laneW,ch*0.04);
+  }
+}
+
+function drawPegs(){
+  pegs.forEach(p=>{
+    // glow effect
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r+3,0,Math.PI*2);
+    ctx.fillStyle='rgba(200,180,255,0.12)'; ctx.fill();
+    // peg body
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle='#ddd6fe'; ctx.fill();
+    ctx.strokeStyle='#7c3aed'; ctx.lineWidth=1.5; ctx.stroke();
+    // shine dot
+    ctx.beginPath();
+    ctx.arc(p.x-1,p.y-1,1.5,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.fill();
+  });
+}
+
+function drawBuckets(){
+  bucketRects.forEach((b,i)=>{
+    ctx.fillStyle=b.color+'2a'; ctx.fillRect(b.x+1,b.y,b.w-2,b.h);
+    ctx.strokeStyle=b.color; ctx.lineWidth=2;
+    ctx.strokeRect(b.x+1,b.y,b.w-2,b.h);
+    ctx.fillStyle=b.color;
+    ctx.font=`bold ${cw<300?9:11}px Nunito,sans-serif`;
+    ctx.textAlign='center';
+    ctx.fillText(b.label,b.x+b.w/2,b.y+b.h*0.42);
+    ctx.fillStyle='white';
+    ctx.font=`bold ${cw<300?10:12}px Nunito,sans-serif`;
+    ctx.fillText(bucketScores[i]===0?'':bucketScores[i],b.x+b.w/2,b.y+b.h*0.75);
+  });
+}
+
+function drawBalls(){
+  balls.forEach(b=>{
+    if(b.done) return;
+    const grad=ctx.createRadialGradient(b.x-2,b.y-2,1,b.x,b.y,b.r);
+    grad.addColorStop(0,'white'); grad.addColorStop(1,b.color);
+    ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+    ctx.fillStyle=grad; ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5; ctx.stroke();
+  });
+}
+
+function updateBalls(){
+  const GRAVITY=0.35, BOUNCE=0.65, FRICTION=0.98, PEG_EXTRA=1.5;
+  balls.forEach(b=>{
+    if(b.done) return;
+
+    b.vy+=GRAVITY;
+    b.vx*=FRICTION;
+    b.x+=b.vx;
+    b.y+=b.vy;
+
+    // Wall bounce — strong enough to not stick
+    if(b.x-b.r<9){ b.x=9+b.r; b.vx=Math.abs(b.vx)*BOUNCE+0.5; }
+    if(b.x+b.r>cw-9){ b.x=cw-9-b.r; b.vx=-Math.abs(b.vx)*BOUNCE-0.5; }
+
+    // Peg collisions — proper physics + no sticking
+    pegs.forEach(p=>{
+      const dx=b.x-p.x, dy=b.y-p.y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      const minDist=b.r+p.r+PEG_EXTRA;
+      if(dist<minDist && dist>0.01){
+        // Push ball out of peg
+        const nx=dx/dist, ny=dy/dist;
+        b.x=p.x+nx*(minDist+0.5);
+        b.y=p.y+ny*(minDist+0.5);
+        // Reflect velocity
+        const dot=b.vx*nx+b.vy*ny;
+        b.vx=(b.vx-2*dot*nx)*BOUNCE;
+        b.vy=(b.vy-2*dot*ny)*BOUNCE;
+        // Add random nudge so ball never sits perfectly balanced on peg
+        b.vx+=(Math.random()-0.5)*2.5;
+        b.vy+=Math.random()*0.5;
+        // Ensure minimum speed downward after bounce
+        if(b.vy<0.5) b.vy=0.5;
+        playPegHit();
+      }
+    });
+
+    // Anti-stuck: track if ball barely moves for too long
+    const moved=Math.abs(b.x-b.lastX)+Math.abs(b.y-b.lastY);
+    if(moved<1.5){ b.stuckTimer=(b.stuckTimer||0)+1; }
+    else { b.stuckTimer=0; }
+    b.lastX=b.x; b.lastY=b.y;
+    if(b.stuckTimer>30){
+      // Kick the ball
+      b.vx+=(Math.random()-0.5)*4;
+      b.vy+=2+Math.random()*2;
+      b.stuckTimer=0;
+    }
+
+    // Bucket detection
+    bucketRects.forEach(bk=>{
+      if(!b.done && b.y+b.r>bk.y && b.x>bk.x+2 && b.x<bk.x+bk.w-2){
+        b.done=true; ballsInPlay--;
+        pachinkoPts+=bk.pts; totalScore+=bk.pts;
+        bucketScores[bk.idx]+=bk.pts;
+        $('pScore').textContent=totalScore;
+        $('scoreDisplay').textContent=totalScore;
+        $('bpts'+bk.idx).textContent=bucketScores[bk.idx];
+        flashBucket(bk.idx);
+        playBucketLand(bk.pts);
+        if(bk.pts>=10) launchConfetti();
+        setTimeout(()=>{
+          if(pendingBalls>0){ buildLaneBtns(); setLaneBtnsDisabled(false); }
+          else if(ballsInPlay===0){
+            setLaneBtnsDisabled(true);
+            if(cardIdx>=shuffledCards.length){ setTimeout(()=>goToEnd(),800); }
+            else { $('backToSlamBtn').style.display='block'; }
+          }
+        },400);
+      }
+    });
+
+    // Fell off bottom
+    if(b.y>ch+20){ b.done=true; ballsInPlay--; }
+  });
+  balls=balls.filter(b=>!b.done);
+}
+
+function flashBucket(idx){
+  const el=$('bscore'+idx);
+  if(!el) return;
+  el.style.transform='scale(1.4)'; el.style.transition='transform 0.15s';
+  setTimeout(()=>{ el.style.transform='scale(1)'; },350);
+}
+
+function backToSlam(){
+  showScreen('screenSlam');
+  loadCard();
+}
+
+// ══ END ══
+function goToEnd(){
+  if(animFrame){ cancelAnimationFrame(animFrame); animFrame=null; }
+  if(totalScore>highScore){
+    highScore=totalScore;
+    try{ localStorage.setItem('slamHighScore',highScore); }catch(e){}
+  }
+  const pct=sentencesGood/cards.length;
+  let trophy,title,msg;
+  if(pct>=0.9){ trophy='🏆'; title='SUPERSTAR! 🌟'; msg='WOW! Amazing sentences! You are an English superstar!'; }
+  else if(pct>=0.7){ trophy='🥇'; title='Brilliant work!'; msg='Really great sentences! You should be so proud!'; }
+  else if(pct>=0.5){ trophy='🥈'; title='Good job!'; msg='Good work! Keep practising and you\'ll get even better!'; }
+  else { trophy='💪'; title='Keep going!'; msg='Every sentence is great practice! You\'re learning so much!'; }
+  $('endTrophy').textContent=trophy;
+  $('endTitle').textContent=title;
+  $('endScore').textContent=totalScore;
+  $('statSentences').textContent=sentencesGood;
+  $('statBalls').textContent=ballsEarned;
+  $('statPachinko').textContent=pachinkoPts;
+  $('endMsg').textContent=msg;
+  $('endHighscore').textContent=totalScore>=highScore?'🏆 New High Score!':'Best score: '+highScore+' pts';
+  const stars=Math.min(5,Math.round(pct*5));
+  $('endStars').textContent='⭐'.repeat(stars)+'☆'.repeat(5-stars);
+  if(pct>=0.7) launchConfetti();
+  if(pct>=0.7) playSuperSuccess();
+  showScreen('screenEnd');
+}
+
+function resetGame(){ startGame(); }
+
+showScreen('screenIntro');
+</script>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Profile – Trial Lesson</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f1b2d;
+    --navy2: #162236;
+    --gold: #e8b84b;
+    --gold-light: #f5d07a;
+    --cream: #fdf6e3;
+    --teal: #2ec4b6;
+    --red: #e63946;
+    --text: #e8e4d9;
+    --muted: #8a9bb0;
+    --card: #1a2d45;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 32px 24px 60px;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 80% 10%, rgba(232,184,75,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 50% at 10% 80%, rgba(46,196,182,0.05) 0%, transparent 60%);
+  }
+
+  header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(232,184,75,0.2);
+  }
+
+  .header-left h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+
+  .header-left p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 500;
+  }
+
+  .level-badges {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .badge-gold {
+    background: rgba(232,184,75,0.15);
+    border: 1px solid rgba(232,184,75,0.4);
+    color: var(--gold);
+  }
+
+  .badge-teal {
+    background: rgba(46,196,182,0.12);
+    border: 1px solid rgba(46,196,182,0.35);
+    color: var(--teal);
+  }
+
+  .badge-red {
+    background: rgba(230,57,70,0.12);
+    border: 1px solid rgba(230,57,70,0.35);
+    color: #ff6b74;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+    margin-bottom: 22px;
+  }
+
+  .grid-wide {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 22px 24px;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    opacity: 0.6;
+  }
+
+  .card.teal-accent::before { background: linear-gradient(90deg, var(--teal), transparent); }
+  .card.red-accent::before { background: linear-gradient(90deg, #e63946, transparent); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.20s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+
+  .card-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+
+  .tag-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 6px 11px;
+    font-size: 13px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.2s;
+  }
+
+  .tag:hover { background: rgba(232,184,75,0.1); border-color: rgba(232,184,75,0.25); }
+
+  .tag.highlight {
+    background: rgba(232,184,75,0.12);
+    border-color: rgba(232,184,75,0.3);
+    color: var(--gold-light);
+    font-weight: 500;
+  }
+
+  .tag.teal {
+    background: rgba(46,196,182,0.1);
+    border-color: rgba(46,196,182,0.25);
+    color: var(--teal);
+  }
+
+  .specific-needs {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--text);
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    padding: 16px;
+    border-left: 3px solid var(--gold);
+  }
+
+  .specific-needs em {
+    color: var(--gold-light);
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  .lessons-count {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .lessons-count span {
+    font-size: 16px;
+    font-weight: 400;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--muted);
+    display: block;
+    margin-top: 4px;
+  }
+
+  .lang-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .lang-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .lang-chip.native {
+    background: rgba(232,184,75,0.14);
+    border: 1px solid rgba(232,184,75,0.3);
+    color: var(--gold-light);
+  }
+
+  .lang-chip.secondary {
+    background: rgba(46,196,182,0.1);
+    border: 1px solid rgba(46,196,182,0.25);
+    color: var(--teal);
+  }
+
+  .flag { font-size: 20px; }
+
+  section-title {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--muted);
+    font-weight: 600;
+    margin: 28px 0 14px;
+  }
+
+  .note-strip {
+    background: rgba(230,57,70,0.1);
+    border: 1px solid rgba(230,57,70,0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #ff8c93;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .note-strip .icon { font-size: 18px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Student Profile</h1>
+    <p>Trial Lesson Brief · Preply</p>
+  </div>
+  <div class="level-badges">
+    <span class="badge badge-gold"><span class="dot"></span>B1 Intermediate · Preply Test</span>
+    <span class="badge badge-red"><span class="dot"></span>Self-assessed: Beginner</span>
+    <span class="badge badge-teal"><span class="dot"></span>4 lessons / month</span>
+  </div>
+</header>
+
+<section-title>Overview</section-title>
+<div class="grid">
+
+  <div class="card">
+    <div class="card-label">Languages</div>
+    <div class="card-title">Background</div>
+    <div class="lang-row">
+      <div class="lang-chip native"><span class="flag">🇰🇷</span> Korean (Native)</div>
+      <div class="lang-chip secondary"><span class="flag">🇮🇹</span> Italian</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Primary Goal</div>
+    <div class="card-title">Work Success</div>
+    <div class="tag-wrap">
+      <span class="tag highlight">👔 Professional English</span>
+      <span class="tag">📊 Graduate / Academic</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Lessons Per Month</div>
+    <div class="lessons-count">4<span>lessons scheduled</span></div>
+  </div>
+
+</div>
+
+<section-title>How They'll Use English</section-title>
+<div class="grid">
+  <div class="card teal-accent">
+    <div class="card-label">Use Cases</div>
+    <div class="card-title">Contexts</div>
+    <div class="tag-wrap">
+      <span class="tag teal">🤝 Meetings</span>
+      <span class="tag teal">🗣️ Presentations</span>
+      <span class="tag teal">💬 Small talk</span>
+      <span class="tag teal">💼 Teamwork</span>
+      <span class="tag teal">📊 Negotiations</span>
+      <span class="tag teal">📞 Client communication</span>
+      <span class="tag teal">📋 Interviews</span>
+    </div>
+  </div>
+</div>
+
+<section-title>Focus Areas</section-title>
+<div class="grid">
+  <div class="card">
+    <div class="card-label">Student Priorities</div>
+    <div class="card-title">Skills to Build</div>
+    <div class="tag-wrap">
+      <span class="tag highlight">🎙️ Fluency</span>
+      <span class="tag highlight">😎 Confidence</span>
+      <span class="tag highlight">🎯 Accuracy</span>
+      <span class="tag highlight">🔠 Vocabulary</span>
+      <span class="tag highlight">🗣️ Pronunciation</span>
+      <span class="tag">👂 Listening</span>
+      <span class="tag">📚 Reading</span>
+      <span class="tag">✍️ Writing</span>
+    </div>
+  </div>
+</div>
+
+<section-title>Interests (for lesson topics)</section-title>
+<div class="grid">
+  <div class="card">
+    <div class="card-label">Personal Interests</div>
+    <div class="card-title">Engagement Hooks</div>
+    <div class="tag-wrap">
+      <span class="tag">📚 Reading</span>
+      <span class="tag">🍿 TV / Movies</span>
+      <span class="tag">📱 Tech</span>
+      <span class="tag">🐶 Pets</span>
+      <span class="tag">✈️ Travel</span>
+      <span class="tag">🍕 Food</span>
+      <span class="tag">🗿 History</span>
+      <span class="tag">🏃 Fitness</span>
+      <span class="tag">🧢 Fashion</span>
+      <span class="tag">🧬 Science</span>
+      <span class="tag">💬 Languages</span>
+      <span class="tag">📊 Finance</span>
+      <span class="tag">🗳️ Politics</span>
+      <span class="tag">🌍 Culture</span>
+    </div>
+  </div>
+</div>
+
+<section-title>Student's Own Words</section-title>
+<div class="grid grid-wide">
+  <div class="card">
+    <div class="card-label">Specific Needs</div>
+    <div class="card-title">In Their Own Words</div>
+    <div class="specific-needs">
+      "I want to master <em>grammar</em> so I can speak English <em>confidently</em>, and I want to learn a wide variety of <em>vocabulary</em>. I want to focus on <em>pronunciation</em>. As a <em>graduate student</em>, I frequently have to read <em>academic papers</em> in English, so I would like to practice expressions for <em>presentations</em> and learn what words and phrases are used when <em>writing papers</em>."
+    </div>
+
+    <div class="note-strip">
+      <span class="icon">⚠️</span>
+      Self-assessed as beginner but Preply test places them at <strong>B1</strong> — likely underconfident. Reassure them early in the lesson!
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

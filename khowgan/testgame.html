@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Kids Connect 4</title>
+    <style>
+        :root {
+            --p1: #ff4757;
+            --p2: #ffa502;
+            --board: #1e90ff;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .status-bar {
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 10px 40px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .p1-turn { color: var(--p1); border: 4px solid var(--p1); }
+        .p2-turn { color: var(--p2); border: 4px solid var(--p2); }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: var(--board);
+            padding: 12px;
+            border-radius: 20px;
+            gap: 10px;
+            box-shadow: 0 10px 0 #0972d4;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .slot {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid rgba(0,0,0,0.1);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .slot.red { background: var(--p1) !important; transform: rotate(360deg); }
+        .slot.yellow { background: var(--p2) !important; transform: rotate(360deg); }
+        .slot.wild { background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3) !important; transform: rotate(360deg); border: 4px solid gold; }
+
+        /* Winning cells glow */
+        .slot.winner {
+            animation: winPulse 0.6s ease-in-out infinite alternate;
+            box-shadow: 0 0 20px 8px rgba(255,255,255,0.9);
+            border: 4px solid white;
+            z-index: 10;
+            position: relative;
+        }
+        @keyframes winPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.15); }
+        }
+
+        /* Column numbers */
+        .col-numbers {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            padding: 0 12px;
+            margin-bottom: 6px;
+            width: fit-content;
+        }
+        .col-number {
+            width: 70px;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--board);
+            padding: 5px;
+        }
+
+        /* Win overlay */
+        #win-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        #win-card {
+            background: white;
+            padding: 40px 60px;
+            border-radius: 30px;
+            text-align: center;
+            border: 10px solid gold;
+            animation: popIn 0.4s ease;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        #win-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        #win-sub {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        .btn-play-again {
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            background: var(--board);
+            color: white;
+        }
+
+        /* Wild card styling in question overlay */
+        .wild-label {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            color: white;
+            font-weight: bold;
+            padding: 5px 18px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* Pop-up Overlay */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        #q-card {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            max-width: 550px;
+            text-align: center;
+            border: 10px solid var(--board);
+        }
+
+        #q-text { font-size: 1.8rem; color: #2c3e50; margin-bottom: 30px; }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+        .btn-yes { background: #2ecc71; color: white; }
+        .btn-no { background: #95a5a6; color: white; }
+
+        .qr-sidebar {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            padding: 14px;
+            border-radius: 18px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+            text-align: center;
+            z-index: 100;
+        }
+        .qr-sidebar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+        }
+        .qr-sidebar p {
+            margin: 8px 0 0;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--board);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="status" class="status-bar p1-turn">Red Player's Turn</div>
+
+    <div class="col-numbers" id="col-numbers"></div>
+    <div class="board" id="board"></div>
+
+    <div class="qr-sidebar">
+        <img src="../overlays/teacherlewis1-overlay/public/qrcode_preply.com.png" alt="Preply QR Code">
+        <p>Book a lesson!</p>
+    </div>
+
+    <div id="win-overlay">
+        <div id="win-card">
+            <div id="win-text"></div>
+            <div id="win-sub">Look at the board to see the winning line!</div>
+            <button class="btn-play-again" onclick="location.reload()">Play Again 🎮</button>
+        </div>
+    </div>
+
+    <div id="overlay">
+        <div id="q-card">
+            <div id="q-text">Question goes here...</div>
+            <div class="judge-btns">
+                <button class="btn btn-no" onclick="handleJudge(false)">Try Again ❌</button>
+                <button class="btn btn-yes" onclick="handleJudge(true)">Great Job! ✅</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ROWS = 6;
+        const COLS = 7;
+        let currentPlayer = 1;
+        let boardState = Array(COLS).fill().map(() => Array(ROWS).fill(null));
+        let activeCol = null;
+        let gameOver = false;
+        let isWildCard = false;
+
+        // WILD CARDS — online/video-call friendly ESL activities
+        const wildCards = [
+            "🃏 WILD: Make a funny face and hold it for 5 seconds!",
+            "🃏 WILD: Spell your name out loud, one letter at a time!",
+            "🃏 WILD: Show something BLUE near you on camera!",
+            "🃏 WILD: Say 'She sells seashells' 3 times fast!",
+            "🃏 WILD: Do your best robot voice and say 'Hello, I am a robot!'",
+            "🃏 WILD: Close your eyes and name 5 animals in 10 seconds!",
+            "🃏 WILD: Show something you ate today (draw it or describe it)!",
+            "🃏 WILD: Sing the ABC song as fast as you can!",
+            "🃏 WILD: Use your hands to make a shadow puppet on camera!",
+            "🃏 WILD: Count backwards from 20 to 1 in English!",
+            "🃏 WILD: Act out an emotion (happy, sad, surprised) — others guess!",
+            "🃏 WILD: Name 3 things you can see out your window!",
+            "🃏 WILD: Whisper a secret to the camera (make one up)!",
+            "🃏 WILD: Do a thumbs-up dance for 5 seconds!",
+            "🃏 WILD: Draw a cat in the air with your finger — everyone watches!",
+            "🃏 WILD: Say 'Peter Piper picked a peck' without laughing!",
+            "🃏 WILD: Show your favorite thing on your desk!",
+            "🃏 WILD: Make the sound of 3 different animals!",
+            "🃏 WILD: Freeze like a statue for 5 seconds — don't move!",
+            "🃏 WILD: Use only your face to show: happy, angry, sleepy!"
+        ];
+        let wildDeck = [...wildCards];
+
+        function getNextWild() {
+            if (wildDeck.length === 0) wildDeck = [...wildCards];
+            const i = Math.floor(Math.random() * wildDeck.length);
+            return wildDeck.splice(i, 1)[0];
+        }
+
+        // 30 HARDER QUESTIONS
+        const allQuestions = [
+            "If you had a pet elephant, where would it sleep?",
+            "What are three things you can find in a kitchen?",
+            "Tell me about your favorite animal. Why do you like it?",
+            "If you could fly like a bird, where would you go first?",
+            "What is the best thing about being 8 years old?",
+            "Can you name 4 things that are the color green?",
+            "If you found a magic lamp, what would you wish for?",
+            "Tell me how to make a peanut butter sandwich.",
+            "What do you do when you feel bored?",
+            "If you could build a house out of food, what food would you use?",
+            "What is your favorite season: Summer, Fall, Winter, or Spring? Why?",
+            "Tell me about a movie that made you laugh.",
+            "If you were the teacher for one day, what would you do?",
+            "What is something you are really good at doing?",
+            "If you could travel to the moon, what would you take with you?",
+            "Describe your favorite toy without saying its name.",
+            "What are three words that describe you?",
+            "If you could invent a new holiday, what would we celebrate?",
+            "Tell me about a place you want to visit.",
+            "What would you do if it started raining chocolate?",
+            "Name five different body parts in English.",
+            "If you could talk to animals, what would you ask a dog?",
+            "What is the funniest thing that happened to you this week?",
+            "If you were a superhero, what would your name and power be?",
+            "Tell me about your favorite book or story.",
+            "What are three things you do before you go to bed?",
+            "If you could stay awake all night, what would you do?",
+            "What is the most beautiful thing you have ever seen?",
+            "Tell me about a person who is very special to you.",
+            "If you found a dinosaur egg, what would you do with it?"
+        ];
+
+        // LOGIC FOR NO-REPEAT
+        let questionDeck = [...allQuestions];
+
+        function getNextQuestion() {
+            if (questionDeck.length === 0) {
+                // Deck is empty, reshuffle!
+                questionDeck = [...allQuestions];
+            }
+            // Pick a random index from the remaining deck
+            const randomIndex = Math.floor(Math.random() * questionDeck.length);
+            // Remove it from the deck and return it
+            return questionDeck.splice(randomIndex, 1)[0];
+        }
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = (type === 'correct') ? 'sine' : 'square';
+            osc.frequency.setValueAtTime(type === 'correct' ? 523 : 880, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function init() {
+            // Column numbers
+            const nums = document.getElementById('col-numbers');
+            for (let c = 0; c < COLS; c++) {
+                const n = document.createElement('div');
+                n.className = 'col-number';
+                n.textContent = c + 1;
+                nums.appendChild(n);
+            }
+
+            const board = document.getElementById('board');
+            for (let c = 0; c < COLS; c++) {
+                const colDiv = document.createElement('div');
+                colDiv.className = 'column';
+                colDiv.onclick = () => {
+                    if (gameOver) return;
+                    if (boardState[c].indexOf(null) === -1) return;
+                    activeCol = c;
+
+                    // ~20% chance of wild card
+                    if (Math.random() < 0.2) {
+                        isWildCard = true;
+                        document.getElementById('q-text').innerHTML =
+                            '<div class="wild-label">⭐ WILD CARD ⭐</div><br>' + getNextWild();
+                    } else {
+                        isWildCard = false;
+                        document.getElementById('q-text').innerText = getNextQuestion();
+                    }
+                    document.getElementById('overlay').style.display = 'flex';
+                };
+                for (let r = 0; r < ROWS; r++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'slot';
+                    slot.id = `slot-${c}-${r}`;
+                    colDiv.appendChild(slot);
+                }
+                board.appendChild(colDiv);
+            }
+        }
+
+        function handleJudge(isCorrect) {
+            document.getElementById('overlay').style.display = 'none';
+            if (isCorrect) {
+                playSound('correct');
+                const r = boardState[activeCol].indexOf(null);
+                boardState[activeCol][r] = currentPlayer;
+                const slot = document.getElementById(`slot-${activeCol}-${r}`);
+                const colorClass = isWildCard ? 'wild' : (currentPlayer === 1 ? 'red' : 'yellow');
+                slot.className = `slot ${colorClass}`;
+
+                const winCells = getWinCells(activeCol, r);
+                if (winCells) {
+                    gameOver = true;
+                    // Highlight winning cells
+                    winCells.forEach(([wc, wr]) => {
+                        document.getElementById(`slot-${wc}-${wr}`).classList.add('winner');
+                    });
+                    const winner = currentPlayer === 1 ? 'RED' : 'YELLOW';
+                    const winText = document.getElementById('win-text');
+                    winText.style.color = currentPlayer === 1 ? 'var(--p1)' : 'var(--p2)';
+                    winText.textContent = `🎉 ${winner} WINS! 🎉`;
+                    const s = document.getElementById('status');
+                    s.innerText = `${winner} WINS! 🏆`;
+                    s.className = `status-bar ${currentPlayer === 1 ? 'p1-turn' : 'p2-turn'}`;
+                    setTimeout(() => {
+                        document.getElementById('win-overlay').style.display = 'flex';
+                    }, 1200);
+                    return;
+                }
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
+                const s = document.getElementById('status');
+                s.innerText = (currentPlayer === 1 ? "Red Player's Turn" : "Yellow Player's Turn");
+                s.className = `status-bar ${currentPlayer === 1 ? 'p1-turn' : 'p2-turn'}`;
+            }
+        }
+
+        function getWinCells(c, r) {
+            const p = boardState[c][r];
+            const directions = [[0,1], [1,0], [1,1], [1,-1]];
+            for (let [dc, dr] of directions) {
+                let cells = [[c, r]];
+                for (let i = 1; i < 4; i++) {
+                    if (boardState[c+dc*i]?.[r+dr*i] === p) cells.push([c+dc*i, r+dr*i]);
+                    else break;
+                }
+                for (let i = 1; i < 4; i++) {
+                    if (boardState[c-dc*i]?.[r-dr*i] === p) cells.push([c-dc*i, r-dr*i]);
+                    else break;
+                }
+                if (cells.length >= 4) return cells;
+            }
+            return null;
+        }
+
+        init();
+    </script>
+</body>
+</html>
