@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Present Perfect Game · Teacher Lewis</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e1520;
+  --surface:  #151f30;
+  --surface2: #1c2a42;
+  --border:   rgba(255,255,255,0.07);
+  --gold:     #e8b84b;
+  --gold2:    #f5d278;
+  --teal:     #3ecfb0;
+  --coral:    #f07060;
+  --sky:      #5ab8e8;
+  --lilac:    #9b82f3;
+  --text:     #dde8f8;
+  --muted:    #7a90b8;
+  --green:    #4ade80;
+  --red:      #f87171;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { height: 100%; }
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 24px 0;
+  overflow-y: auto;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── wrapper ── */
+#shell {
+  position: relative;
+  z-index: 1;
+  width: min(720px, 94vw);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── header bar ── */
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.header-bar h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  color: var(--gold2);
+  line-height: 1.2;
+}
+.score-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 6px 16px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.score-badge .s-correct { color: var(--green); }
+.score-badge .s-wrong   { color: var(--red); }
+.score-badge .s-sep     { color: var(--muted); opacity: 0.4; }
+
+/* ── progress ── */
+#prog-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+#prog-track {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+#prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--teal));
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+#prog-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+/* ── card ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  animation: rise 0.4s cubic-bezier(.22,.68,0,1.1);
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* image */
+.card-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+  border-bottom: 1px solid var(--border);
+}
+
+/* body */
+.card-body {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* question number tag */
+.q-tag {
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 800;
+  opacity: 0.7;
+}
+
+/* sentence */
+.sentence {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--text);
+}
+.sentence .blank {
+  display: inline-block;
+  min-width: 120px;
+  border-bottom: 2px dashed var(--gold);
+  text-align: center;
+  padding: 2px 8px;
+  margin: 0 4px;
+  color: var(--gold2);
+  font-weight: 700;
+  transition: all 0.3s;
+}
+.sentence .blank.correct {
+  border-bottom-color: var(--green);
+  color: var(--green);
+}
+.sentence .blank.wrong {
+  border-bottom-color: var(--red);
+  color: var(--red);
+  text-decoration: line-through;
+}
+
+/* verb hint */
+.verb-hint {
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: var(--surface2);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 20px;
+  width: fit-content;
+  font-weight: 700;
+}
+.verb-hint span { color: var(--lilac); }
+
+/* options grid */
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.opt-btn {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.opt-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  background: rgba(232,184,75,0.08);
+  transform: translateY(-2px);
+}
+.opt-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+.opt-btn:disabled {
+  cursor: default;
+}
+.opt-btn.selected-correct {
+  border-color: var(--green);
+  background: rgba(74,222,128,0.12);
+  color: var(--green);
+}
+.opt-btn.selected-wrong {
+  border-color: var(--red);
+  background: rgba(248,113,113,0.12);
+  color: var(--red);
+}
+.opt-btn.show-correct {
+  border-color: var(--green);
+  background: rgba(74,222,128,0.08);
+  color: var(--green);
+}
+.opt-btn.dimmed {
+  opacity: 0.35;
+}
+
+/* category badge */
+.cat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 11px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  width: fit-content;
+}
+.cat-badge.cat-verb   { color: var(--gold);  background: rgba(232,184,75,.12); border: 1px solid rgba(232,184,75,.3); }
+.cat-badge.cat-just   { color: var(--teal);  background: rgba(62,207,176,.12); border: 1px solid rgba(62,207,176,.3); }
+.cat-badge.cat-ever   { color: var(--lilac); background: rgba(155,130,243,.12); border: 1px solid rgba(155,130,243,.3); }
+.cat-badge.cat-for    { color: var(--sky);   background: rgba(90,184,232,.12); border: 1px solid rgba(90,184,232,.3); }
+.cat-badge.cat-gone   { color: var(--coral); background: rgba(240,112,96,.12); border: 1px solid rgba(240,112,96,.3); }
+
+/* tip callout after answering */
+.tip-callout {
+  display: none;
+  background: var(--surface2);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 10px 10px 0;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+  animation: rise 0.3s ease;
+}
+.tip-callout.show { display: block; }
+.tip-callout b { color: var(--gold2); }
+
+/* feedback */
+.feedback {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  animation: rise 0.3s ease;
+}
+.feedback.show { display: flex; }
+.feedback.correct {
+  background: rgba(74,222,128,0.1);
+  border: 1px solid rgba(74,222,128,0.3);
+  color: var(--green);
+}
+.feedback.wrong {
+  background: rgba(248,113,113,0.1);
+  border: 1px solid rgba(248,113,113,0.3);
+  color: var(--red);
+}
+
+/* nav */
+#nav {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+.btn {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 10px 28px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s, opacity 0.12s, background 0.12s;
+  letter-spacing: 0.5px;
+}
+.btn:hover   { transform: translateY(-2px); }
+.btn:active  { transform: translateY(0); }
+.btn:disabled { opacity: 0.25; cursor: default; transform: none; }
+.btn-next {
+  background: var(--gold);
+  color: #0e1520;
+}
+.btn-next:not(:disabled):hover { background: var(--gold2); }
+.btn-restart {
+  background: var(--teal);
+  color: #0e1520;
+}
+.btn-restart:not(:disabled):hover { background: #5ee0c5; }
+
+/* ── results screen ── */
+.results-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 28px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: rise 0.5s cubic-bezier(.22,.68,0,1.1);
+}
+.results-card h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  color: var(--gold2);
+}
+.results-ring {
+  width: 140px; height: 140px;
+  position: relative;
+}
+.results-ring svg {
+  transform: rotate(-90deg);
+  width: 140px; height: 140px;
+}
+.results-ring .ring-bg {
+  fill: none;
+  stroke: var(--surface2);
+  stroke-width: 10;
+}
+.results-ring .ring-fg {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.2s ease;
+}
+.results-pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gold2);
+}
+.results-stats {
+  display: flex;
+  gap: 24px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+.results-stats .stat-g { color: var(--green); }
+.results-stats .stat-r { color: var(--red); }
+.results-msg {
+  font-size: 1rem;
+  color: var(--muted);
+  max-width: 340px;
+}
+
+/* ── start screen ── */
+.start-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px 28px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  animation: rise 0.5s cubic-bezier(.22,.68,0,1.1);
+}
+.start-card h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  color: var(--gold2);
+}
+.start-card .start-sub {
+  font-size: 1rem;
+  color: var(--muted);
+  max-width: 400px;
+  line-height: 1.5;
+}
+.start-card .start-info {
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 12px 20px;
+  display: flex;
+  gap: 20px;
+  font-weight: 700;
+}
+.start-card .start-info span { color: var(--gold2); }
+.formula {
+  background: linear-gradient(135deg, #1a2d4a, #111c30);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 12px 22px;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  color: var(--gold);
+  letter-spacing: 0.5px;
+}
+.formula span { color: var(--muted); }
+.formula em   { color: var(--text); font-style: normal; }
+.btn-start {
+  background: var(--gold);
+  color: #0e1520;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  padding: 13px 44px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s, background 0.12s;
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+}
+.btn-start:hover { background: var(--gold2); transform: translateY(-2px); }
+.btn-start:active { transform: translateY(0); }
+
+@media (max-width: 520px) {
+  .options { grid-template-columns: 1fr; }
+  .card-img { height: 160px; }
+  .header-bar { flex-direction: column; align-items: flex-start; gap: 6px; }
+}
+</style>
+</head>
+<body>
+
+<div id="shell">
+  <!-- ── START SCREEN ── -->
+  <div id="start-screen" class="start-card">
+    <div class="q-tag">Grammar Game</div>
+    <h1>Present Perfect Challenge</h1>
+    <p class="start-sub">Test your knowledge of the <strong>present perfect</strong> — verb forms, <strong>just / already / yet</strong>, <strong>ever / never</strong>, <strong>for / since</strong>, and <strong>gone to / been to</strong>!</p>
+    <div class="formula">
+      Subject <span>+</span> <em>have / has</em> <span>+</span> <em>past participle</em>
+    </div>
+    <div class="start-info">
+      <div>Questions: <span>30</span></div>
+      <div>Categories: <span>5</span></div>
+    </div>
+    <button class="btn-start" onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- ── GAME SCREEN ── -->
+  <div id="game-screen" style="display:none;">
+    <div class="header-bar">
+      <h1>Present Perfect</h1>
+      <div class="score-badge">
+        <span class="s-correct" id="s-correct">0</span>
+        <span class="s-sep">/</span>
+        <span class="s-wrong" id="s-wrong">0</span>
+      </div>
+    </div>
+
+    <div id="prog-row">
+      <div id="prog-track"><div id="prog-fill" style="width:0%"></div></div>
+      <span id="prog-label">1 / 18</span>
+    </div>
+
+    <div id="question-area"></div>
+
+    <div id="nav">
+      <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── RESULTS SCREEN ── -->
+  <div id="results-screen" style="display:none;"></div>
+</div>
+
+<script>
+const questions = [
+  // ═══ CATEGORY 1: Verb Forms ═══
+  {
+    img: "presentp/imgi_1_1574021490_110518.jpg",
+    sentence: "She ___ the piano since she was five.",
+    options: ["has played", "have played", "has play", "have plays"],
+    answer: "has played",
+    cat: "verb",
+    tip: "<b>play → played</b> (regular verb). Use <b>has</b> with she/he/it."
+  },
+  {
+    img: "presentp/imgi_3_1574021854_101131.jpg",
+    sentence: "They ___ football many times this year.",
+    options: ["has played", "have play", "has plays", "have played"],
+    answer: "have played",
+    cat: "verb",
+    tip: "<b>play → played</b> (regular). Use <b>have</b> with they/we/I/you."
+  },
+  {
+    img: "presentp/imgi_4_1574021955_83884.jpg",
+    sentence: "She ___ a beautiful cake for the party.",
+    options: ["has maked", "have made", "has made", "has maken"],
+    answer: "has made",
+    cat: "verb",
+    tip: "<b>make → made</b> (irregular). NOT 'maked'!"
+  },
+  {
+    img: "presentp/imgi_5_1574022090_286521.jpg",
+    sentence: "I ___ three books this month.",
+    options: ["has read", "have readed", "have read", "has readed"],
+    answer: "have read",
+    cat: "verb",
+    tip: "<b>read → read</b> (same form, different pronunciation: /red/)."
+  },
+  {
+    img: "presentp/imgi_8_1574022458_103468.jpg",
+    sentence: "The dog ___ away from home.",
+    options: ["has runned", "have run", "has ran", "has run"],
+    answer: "has run",
+    cat: "verb",
+    tip: "<b>run → run</b> (irregular). The past participle is NOT 'ran' or 'runned'."
+  },
+  {
+    img: "presentp/imgi_9_1574022589_47736.jpg",
+    sentence: "They ___ a present for their mother.",
+    options: ["have buyed", "has bought", "have bought", "have buy"],
+    answer: "have bought",
+    cat: "verb",
+    tip: "<b>buy → bought</b> (irregular). Use <b>have</b> with they."
+  },
+  {
+    img: "presentp/imgi_12_1574022932_87687.jpg",
+    sentence: "He ___ a presentation to the team.",
+    options: ["has gived", "have given", "has gave", "has given"],
+    answer: "has given",
+    cat: "verb",
+    tip: "<b>give → given</b> (irregular). 'Gave' is past simple, not past participle."
+  },
+  {
+    img: "presentp/imgi_13_1574023015_90982.jpg",
+    sentence: "She ___ her phone.",
+    options: ["has losed", "have lost", "has lost", "has lose"],
+    answer: "has lost",
+    cat: "verb",
+    tip: "<b>lose → lost</b> (irregular). NOT 'losed'!"
+  },
+  {
+    img: "presentp/imgi_14_1574023133_276798.jpg",
+    sentence: "The dog ___ its leg.",
+    options: ["has breaked", "have broken", "has broke", "has broken"],
+    answer: "has broken",
+    cat: "verb",
+    tip: "<b>break → broken</b> (irregular). 'Broke' is past simple."
+  },
+  {
+    img: "presentp/imgi_17_1574023553_68014.jpg",
+    sentence: "She ___ a cold.",
+    options: ["has catched", "have caught", "has caught", "has catching"],
+    answer: "has caught",
+    cat: "verb",
+    tip: "<b>catch → caught</b> (irregular). NOT 'catched'!"
+  },
+  {
+    img: "presentp/imgi_20_1574023758_55329.jpg",
+    sentence: "She ___ for five hours.",
+    options: ["has drived", "have driven", "has drove", "has driven"],
+    answer: "has driven",
+    cat: "verb",
+    tip: "<b>drive → driven</b> (irregular). 'Drove' is past simple."
+  },
+
+  // ═══ CATEGORY 2: Just / Already / Yet ═══
+  {
+    img: "presentp/imgi_4_1574021955_83884.jpg",
+    sentence: "She has ___ made a cake. It's still warm!",
+    options: ["just", "yet", "already", "ever"],
+    answer: "just",
+    cat: "just",
+    tip: "<b>Just</b> = a very short time ago. The cake is still warm, so she made it moments ago."
+  },
+  {
+    img: "presentp/imgi_7_1574022361_31935.jpg",
+    sentence: "He has ___ taken the test. You don't need to remind him.",
+    options: ["yet", "already", "never", "since"],
+    answer: "already",
+    cat: "just",
+    tip: "<b>Already</b> = sooner than expected. He did it, so no need to remind him!"
+  },
+  {
+    img: "presentp/imgi_15_1673425819_12232_url.jpg",
+    sentence: "She hasn't finished her homework ___.",
+    options: ["already", "just", "yet", "ever"],
+    answer: "yet",
+    cat: "just",
+    tip: "<b>Yet</b> = until now. Used at the end of <b>negatives</b> and <b>questions</b>."
+  },
+  {
+    img: "presentp/imgi_16_1574023373_85893.jpg",
+    sentence: "Has it stopped raining ___?",
+    options: ["already", "just", "yet", "never"],
+    answer: "yet",
+    cat: "just",
+    tip: "<b>Yet</b> is used in <b>questions</b> to ask if something expected has happened."
+  },
+  {
+    img: "presentp/imgi_9_1574022589_47736.jpg",
+    sentence: "I've ___ bought the present. Let's wrap it!",
+    options: ["yet", "never", "already", "since"],
+    answer: "already",
+    cat: "just",
+    tip: "<b>Already</b> goes between <b>have/has</b> and the <b>past participle</b>."
+  },
+  {
+    img: "presentp/imgi_17_1574023553_68014.jpg",
+    sentence: "She has ___ caught a cold. She started feeling sick minutes ago.",
+    options: ["yet", "just", "ever", "already"],
+    answer: "just",
+    cat: "just",
+    tip: "<b>Just</b> = very recently. She started feeling sick <b>minutes ago</b>."
+  },
+
+  // ═══ CATEGORY 3: Ever / Never ═══
+  {
+    img: "presentp/imgi_18_1574023625_203355.jpg",
+    sentence: "Have you ___ been to London?",
+    options: ["ever", "never", "yet", "already"],
+    answer: "ever",
+    cat: "ever",
+    tip: "<b>Ever</b> = at any time in your life. Used in <b>questions</b>: Have you <b>ever</b> ...?"
+  },
+  {
+    img: "presentp/imgi_10_1673425735_24043_url.jpg",
+    sentence: "I have ___ visited Tower Bridge. It was amazing!",
+    options: ["never", "ever", "already", "yet"],
+    answer: "already",
+    cat: "ever",
+    tip: "She DID visit it, so <b>never</b> doesn't work. <b>Already</b> = it's done."
+  },
+  {
+    img: "presentp/imgi_1_1574021490_110518.jpg",
+    sentence: "She has ___ played the piano. She doesn't know how.",
+    options: ["ever", "never", "just", "yet"],
+    answer: "never",
+    cat: "ever",
+    tip: "<b>Never</b> = at no time. She doesn't know how, so she has <b>never</b> played."
+  },
+  {
+    img: "presentp/imgi_3_1574021854_101131.jpg",
+    sentence: "Have they ___ played in a championship?",
+    options: ["never", "yet", "ever", "just"],
+    answer: "ever",
+    cat: "ever",
+    tip: "<b>Ever</b> is used in <b>questions</b> to ask about life experience."
+  },
+  {
+    img: "presentp/imgi_20_1574023758_55329.jpg",
+    sentence: "He has ___ driven a sports car. He'd love to try!",
+    options: ["ever", "already", "never", "just"],
+    answer: "never",
+    cat: "ever",
+    tip: "<b>Never</b> = not at any time. He'd love to try because he has <b>never</b> done it."
+  },
+
+  // ═══ CATEGORY 4: For / Since ═══
+  {
+    img: "presentp/imgi_11_1574022845_133193.jpg",
+    sentence: "They have lived in this house ___ 2015.",
+    options: ["for", "since", "already", "just"],
+    answer: "since",
+    cat: "for",
+    tip: "<b>Since</b> + a <b>point in time</b> (2015, Monday, January, I was a child)."
+  },
+  {
+    img: "presentp/imgi_2_1574021578_48838.jpg",
+    sentence: "He has studied English ___ three years.",
+    options: ["since", "for", "already", "yet"],
+    answer: "for",
+    cat: "for",
+    tip: "<b>For</b> + a <b>period of time</b> (three years, two hours, a long time)."
+  },
+  {
+    img: "presentp/imgi_17_1574023553_68014.jpg",
+    sentence: "She has been sick ___ last Monday.",
+    options: ["for", "since", "ever", "just"],
+    answer: "since",
+    cat: "for",
+    tip: "<b>Since</b> + a <b>specific point</b> in time. 'Last Monday' is a point in time."
+  },
+  {
+    img: "presentp/imgi_12_1574022932_87687.jpg",
+    sentence: "He has worked at this company ___ ten years.",
+    options: ["since", "for", "yet", "never"],
+    answer: "for",
+    cat: "for",
+    tip: "<b>For</b> + a <b>duration</b>. 'Ten years' is a period of time."
+  },
+  {
+    img: "presentp/imgi_16_1574023373_85893.jpg",
+    sentence: "It has rained ___ this morning.",
+    options: ["for", "since", "already", "ever"],
+    answer: "since",
+    cat: "for",
+    tip: "<b>Since</b> + a starting point. 'This morning' is when the rain began."
+  },
+
+  // ═══ CATEGORY 5: Gone to / Been to ═══
+  {
+    img: "presentp/imgi_18_1574023625_203355.jpg",
+    sentence: "Amy has ___ to London. She loved it and she's home now.",
+    options: ["gone", "been", "went", "going"],
+    answer: "been",
+    cat: "gone",
+    tip: "<b>Been to</b> = visited and <b>came back</b>. She's home now!"
+  },
+  {
+    img: "presentp/imgi_10_1673425735_24043_url.jpg",
+    sentence: "James has ___ to London. He is there now.",
+    options: ["been", "gone", "went", "going"],
+    answer: "gone",
+    cat: "gone",
+    tip: "<b>Gone to</b> = <b>still there</b>, has not returned. He is in London now."
+  },
+  {
+    img: "presentp/imgi_13_1574023015_90982.jpg",
+    sentence: "She has ___ to the shop. She'll be back soon.",
+    options: ["been", "gone", "went", "going"],
+    answer: "gone",
+    cat: "gone",
+    tip: "<b>Gone to</b> = she is <b>not here</b> right now. She'll be back soon."
+  },
+  {
+    img: "presentp/imgi_11_1574022845_133193.jpg",
+    sentence: "I have ___ to that house before. I know the way.",
+    options: ["gone", "been", "went", "going"],
+    answer: "been",
+    cat: "gone",
+    tip: "<b>Been to</b> = I visited it <b>in the past</b> and came back. I have the experience."
+  }
+];
+
+let current = 0;
+let score = 0;
+let wrong = 0;
+let answered = false;
+let shuffled = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startGame() {
+  current = 0;
+  score = 0;
+  wrong = 0;
+  answered = false;
+  shuffled = shuffle(questions);
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = '';
+  updateScore();
+  renderQuestion();
+}
+
+function updateScore() {
+  document.getElementById('s-correct').textContent = score;
+  document.getElementById('s-wrong').textContent = wrong;
+}
+
+function updateProgress() {
+  const total = shuffled.length;
+  document.getElementById('prog-label').textContent = `${current + 1} / ${total}`;
+  document.getElementById('prog-fill').style.width = `${((current + 1) / total) * 100}%`;
+}
+
+function renderQuestion() {
+  answered = false;
+  document.getElementById('nextBtn').disabled = true;
+  updateProgress();
+
+  const q = shuffled[current];
+  const opts = shuffle(q.options);
+  const parts = q.sentence.split('___');
+
+  const area = document.getElementById('question-area');
+  area.innerHTML = '';
+
+  const catLabels = { verb: 'Verb Form', just: 'Just / Already / Yet', ever: 'Ever / Never', for: 'For / Since', gone: 'Gone to / Been to' };
+  const catClass  = { verb: 'cat-verb', just: 'cat-just', ever: 'cat-ever', for: 'cat-for', gone: 'cat-gone' };
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <img class="card-img" src="${q.img}" alt="question image">
+    <div class="card-body">
+      <div class="q-tag">Question ${current + 1} of ${shuffled.length}</div>
+      <div class="sentence">${parts[0]}<span class="blank" id="blank">______</span>${parts[1]}</div>
+      <div class="options" id="opts">
+        ${opts.map((o, i) => `<button class="opt-btn" data-val="${o}" onclick="selectAnswer(this)">${o}</button>`).join('')}
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="tip-callout" id="tip-callout">${q.tip}</div>
+    </div>
+  `;
+  area.appendChild(card);
+}
+
+function selectAnswer(btn) {
+  if (answered) return;
+  answered = true;
+
+  const q = shuffled[current];
+  const val = btn.dataset.val;
+  const isCorrect = val === q.answer;
+  const blank = document.getElementById('blank');
+  const feedback = document.getElementById('feedback');
+  const allBtns = document.querySelectorAll('.opt-btn');
+
+  if (isCorrect) {
+    score++;
+    btn.classList.add('selected-correct');
+    blank.textContent = q.answer;
+    blank.classList.add('correct');
+    feedback.className = 'feedback show correct';
+    feedback.innerHTML = '&#10004; Correct!';
+  } else {
+    wrong++;
+    btn.classList.add('selected-wrong');
+    blank.textContent = val;
+    blank.classList.add('wrong');
+    feedback.className = 'feedback show wrong';
+    feedback.innerHTML = `&#10008; The correct answer is: <strong>${q.answer}</strong>`;
+    // highlight the correct one
+    allBtns.forEach(b => {
+      if (b.dataset.val === q.answer) b.classList.add('show-correct');
+    });
+  }
+
+  // dim other buttons
+  allBtns.forEach(b => {
+    b.disabled = true;
+    if (b !== btn && b.dataset.val !== q.answer) b.classList.add('dimmed');
+  });
+
+  updateScore();
+
+  // show the grammar tip
+  const tipEl = document.getElementById('tip-callout');
+  if (tipEl) tipEl.classList.add('show');
+
+  if (current < shuffled.length - 1) {
+    document.getElementById('nextBtn').disabled = false;
+  } else {
+    // last question – auto-show results after delay
+    setTimeout(showResults, 1200);
+  }
+}
+
+function nextQuestion() {
+  current++;
+  renderQuestion();
+}
+
+function showResults() {
+  document.getElementById('game-screen').style.display = 'none';
+  const total = shuffled.length;
+  const pct = Math.round((score / total) * 100);
+  const circ = 2 * Math.PI * 56;
+  const offset = circ - (circ * pct / 100);
+
+  let msg = '';
+  if (pct === 100) msg = 'Perfect score! You are a present perfect master!';
+  else if (pct >= 80) msg = 'Excellent work! You really know your present perfect!';
+  else if (pct >= 60) msg = 'Good job! Keep practicing to improve even more.';
+  else if (pct >= 40) msg = 'Not bad! Review the rules and try again.';
+  else msg = 'Keep studying! Practice makes perfect.';
+
+  const res = document.getElementById('results-screen');
+  res.style.display = '';
+  res.innerHTML = `
+    <div class="results-card">
+      <div class="q-tag">Game Over</div>
+      <h1>Your Results</h1>
+      <div class="results-ring">
+        <svg viewBox="0 0 128 128">
+          <circle class="ring-bg" cx="64" cy="64" r="56"/>
+          <circle class="ring-fg" cx="64" cy="64" r="56"
+            stroke-dasharray="${circ}"
+            stroke-dashoffset="${circ}"
+            id="ring-anim"/>
+        </svg>
+        <div class="results-pct" id="pct-text">0%</div>
+      </div>
+      <div class="results-stats">
+        <div class="stat-g">&#10004; ${score} correct</div>
+        <div class="stat-r">&#10008; ${wrong} wrong</div>
+      </div>
+      <p class="results-msg">${msg}</p>
+      <button class="btn btn-restart" onclick="restart()">Play Again</button>
+    </div>
+  `;
+
+  // animate ring
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.getElementById('ring-anim').style.strokeDashoffset = offset;
+      // animate percentage number
+      let cur = 0;
+      const step = Math.max(1, Math.floor(pct / 30));
+      const iv = setInterval(() => {
+        cur = Math.min(cur + step, pct);
+        document.getElementById('pct-text').textContent = cur + '%';
+        if (cur >= pct) clearInterval(iv);
+      }, 30);
+    });
+  });
+}
+
+function restart() {
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('start-screen').style.display = '';
+}
+</script>
+</body>
+</html>

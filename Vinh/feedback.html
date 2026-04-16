@@ -4,49 +4,52 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Presentation Drill — Teacher Lewis</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0d0f14;
-    --surface: #161920;
-    --surface2: #1e2230;
-    --border: rgba(255,255,255,0.08);
-    --gold: #f5c842;
-    --gold-dim: rgba(245,200,66,0.15);
-    --gold-glow: rgba(245,200,66,0.3);
-    --text: #f0ede8;
-    --muted: #8a8fa8;
-    --danger: #ff5c5c;
-    --success: #4de89a;
+    --bg: #141118;
+    --surface: #1e1a24;
+    --surface2: #272230;
+    --border: rgba(255,255,255,0.07);
+    --gold: #f0b847;
+    --gold-dim: rgba(240,184,71,0.12);
+    --gold-glow: rgba(240,184,71,0.22);
+    --text: #f4f1ed;
+    --muted: #9e96ad;
+    --danger: #f27068;
+    --success: #5aeaa0;
     --phase-colors: #7c9eff, #c47cff, #ff9b5c, #4de89a;
+    --radius-lg: 24px;
+    --radius-md: 16px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem 1rem 4rem;
+    padding: 2.5rem 1.25rem 4rem;
     overflow-x: hidden;
   }
 
-  /* Subtle grid bg */
+  /* Warm ambient glow */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-    background-size: 40px 40px;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 10%, rgba(124,158,255,0.06), transparent),
+      radial-gradient(ellipse 50% 40% at 80% 90%, rgba(196,124,255,0.05), transparent);
     pointer-events: none;
     z-index: 0;
   }
 
-  .wrap { position: relative; z-index: 1; width: 100%; max-width: 640px; }
+  .wrap { position: relative; z-index: 1; width: 100%; max-width: 580px; }
 
   /* Header */
   .header {
@@ -57,7 +60,7 @@
   }
   .header h1 {
     font-family: 'Syne', sans-serif;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 800;
     letter-spacing: -0.5px;
     color: var(--text);
@@ -80,31 +83,32 @@
 
   /* Start screen */
   .start-card {
-    background: var(--surface);
+    background: linear-gradient(170deg, var(--surface) 0%, #1a1620 100%);
     border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 2rem;
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem;
     text-align: center;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
   }
   .start-card .icon {
-    font-size: 48px;
-    margin-bottom: 1rem;
+    font-size: 56px;
+    margin-bottom: 1.25rem;
     display: block;
-    filter: drop-shadow(0 0 20px var(--gold-glow));
+    filter: drop-shadow(0 0 24px var(--gold-glow));
   }
   .start-card h2 {
     font-family: 'Syne', sans-serif;
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 800;
-    margin-bottom: 0.5rem;
-    line-height: 1.2;
+    margin-bottom: 0.75rem;
+    line-height: 1.25;
   }
   .start-card p {
     color: var(--muted);
     font-size: 15px;
-    line-height: 1.6;
-    margin-bottom: 1.75rem;
-    max-width: 380px;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    max-width: 400px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -112,17 +116,17 @@
   /* Structure preview */
   .structure {
     background: var(--surface2);
-    border-radius: 14px;
-    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.35rem;
     text-align: left;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.75rem;
   }
   .structure-row {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 6px 0;
-    font-size: 13px;
+    padding: 8px 0;
+    font-size: 13.5px;
     color: var(--muted);
     border-bottom: 1px solid var(--border);
   }
@@ -144,21 +148,23 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 13px 28px;
+    padding: 14px 30px;
     border-radius: 50px;
     border: none;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     text-decoration: none;
+    letter-spacing: 0.1px;
   }
   .btn-gold {
-    background: var(--gold);
+    background: linear-gradient(135deg, var(--gold) 0%, #f0c040 100%);
     color: #1a1400;
+    box-shadow: 0 4px 16px rgba(240,184,71,0.25);
   }
-  .btn-gold:hover { background: #ffd55a; transform: translateY(-1px); }
+  .btn-gold:hover { background: linear-gradient(135deg, #ffd55a 0%, #f5cc50 100%); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(240,184,71,0.35); }
   .btn-outline {
     background: transparent;
     color: var(--text);
@@ -176,13 +182,14 @@
 
   /* Topic reveal */
   .topic-reveal {
-    background: linear-gradient(135deg, #1e2230 0%, #161920 100%);
+    background: linear-gradient(135deg, #252030 0%, #1e1a24 100%);
     border: 1px solid var(--gold-glow);
-    border-radius: 20px;
-    padding: 2rem;
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem;
     text-align: center;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
   }
   .topic-reveal::before {
     content: '';
@@ -204,10 +211,10 @@
   }
   .topic-text {
     font-family: 'Syne', sans-serif;
-    font-size: 30px;
+    font-size: 28px;
     font-weight: 800;
-    line-height: 1.15;
-    margin-bottom: 1rem;
+    line-height: 1.2;
+    margin-bottom: 1.25rem;
   }
 
   /* Countdown ring */
@@ -248,10 +255,12 @@
 
   /* Phase card */
   .phase-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 1.5rem;
+    background: linear-gradient(170deg, var(--surface) 0%, #1a1620 100%);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.2);
   }
   .phase-header {
     display: flex;
@@ -261,39 +270,40 @@
   }
   .phase-chip {
     font-size: 11px;
-    font-weight: 500;
-    padding: 3px 12px;
+    font-weight: 600;
+    padding: 4px 14px;
     border-radius: 20px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
   }
   .phase-title {
     font-family: 'Syne', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 800;
   }
 
   /* Prompt box */
   .prompt-box {
     background: var(--surface2);
-    border-radius: 12px;
-    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.35rem;
     font-size: 15px;
-    line-height: 1.6;
+    line-height: 1.7;
     color: var(--text);
     margin-bottom: 1rem;
     border-left: 3px solid;
   }
   .transition-hint {
-    font-size: 13px;
+    font-size: 13.5px;
     color: var(--muted);
     display: flex;
     align-items: flex-start;
-    gap: 8px;
+    gap: 10px;
     margin-bottom: 1rem;
-    padding: 10px 12px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 10px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.035);
+    border-radius: 12px;
+    line-height: 1.6;
   }
 
   /* Recording indicator */
@@ -301,7 +311,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: 13.5px;
     color: var(--danger);
     justify-content: center;
     opacity: 0;
@@ -320,8 +330,9 @@
   .struct-map {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 1.25rem 1rem 1rem;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1.25rem 1.25rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
   }
   .struct-row {
     display: flex;
@@ -330,8 +341,8 @@
     margin-bottom: 8px;
   }
   .struct-node {
-    border: 2.5px solid rgba(255,255,255,0.12);
-    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -377,9 +388,60 @@
   .struct-node.done .node-tick { opacity: 1; }
   /* Active state — highlighted with phase color via inline style */
   .struct-node.active {
-    transform: scale(1.04);
+    transform: scale(1.08);
+    animation: nodeGlow 1.5s ease-in-out infinite;
   }
-  .struct-node.active .node-label { color: #fff; }
+  .struct-node.active .node-label {
+    color: #fff;
+    font-size: 13px;
+  }
+  @keyframes nodeGlow {
+    0%, 100% { box-shadow: 0 0 12px var(--active-glow, rgba(124,158,255,0.3)); }
+    50% { box-shadow: 0 0 28px var(--active-glow, rgba(124,158,255,0.55)); }
+  }
+
+  /* Step indicator */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 0.75rem;
+    padding-top: 1.25rem;
+  }
+  .step-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    transition: all 0.35s ease;
+    position: relative;
+  }
+  .step-dot.done {
+    background: rgba(255,255,255,0.35);
+    border-color: rgba(255,255,255,0.35);
+  }
+  .step-dot.active {
+    transform: scale(1.4);
+    border-width: 3px;
+  }
+  .step-dot-label {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .step-dot.active .step-dot-label {
+    opacity: 1;
+  }
+
   /* Connector line between top and middle row */
   .struct-connector {
     display: flex;
@@ -399,18 +461,62 @@
   }
   .connector-line.lit { background: rgba(255,255,255,0.3); }
 
+  /* Horizontal connectors between points */
+  .h-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .h-connector .h-arrow {
+    font-size: 14px;
+    color: rgba(255,255,255,0.15);
+    transition: color 0.3s, font-size 0.3s;
+    line-height: 1;
+  }
+  .h-connector .h-word {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.12);
+    transition: color 0.3s;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+  .h-connector.lit .h-arrow { color: rgba(255,255,255,0.5); }
+  .h-connector.lit .h-word { color: rgba(255,255,255,0.4); }
+  .h-connector.active .h-arrow {
+    color: #fff;
+    font-size: 18px;
+    animation: hPulse 1.2s ease-in-out infinite;
+  }
+  .h-connector.active .h-word {
+    color: var(--gold);
+    font-size: 9px;
+    font-weight: 800;
+  }
+  @keyframes hPulse {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+
   /* Playback screen */
   .playback-card {
-    background: var(--surface);
+    background: linear-gradient(170deg, var(--surface) 0%, #1a1620 100%);
     border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
   }
   .playback-card h2 {
     font-family: 'Syne', sans-serif;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 800;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
   }
   .playback-card .sub {
     font-size: 13px;
@@ -431,8 +537,8 @@
   .stat {
     flex: 1;
     background: var(--surface2);
-    border-radius: 12px;
-    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
     text-align: center;
   }
   .stat .val {
@@ -446,8 +552,8 @@
   /* Share panel */
   .share-panel {
     background: var(--surface2);
-    border-radius: 14px;
-    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.35rem;
   }
   .share-panel p { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
   .share-row { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -461,8 +567,9 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 50px;
-    padding: 10px 20px;
+    padding: 12px 24px;
     font-size: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     color: var(--text);
     z-index: 999;
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -474,13 +581,182 @@
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
   .mic-blocked {
-    background: rgba(255,92,92,0.1);
-    border: 1px solid rgba(255,92,92,0.25);
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 13px;
+    background: rgba(242,112,104,0.08);
+    border: 1px solid rgba(242,112,104,0.2);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    font-size: 14px;
     color: var(--danger);
     display: none;
+    line-height: 1.6;
+  }
+
+  /* Settings button */
+  .settings-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 18px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+  .settings-btn:hover {
+    background: var(--surface);
+    color: var(--text);
+    transform: rotate(30deg);
+  }
+
+  /* Settings modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,8,14,0.75);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: linear-gradient(170deg, var(--surface) 0%, #1a1620 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 16px 64px rgba(0,0,0,0.5);
+    animation: fadeIn 0.25s ease forwards;
+  }
+  .modal h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  .modal .modal-sub {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  .setting-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .setting-row:last-of-type { border-bottom: none; }
+  .setting-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .setting-label {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .setting-label small {
+    display: block;
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .setting-input {
+    width: 64px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .setting-input:focus {
+    border-color: var(--gold);
+  }
+  .setting-unit {
+    font-size: 12px;
+    color: var(--muted);
+    width: 14px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.5rem;
+    justify-content: flex-end;
+  }
+  .modal-total {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 1rem;
+    text-align: right;
+  }
+  .modal-total span {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* Topic category chooser */
+  .category-chooser {
+    margin-bottom: 1.5rem;
+  }
+  .category-chooser .chooser-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .category-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .cat-pill {
+    padding: 8px 16px;
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .cat-pill:hover {
+    background: var(--surface2);
+    color: var(--text);
+    border-color: rgba(255,255,255,0.15);
+  }
+  .cat-pill.active {
+    background: var(--gold);
+    color: #1a1400;
+    border-color: var(--gold);
+    font-weight: 600;
+    box-shadow: 0 2px 12px rgba(240,184,71,0.25);
+  }
+  .cat-pill .cat-emoji {
+    margin-right: 4px;
   }
 </style>
 </head>
@@ -507,17 +783,27 @@
         </div>
         <div class="structure-row">
           <span class="dot" style="background:#c47cff"></span>
-          <span>Point 1 + transition</span>
+          <span>Point 1</span>
           <span class="time">40s</span>
+        </div>
+        <div class="structure-row">
+          <span class="dot" style="background:#e0a0ff"></span>
+          <span>↳ Transition — link to next point</span>
+          <span class="time">10s</span>
         </div>
         <div class="structure-row">
           <span class="dot" style="background:#ff9b5c"></span>
-          <span>Point 2 + transition</span>
+          <span>Point 2</span>
           <span class="time">40s</span>
         </div>
         <div class="structure-row">
+          <span class="dot" style="background:#ffb87a"></span>
+          <span>↳ Transition — link to next point</span>
+          <span class="time">10s</span>
+        </div>
+        <div class="structure-row">
           <span class="dot" style="background:#ffd55a"></span>
-          <span>Point 3 + transition</span>
+          <span>Point 3</span>
           <span class="time">40s</span>
         </div>
         <div class="structure-row">
@@ -527,8 +813,20 @@
         </div>
       </div>
 
+      <div class="category-chooser">
+        <p class="chooser-label">Topic difficulty</p>
+        <div class="category-pills" id="categoryPills">
+          <button class="cat-pill" onclick="pickCategory('everyday')" data-cat="everyday"><span class="cat-emoji">☕</span>Everyday</button>
+          <button class="cat-pill" onclick="pickCategory('business')" data-cat="business"><span class="cat-emoji">💼</span>Business</button>
+          <button class="cat-pill" onclick="pickCategory('finance')" data-cat="finance"><span class="cat-emoji">📈</span>Finance</button>
+          <button class="cat-pill" onclick="pickCategory('big-ideas')" data-cat="big-ideas"><span class="cat-emoji">🌍</span>Big Ideas</button>
+          <button class="cat-pill active" onclick="pickCategory('all')" data-cat="all"><span class="cat-emoji">🎲</span>Mix</button>
+        </div>
+      </div>
+
       <div class="btn-row">
         <button class="btn btn-gold" onclick="startGame()">Get My Topic ✦</button>
+        <button class="settings-btn" onclick="openSettings()" title="Settings">⚙</button>
       </div>
     </div>
   </div>
@@ -551,50 +849,55 @@
 
   <!-- ===== SCREEN 3: DRILL ===== -->
   <div id="screen-drill" class="screen">
-
-    <!-- Structure map -->
     <div class="struct-map">
-      <!-- Introduction -->
       <div class="struct-row">
         <div class="struct-node struct-node-wide" id="snode-0">
           <div class="node-tick">✓</div>
           <div class="node-label">Introduction</div>
         </div>
       </div>
-      <!-- Connectors down to points -->
       <div class="struct-connector">
         <div class="connector-line" id="conn-0"></div>
         <div class="connector-line" id="conn-1"></div>
         <div class="connector-line" id="conn-2"></div>
       </div>
-      <!-- Points 1, 2, 3 -->
       <div class="struct-row">
         <div class="struct-node struct-node-tall" id="snode-1">
           <div class="node-tick">✓</div>
           <div class="node-label">Point<br>1</div>
         </div>
+        <div class="h-connector" id="hconn-1">
+          <span class="h-arrow">→</span>
+          <span class="h-word">then</span>
+        </div>
         <div class="struct-node struct-node-tall" id="snode-2">
           <div class="node-tick">✓</div>
           <div class="node-label">Point<br>2</div>
+        </div>
+        <div class="h-connector" id="hconn-2">
+          <span class="h-arrow">→</span>
+          <span class="h-word">also</span>
         </div>
         <div class="struct-node struct-node-tall" id="snode-3">
           <div class="node-tick">✓</div>
           <div class="node-label">Point<br>3</div>
         </div>
       </div>
-      <!-- Connectors down to conclusion -->
       <div class="struct-connector">
         <div class="connector-line" id="conn-3"></div>
         <div class="connector-line" id="conn-4"></div>
         <div class="connector-line" id="conn-5"></div>
       </div>
-      <!-- Conclusion -->
       <div class="struct-row">
         <div class="struct-node struct-node-wide" id="snode-4">
           <div class="node-tick">✓</div>
           <div class="node-label">Conclusion</div>
         </div>
       </div>
+    </div>
+
+    <div class="step-indicator" id="stepIndicator">
+      <div class="step-dots" id="stepDots"></div>
     </div>
 
     <div class="phase-card fade-in" id="phaseCard">
@@ -628,7 +931,6 @@
     <div class="mic-blocked" id="micBlocked">
       Microphone access was denied. Please allow mic access and reload the page.
     </div>
-
   </div>
 
   <!-- ===== SCREEN 4: PLAYBACK ===== -->
@@ -636,14 +938,13 @@
     <div class="playback-card fade-in">
       <h2>Great work! 🎉</h2>
       <p class="sub">Topic: <span id="playbackTopic" style="color:var(--gold)">—</span></p>
-
       <div class="stat-row">
         <div class="stat">
           <div class="val" id="statTime">—</div>
           <div class="lbl">Total time</div>
         </div>
         <div class="stat">
-          <div class="val">5</div>
+          <div class="val">7</div>
           <div class="lbl">Sections</div>
         </div>
         <div class="stat">
@@ -651,9 +952,7 @@
           <div class="lbl">Completed</div>
         </div>
       </div>
-
       <audio id="audioPlayer" controls></audio>
-
       <div class="share-panel">
         <p>Share or save your recording:</p>
         <div class="share-row">
@@ -663,7 +962,6 @@
         </div>
       </div>
     </div>
-
     <div class="btn-row" style="margin-top:0.5rem;">
       <button class="btn btn-gold" onclick="resetGame()">Try Another Topic ✦</button>
     </div>
@@ -671,31 +969,73 @@
 
 </div>
 
+<!-- Settings modal -->
+<div class="modal-overlay" id="settingsOverlay" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <h3>⏱ Section Timings</h3>
+    <p class="modal-sub">Adjust how long each section lasts (in seconds).</p>
+    <div id="settingsRows"></div>
+    <div class="modal-total">Total: <span id="settingsTotal">—</span></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeSettings()" style="padding:10px 20px; font-size:14px;">Cancel</button>
+      <button class="btn btn-gold" onclick="saveSettings()" style="padding:10px 20px; font-size:14px;">Save</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-const TOPICS = [
-  "The benefits of learning a second language",
-  "Why sleep is important for health",
-  "How smartphones have changed daily life",
-  "The advantages of living in a city",
-  "Why exercise is good for mental health",
-  "How social media affects relationships",
-  "The importance of eating healthy food",
-  "Why travel is a good way to learn",
-  "How music affects our mood",
-  "The pros and cons of working from home",
-  "Why reading books is valuable",
-  "How technology is changing education",
-  "The importance of protecting the environment",
-  "Why learning to cook is a useful skill",
-  "How pets improve people's lives",
-  "The benefits of waking up early",
-  "Why volunteering is important",
-  "How money affects happiness",
-  "The value of having a hobby",
-  "Why first impressions matter"
-];
+const TOPIC_CATEGORIES = {
+  everyday: [
+    "The best way to spend a day off in New York",
+    "Why cooking at home is better than eating out",
+    "How your morning routine affects your whole day",
+    "The pros and cons of living in a big city",
+    "Why learning to say no is an important life skill",
+    "How music can change your mood instantly",
+    "The benefits of reading for at least 20 minutes a day",
+    "Why travelling alone is a valuable experience",
+    "How to stay healthy when you have a busy schedule",
+    "The importance of having a hobby outside of work"
+  ],
+  business: [
+    "What Western companies get wrong about doing business in Southeast Asia",
+    "Why the best leaders are often the most uncomfortable with certainty",
+    "The case for radical transparency in corporate culture",
+    "How remote work is quietly reshaping power dynamics in global firms",
+    "Why most mergers and acquisitions fail to deliver promised value",
+    "The art of disagreeing with your boss without damaging the relationship",
+    "Why the ability to tell stories is the most underrated skill in business",
+    "The difference between confidence and arrogance in professional settings",
+    "Why the smartest people in the room are often the worst communicators",
+    "How to make a complex idea understandable to anyone"
+  ],
+  finance: [
+    "Why passive investing is making markets less efficient",
+    "The case for — or against — cryptocurrency as a legitimate asset class",
+    "How AI will reshape the role of financial analysts in the next decade",
+    "Should central banks prioritise inflation control over employment?",
+    "The hidden risks of over-relying on quantitative models in finance",
+    "Why emerging markets are consistently undervalued by Western investors",
+    "How ESG investing has become more about marketing than impact",
+    "The argument for raising capital gains tax on short-term trading",
+    "Will the US dollar remain the world's reserve currency in 20 years?",
+    "How geopolitical risk is becoming the biggest blind spot for investors"
+  ],
+  "big-ideas": [
+    "How Vietnam's economic rise compares to China's — and where it diverges",
+    "The unintended consequences of economic sanctions on global trade",
+    "Why immigration is the most misunderstood economic issue in America",
+    "The pressure on immigrants to assimilate versus preserving cultural identity",
+    "Why being bilingual gives you a strategic advantage in negotiations",
+    "How living abroad permanently changes the way you think",
+    "The difference between being successful and being fulfilled",
+    "Why most career advice is wrong — and what actually matters",
+    "How growing up in a developing country gives you an edge in global finance",
+    "Why data alone never wins an argument — and what does"
+  ]
+};
 
 const PHASES = [
   {
@@ -704,7 +1044,8 @@ const PHASES = [
     color: "#7c9eff",
     duration: 30,
     prompt: (topic) => `Introduce your topic. Tell the audience what you are going to talk about.\n\nExample: "Today I'd like to talk about ${topic.toLowerCase()}. This is an interesting topic because..."`,
-    transition: null
+    transition: null,
+    isTransition: false
   },
   {
     key: "point1",
@@ -712,15 +1053,37 @@ const PHASES = [
     color: "#c47cff",
     duration: 40,
     prompt: () => "Give your FIRST point. Use a fact, example, or personal opinion to support it.",
-    transition: "Start with: \"First of all...\" / \"To begin with...\" / \"The first thing I want to mention is...\""
+    transition: "Start with: \"First of all...\" / \"To begin with...\" / \"The first thing I want to mention is...\"",
+    isTransition: false
+  },
+  {
+    key: "trans1",
+    label: "Transition",
+    color: "#e0a0ff",
+    duration: 10,
+    prompt: () => "Now connect your first point to your second. Use a linking phrase to move smoothly to your next idea.",
+    transition: "Use: \"In addition to this...\" / \"Another important point is...\" / \"Moving on to my second point...\"",
+    isTransition: true,
+    hconnId: "hconn-1"
   },
   {
     key: "point2",
     label: "Point 2",
     color: "#ff9b5c",
     duration: 40,
-    prompt: () => "Give your SECOND point. Connect it naturally to your first point.",
-    transition: "Transition with: \"In addition to this...\" / \"Another important point is...\" / \"Moving on to my second point...\""
+    prompt: () => "Give your SECOND point. Support it with a fact, example, or personal opinion.",
+    transition: null,
+    isTransition: false
+  },
+  {
+    key: "trans2",
+    label: "Transition",
+    color: "#ffb87a",
+    duration: 10,
+    prompt: () => "Now connect your second point to your third. Use a linking phrase to move smoothly to your final idea.",
+    transition: "Use: \"Finally...\" / \"Last but not least...\" / \"The third and most important point is...\"",
+    isTransition: true,
+    hconnId: "hconn-2"
   },
   {
     key: "point3",
@@ -728,7 +1091,8 @@ const PHASES = [
     color: "#ffd55a",
     duration: 40,
     prompt: () => "Give your THIRD point. Make it your strongest or most interesting idea.",
-    transition: "Transition with: \"Finally...\" / \"Last but not least...\" / \"The third and most important point is...\""
+    transition: null,
+    isTransition: false
   },
   {
     key: "conclusion",
@@ -736,10 +1100,15 @@ const PHASES = [
     color: "#4de89a",
     duration: 30,
     prompt: (topic) => `Wrap up your presentation. Summarise your three points and give a final thought on ${topic.toLowerCase()}.`,
-    transition: "Begin with: \"To summarise...\" / \"In conclusion...\" / \"To wrap up what I've said...\""
+    transition: "Begin with: \"To summarise...\" / \"In conclusion...\" / \"To wrap up what I've said...\"",
+    isTransition: false
   }
 ];
 
+const PHASE_TO_NODE = [0, 1, null, 2, null, 3, 4];
+const PHASE_TO_HCONN = [null, null, 'hconn-1', null, 'hconn-2', null, null];
+
+let selectedCategory = 'all';
 let currentTopic = "";
 let currentPhase = 0;
 let timerInterval = null;
@@ -749,6 +1118,67 @@ let allChunks = [];
 let fullBlob = null;
 let totalSeconds = 0;
 let startTime = null;
+
+// === Sound FX via Web Audio API ===
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTone(freq, duration, type, vol, delay) {
+  const ctx = getAudioCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type || 'sine';
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol || 0.15, ctx.currentTime + (delay || 0));
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (delay || 0) + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(ctx.currentTime + (delay || 0));
+  osc.stop(ctx.currentTime + (delay || 0) + duration);
+}
+
+function sfxPhaseStart() {
+  // Pleasant two-note chime
+  playTone(880, 0.15, 'sine', 0.12, 0);
+  playTone(1108, 0.2, 'sine', 0.10, 0.12);
+}
+
+function sfxTransitionStart() {
+  // Softer single glide tone
+  const ctx = getAudioCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(660, ctx.currentTime);
+  osc.frequency.linearRampToValueAtTime(880, ctx.currentTime + 0.2);
+  gain.gain.setValueAtTime(0.08, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.4);
+}
+
+function sfxTick() {
+  // Short soft tick
+  playTone(1000, 0.06, 'sine', 0.08, 0);
+}
+
+function sfxWarning() {
+  // Double-beep warning at 5 seconds
+  playTone(740, 0.1, 'square', 0.06, 0);
+  playTone(740, 0.1, 'square', 0.06, 0.15);
+}
+
+function sfxComplete() {
+  // Rising three-note fanfare
+  playTone(523, 0.15, 'sine', 0.12, 0);
+  playTone(659, 0.15, 'sine', 0.12, 0.15);
+  playTone(784, 0.3, 'sine', 0.14, 0.30);
+}
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -760,8 +1190,23 @@ function startGame() {
   showScreen('topic');
 }
 
+function getTopicPool() {
+  if (selectedCategory === 'all') {
+    return Object.values(TOPIC_CATEGORIES).flat();
+  }
+  return TOPIC_CATEGORIES[selectedCategory] || [];
+}
+
+function pickCategory(cat) {
+  selectedCategory = cat;
+  document.querySelectorAll('.cat-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.cat === cat);
+  });
+}
+
 function newTopic() {
-  currentTopic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
+  const pool = getTopicPool();
+  currentTopic = pool[Math.floor(Math.random() * pool.length)];
   document.getElementById('topicText').textContent = currentTopic;
 }
 
@@ -791,7 +1236,16 @@ async function beginDrill() {
 }
 
 function updateStructMap(phase) {
-  const colors = ['#7c9eff','#c47cff','#ff9b5c','#ffd55a','#4de89a'];
+  const nodeColors = ['#7c9eff','#c47cff','#ff9b5c','#ffd55a','#4de89a'];
+  const activeNode = PHASE_TO_NODE[phase];
+
+  // Determine which nodes are done: all nodes mapped by earlier phases
+  const doneNodes = new Set();
+  for (let p = 0; p < phase; p++) {
+    const n = PHASE_TO_NODE[p];
+    if (n !== null) doneNodes.add(n);
+  }
+
   for (let i = 0; i < 5; i++) {
     const node = document.getElementById('snode-' + i);
     if (!node) continue;
@@ -799,24 +1253,19 @@ function updateStructMap(phase) {
     node.style.borderColor = '';
     node.style.background = '';
     node.style.boxShadow = '';
-    if (i < phase) {
+    if (doneNodes.has(i)) {
       node.classList.add('done');
-    } else if (i === phase) {
+    } else if (i === activeNode) {
       node.classList.add('active');
-      node.style.borderColor = colors[i];
-      node.style.background = colors[i] + '22';
-      node.style.boxShadow = '0 0 16px ' + colors[i] + '44';
+      node.style.borderColor = nodeColors[i];
+      node.style.background = nodeColors[i] + '22';
+      node.style.setProperty('--active-glow', nodeColors[i] + '55');
     }
   }
-  // Light up connector lines for done/active phases
-  // connectors 0,1,2 = intro→points; 3,4,5 = points→conclusion
-  const connStates = [
-    phase > 0, phase > 1, phase > 2,   // intro done → light all 3 top connectors
-    phase > 3, phase > 3, phase > 3    // all points done → light bottom connectors
-  ];
-  // More nuanced: light individual top connectors as each point activates
-  const topLit = [phase >= 1, phase >= 2, phase >= 3];
-  const botLit = [phase >= 4, phase >= 4, phase >= 4];
+
+  // Vertical connectors
+  const topLit = [phase >= 1, phase >= 3, phase >= 5];
+  const botLit = [phase >= 6, phase >= 6, phase >= 6];
   [0,1,2].forEach(i => {
     const c = document.getElementById('conn-' + i);
     if (c) c.classList.toggle('lit', topLit[i]);
@@ -825,20 +1274,71 @@ function updateStructMap(phase) {
     const c = document.getElementById('conn-' + id);
     if (c) c.classList.toggle('lit', botLit[i]);
   });
+
+  // Horizontal connectors: active during transition phase, lit after
+  const activeHconn = PHASE_TO_HCONN[phase];
+  ['hconn-1','hconn-2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('active','lit');
+    if (id === activeHconn) {
+      el.classList.add('active');
+    } else if (
+      (id === 'hconn-1' && phase >= 3) ||
+      (id === 'hconn-2' && phase >= 5)
+    ) {
+      el.classList.add('lit');
+    }
+  });
+}
+
+function updateStepIndicator(phaseIndex) {
+  const container = document.getElementById('stepDots');
+  if (!container) return;
+  container.innerHTML = '';
+  const labels = ['Intro','Pt 1','\u2192','Pt 2','\u2192','Pt 3','End'];
+  for (let i = 0; i < PHASES.length; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot';
+    const c = PHASES[i].color;
+    if (PHASES[i].isTransition) { dot.style.width = '6px'; dot.style.height = '6px'; }
+    if (i < phaseIndex) {
+      dot.classList.add('done');
+      dot.style.borderColor = c;
+      dot.style.background = c;
+    }
+    if (i === phaseIndex) {
+      dot.classList.add('active');
+      dot.style.borderColor = c;
+      dot.style.background = c + '44';
+    }
+    const lbl = document.createElement('span');
+    lbl.className = 'step-dot-label';
+    lbl.textContent = labels[i];
+    lbl.style.color = c;
+    dot.appendChild(lbl);
+    container.appendChild(dot);
+  }
 }
 
 function runPhase() {
   const phase = PHASES[currentPhase];
   updateStructMap(currentPhase);
+  updateStepIndicator(currentPhase);
+
+  // Update phase card border to match current phase
+  const card = document.getElementById('phaseCard');
+  card.style.borderColor = phase.color + '66';
+  card.style.boxShadow = '0 0 20px ' + phase.color + '18';
 
   // Update chip
   const chip = document.getElementById('phaseChip');
-  chip.textContent = phase.label;
+  chip.textContent = phase.isTransition ? '↔ TRANSITION' : phase.label;
   chip.style.background = phase.color + '22';
   chip.style.color = phase.color;
   chip.style.border = '1px solid ' + phase.color + '44';
 
-  document.getElementById('phaseTitle').textContent = phase.label;
+  document.getElementById('phaseTitle').textContent = `Step ${currentPhase + 1} of 7 — ${phase.label}`;
 
   const promptEl = document.getElementById('phasePrompt');
   promptEl.textContent = phase.prompt(currentTopic);
@@ -859,11 +1359,18 @@ function runPhase() {
   updateRing(timeLeft, phase.duration);
   document.getElementById('timerNum').textContent = timeLeft;
 
+  // Sound: phase start
+  if (phase.isTransition) { sfxTransitionStart(); } else { sfxPhaseStart(); }
+
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     timeLeft--;
     document.getElementById('timerNum').textContent = timeLeft;
     updateRing(timeLeft, phase.duration);
+
+    // Sound: warning beep at 5s, ticks for last 3s
+    if (timeLeft === 5) sfxWarning();
+    if (timeLeft > 0 && timeLeft <= 3) sfxTick();
 
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
@@ -899,6 +1406,7 @@ function nextPhase() {
 function finishDrill() {
   clearInterval(timerInterval);
   totalSeconds = Math.round((Date.now() - startTime) / 1000);
+  sfxComplete();
 
   if (mediaRecorder && mediaRecorder.state !== 'inactive') {
     mediaRecorder.stop();
@@ -962,10 +1470,12 @@ Topic: ${currentTopic}
 
 Structure:
 1. Introduction (30s) — Introduce your topic
-2. Point 1 + Transition (40s) — "First of all..."
-3. Point 2 + Transition (40s) — "In addition..."
-4. Point 3 + Transition (40s) — "Finally..."
-5. Conclusion (30s) — "In conclusion..."
+2. Point 1 (40s) — "First of all..."
+3. Transition (10s) — "In addition to this..."
+4. Point 2 (40s) — Support with facts
+5. Transition (10s) — "Finally..."
+6. Point 3 (40s) — Strongest idea
+7. Conclusion (30s) — "In conclusion..."
 
 Total time: ${totalSeconds}s`;
   navigator.clipboard.writeText(text).then(() => showToast('Structure copied to clipboard!'));
@@ -976,6 +1486,56 @@ function resetGame() {
   allChunks = [];
   currentPhase = 0;
   showScreen('start');
+}
+
+function openSettings() {
+  const container = document.getElementById('settingsRows');
+  container.innerHTML = '';
+  PHASES.forEach((phase, i) => {
+    const row = document.createElement('div');
+    row.className = 'setting-row';
+    row.innerHTML = `
+      <span class="setting-dot" style="background:${phase.color}"></span>
+      <span class="setting-label">${phase.label}${phase.isTransition ? '<small>Connecting phrase</small>' : ''}</span>
+      <input type="number" class="setting-input" id="setting-${i}" value="${phase.duration}" min="5" max="120" oninput="updateSettingsTotal()">
+      <span class="setting-unit">s</span>
+    `;
+    container.appendChild(row);
+  });
+  updateSettingsTotal();
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+
+function updateSettingsTotal() {
+  let total = 0;
+  PHASES.forEach((_, i) => {
+    const input = document.getElementById('setting-' + i);
+    if (input) total += parseInt(input.value) || 0;
+  });
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  document.getElementById('settingsTotal').textContent = mins > 0 ? `${mins}m ${secs}s` : `${total}s`;
+}
+
+function closeSettings() {
+  document.getElementById('settingsOverlay').classList.remove('open');
+}
+
+function saveSettings() {
+  PHASES.forEach((phase, i) => {
+    const input = document.getElementById('setting-' + i);
+    if (input) {
+      const val = parseInt(input.value);
+      if (val >= 5 && val <= 120) phase.duration = val;
+    }
+  });
+  // Update the structure preview times on the start screen
+  const timeEls = document.querySelectorAll('.structure-row .time');
+  PHASES.forEach((phase, i) => {
+    if (timeEls[i]) timeEls[i].textContent = phase.duration + 's';
+  });
+  closeSettings();
+  showToast('Timings saved!');
 }
 
 function showToast(msg) {

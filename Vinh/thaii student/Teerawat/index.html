@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Lewis — English Class Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1a2e4a;
+      --navy-light: #243d60;
+      --gold: #f0c040;
+      --gold-dark: #c99a1a;
+      --text-light: #a8bcd4;
+      --white: #ffffff;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #f4f6f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1rem 3rem;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      animation: fadeDown 0.5s ease both;
+    }
+
+    .logo-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--navy);
+      border: 3px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      box-shadow: 0 4px 18px rgba(26,46,74,0.18);
+    }
+
+    .logo-ring span {
+      font-family: 'Fredoka One', cursive;
+      font-size: 26px;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    .header h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 32px;
+      color: var(--navy);
+      letter-spacing: 0.5px;
+    }
+
+    .header p {
+      font-size: 15px;
+      color: #667;
+      margin-top: 5px;
+    }
+
+    /* ── Container ── */
+    .container {
+      width: 100%;
+      max-width: 640px;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-family: 'Fredoka One', cursive;
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--gold-dark);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      padding-left: 2px;
+    }
+
+    /* ── Cards ── */
+    .cards {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 2rem;
+    }
+
+    .cards.two-col {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .card {
+      background: var(--navy);
+      border-radius: 18px;
+      padding: 1.4rem 1.25rem;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 2px solid transparent;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold);
+      box-shadow: 0 8px 24px rgba(26,46,74,0.2);
+    }
+
+    .card:nth-child(1) { animation-delay: 0.1s; }
+    .card:nth-child(2) { animation-delay: 0.18s; }
+    .card:nth-child(3) { animation-delay: 0.26s; }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 18px;
+      color: var(--gold);
+      margin-top: 4px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-light);
+      line-height: 1.55;
+    }
+
+    .card-arrow {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-top: auto;
+      padding-top: 10px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 1rem;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 460px) {
+      .cards.two-col { grid-template-columns: 1fr; }
+      .header h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo-ring"><span>TL</span></div>
+    <h1>Teacher Lewis</h1>
+    <p>Your English learning hub — pick where to go!</p>
+  </div>
+
+  <div class="container">
+
+    <div class="section-label">📖 Notes</div>
+    <div class="cards two-col" style="margin-bottom: 1.5rem;">
+      <a class="card" href="noteslesson1.html">
+        <div class="card-icon">📝</div>
+        <div class="card-title">Lesson 1 Notes</div>
+        <div class="card-desc">Review vocabulary, grammar points, and examples from Lesson 1.</div>
+        <div class="card-arrow">Open notes →</div>
+      </a>
+      <a class="card" href="lesson2.html">
+        <div class="card-icon">📝</div>
+        <div class="card-title">Lesson 2</div>
+        <div class="card-desc">Past Continuous grammar with examples and interactive exercises.</div>
+        <div class="card-arrow">Open lesson →</div>
+      </a>
+    </div>
+
+    <div class="section-label">🎮 Games & Activities</div>
+    <div class="cards two-col">
+      <a class="card" href="pastgame.html">
+        <div class="card-icon">🕹️</div>
+        <div class="card-title">Past Tense Game</div>
+        <div class="card-desc">Practice past tense in a fun interactive game.</div>
+        <div class="card-arrow">Play now →</div>
+      </a>
+      <a class="card" href="plan.html">
+        <div class="card-icon">📋</div>
+        <div class="card-title">Lesson Plan</div>
+        <div class="card-desc">See what we're working on this week.</div>
+        <div class="card-arrow">View plan →</div>
+      </a>
+    </div>
+
+  </div>
+
+  <div class="footer">Teacher Lewis · ESL Online Lessons</div>
+
+</body>
+</html>

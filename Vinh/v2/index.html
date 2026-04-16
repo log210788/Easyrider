@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Presentation Drill — Teacher Lewis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>Presentation Drill</h1>
+    <span class="badge">Teacher Lewis</span>
+  </div>
+
+  <!-- ===== SCREEN 1: START ===== -->
+  <div id="screen-start" class="screen active">
+    <div class="card start-card fade-in">
+      <span class="icon">🎙️</span>
+      <h2>Speak. Structure.<br>Sound Brilliant.</h2>
+      <p>You'll get a random topic. Record a mini-presentation — intro, three points with transitions, and a conclusion. Then listen back.</p>
+
+      <div class="structure" id="structurePreview"></div>
+
+      <div class="category-chooser">
+        <p class="chooser-label">Topic difficulty</p>
+        <div class="category-pills" id="categoryPills">
+          <button class="cat-pill" onclick="App.pickCategory('everyday')" data-cat="everyday"><span class="cat-emoji">☕</span>Everyday</button>
+          <button class="cat-pill" onclick="App.pickCategory('business')" data-cat="business"><span class="cat-emoji">💼</span>Business</button>
+          <button class="cat-pill" onclick="App.pickCategory('finance')" data-cat="finance"><span class="cat-emoji">📈</span>Finance</button>
+          <button class="cat-pill" onclick="App.pickCategory('big-ideas')" data-cat="big-ideas"><span class="cat-emoji">🌍</span>Big Ideas</button>
+          <button class="cat-pill active" onclick="App.pickCategory('all')" data-cat="all"><span class="cat-emoji">🎲</span>Mix</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-gold" onclick="App.start()">Get My Topic ✦</button>
+        <button class="settings-btn" onclick="App.openSettings()" title="Settings">⚙</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 2: TOPIC REVEAL ===== -->
+  <div id="screen-topic" class="screen">
+    <div class="topic-reveal fade-in">
+      <p class="topic-label">Your topic</p>
+      <p class="topic-text" id="topicText">—</p>
+      <p style="font-size:14px; color:var(--muted); margin-bottom:1.5rem; line-height:1.5;">
+        Plan for <strong style="color:var(--text)">20 seconds</strong>, then hit record.<br>
+        You'll be guided through each section.
+      </p>
+      <div class="btn-row">
+        <button class="btn btn-gold" onclick="App.beginDrill()">I'm Ready — Start Recording</button>
+        <button class="btn btn-outline" onclick="App.newTopic()">Different topic</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 3: DRILL ===== -->
+  <div id="screen-drill" class="screen">
+    <div class="struct-map" id="structMap"></div>
+
+    <div class="step-indicator">
+      <div class="step-dots" id="stepDots"></div>
+    </div>
+
+    <div class="phase-card fade-in" id="phaseCard">
+      <div class="phase-header">
+        <span class="phase-chip" id="phaseChip">—</span>
+        <span class="phase-title" id="phaseTitle">—</span>
+      </div>
+      <div class="prompt-box" id="phasePrompt"></div>
+      <div class="transition-hint" id="transitionHint" style="display:none">
+        <span>💬</span>
+        <span id="transitionText"></span>
+      </div>
+      <div class="countdown-wrap">
+        <div class="ring-container">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle class="ring-bg" cx="45" cy="45" r="38"/>
+            <circle class="ring-fg" id="ringFg" cx="45" cy="45" r="38"
+              stroke-dasharray="238.76" stroke-dashoffset="0" stroke="#7c9eff"/>
+          </svg>
+          <div class="ring-text">
+            <span class="seconds" id="timerNum">30</span>
+            <span class="unit">sec</span>
+          </div>
+        </div>
+      </div>
+      <div class="rec-indicator" id="recIndicator">
+        <div class="rec-dot"></div> Recording
+      </div>
+      <button class="btn btn-skip" id="skipBtn" onclick="App.skipPhase()">Next section →</button>
+    </div>
+
+    <div class="mic-blocked" id="micBlocked">
+      Microphone access was denied. Please allow mic access and reload the page.
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 4: PLAYBACK ===== -->
+  <div id="screen-playback" class="screen">
+    <div class="card playback-card fade-in">
+      <h2>Great work! 🎉</h2>
+      <p class="sub">Topic: <span id="playbackTopic" style="color:var(--gold)">—</span></p>
+      <div class="stat-row">
+        <div class="stat">
+          <div class="val" id="statTime">—</div>
+          <div class="lbl">Total time</div>
+        </div>
+        <div class="stat">
+          <div class="val" id="statSections">7</div>
+          <div class="lbl">Sections</div>
+        </div>
+        <div class="stat">
+          <div class="val">✓</div>
+          <div class="lbl">Completed</div>
+        </div>
+      </div>
+      <audio id="audioPlayer" controls></audio>
+      <div class="share-panel">
+        <p>Share or save your recording:</p>
+        <div class="share-row">
+          <button class="btn btn-outline" onclick="App.download()" style="font-size:13px; padding:9px 16px;">⬇ Download</button>
+          <button class="btn btn-outline" onclick="App.share()" style="font-size:13px; padding:9px 16px;" id="shareBtn">↗ Share</button>
+          <button class="btn btn-outline" onclick="App.copyStructure()" style="font-size:13px; padding:9px 16px;">📋 Copy structure</button>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:0.5rem;">
+      <button class="btn btn-gold" onclick="App.reset()">Try Another Topic ✦</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Settings modal -->
+<div class="modal-overlay" id="settingsOverlay" onclick="if(event.target===this)App.closeSettings()">
+  <div class="modal">
+    <h3>⏱ Section Timings</h3>
+    <p class="modal-sub">Adjust how long each section lasts (in seconds).</p>
+    <div id="settingsRows"></div>
+    <div class="modal-total">Total: <span id="settingsTotal">—</span></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="App.closeSettings()" style="padding:10px 20px; font-size:14px;">Cancel</button>
+      <button class="btn btn-gold" onclick="App.saveSettings()" style="padding:10px 20px; font-size:14px;">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="sounds.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

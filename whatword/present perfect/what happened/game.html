@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Has Just Happened? · Teacher Lewis</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e1520;
+  --surface:  #151f30;
+  --surface2: #1c2a42;
+  --border:   rgba(255,255,255,0.07);
+  --gold:     #e8b84b;
+  --gold2:    #f5d278;
+  --teal:     #3ecfb0;
+  --coral:    #f07060;
+  --sky:      #5ab8e8;
+  --lilac:    #9b82f3;
+  --text:     #dde8f8;
+  --muted:    #7a90b8;
+  --green:    #4ade80;
+  --red:      #f87171;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 0 40px;
+  overflow-y: auto;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#shell {
+  position: relative; z-index: 1;
+  width: min(700px, 94vw);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* header */
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.header-bar h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1rem, 2.8vw, 1.5rem);
+  color: var(--gold2);
+}
+.score-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 6px 16px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.score-badge .s-correct { color: var(--green); }
+.score-badge .s-wrong   { color: var(--red); }
+.score-badge .s-sep     { color: var(--muted); opacity: 0.4; }
+
+/* progress */
+#prog-row { display: flex; align-items: center; gap: 12px; }
+#prog-track {
+  flex: 1; height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+#prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--teal));
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+#prog-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+/* card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  animation: rise 0.4s cubic-bezier(.22,.68,0,1.1);
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+
+/* gif */
+.card-gif-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0a0f18;
+  border-bottom: 1px solid var(--border);
+  min-height: 200px;
+  max-height: 340px;
+  overflow: hidden;
+}
+.card-gif {
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  display: block;
+}
+
+.card-body {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.q-tag {
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 800;
+  opacity: 0.7;
+}
+
+.prompt {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  color: var(--gold2);
+  text-align: center;
+}
+
+.instruction {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: center;
+  margin-top: -6px;
+}
+
+/* ── sentence build zone ── */
+.build-zone {
+  background: var(--surface2);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  min-height: 56px;
+  padding: 12px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  transition: border-color 0.3s;
+}
+.build-zone.active {
+  border-color: var(--gold);
+}
+.build-zone.correct-zone {
+  border-color: var(--green);
+  background: rgba(74,222,128,0.05);
+}
+.build-zone.wrong-zone {
+  border-color: var(--red);
+  background: rgba(248,113,113,0.05);
+  animation: shake 0.4s ease;
+}
+.build-zone .placeholder {
+  color: var(--muted);
+  font-size: 0.85rem;
+  opacity: 0.5;
+  font-style: italic;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── word chips ── */
+.word-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  min-height: 42px;
+}
+
+.chip {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  white-space: nowrap;
+}
+.chip:hover {
+  border-color: var(--gold);
+  background: rgba(232,184,75,0.08);
+  transform: translateY(-2px);
+}
+.chip:active {
+  transform: translateY(0);
+}
+.chip.in-build {
+  background: rgba(232,184,75,0.12);
+  border-color: var(--gold);
+  color: var(--gold2);
+}
+.chip.in-build:hover {
+  border-color: var(--coral);
+  background: rgba(240,112,96,0.1);
+}
+.chip.used {
+  opacity: 0.2;
+  pointer-events: none;
+  transform: scale(0.95);
+}
+.chip.locked {
+  pointer-events: none;
+}
+.chip.correct-chip {
+  border-color: var(--green);
+  background: rgba(74,222,128,0.12);
+  color: var(--green);
+  pointer-events: none;
+}
+.chip.wrong-chip {
+  border-color: var(--red);
+  background: rgba(248,113,113,0.08);
+  color: var(--red);
+  pointer-events: none;
+}
+
+/* ── action buttons row ── */
+.action-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-check {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 10px 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s, opacity 0.12s, background 0.12s;
+  letter-spacing: 0.5px;
+  background: var(--teal);
+  color: #0e1520;
+}
+.btn-check:hover:not(:disabled) { background: #5ee0c5; transform: translateY(-2px); }
+.btn-check:active:not(:disabled) { transform: translateY(0); }
+.btn-check:disabled { opacity: 0.25; cursor: default; transform: none; }
+
+.btn-clear {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.12s, opacity 0.12s;
+  letter-spacing: 0.5px;
+  background: transparent;
+  color: var(--muted);
+}
+.btn-clear:hover:not(:disabled) { color: var(--text); border-color: var(--muted); transform: translateY(-2px); }
+.btn-clear:active:not(:disabled) { transform: translateY(0); }
+.btn-clear:disabled { opacity: 0.25; cursor: default; transform: none; }
+
+/* ── feedback ── */
+.feedback {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  animation: rise 0.3s ease;
+}
+.feedback.show { display: flex; }
+.feedback.correct {
+  background: rgba(74,222,128,0.1);
+  border: 1px solid rgba(74,222,128,0.3);
+  color: var(--green);
+}
+.feedback.wrong {
+  background: rgba(248,113,113,0.1);
+  border: 1px solid rgba(248,113,113,0.3);
+  color: var(--red);
+}
+
+/* ── correct answer reveal ── */
+.answer-reveal {
+  display: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  background: rgba(74,222,128,0.06);
+  border: 1px solid rgba(74,222,128,0.2);
+  color: var(--green);
+  animation: rise 0.3s ease;
+}
+.answer-reveal.show { display: block; }
+
+/* ── thai explanation card ── */
+.thai-card {
+  display: none;
+  background: linear-gradient(135deg, #0f2a2a, #0d2020);
+  border: 1px solid var(--teal);
+  border-radius: 12px;
+  padding: 14px 18px;
+  animation: rise 0.35s ease;
+  flex-direction: column;
+  gap: 8px;
+}
+.thai-card.show { display: flex; }
+.thai-card .thai-label {
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  font-weight: 800;
+  opacity: 0.7;
+}
+.thai-card .thai-answer {
+  font-size: clamp(1rem, 2.3vw, 1.15rem);
+  color: var(--teal);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.thai-card .thai-explain {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.thai-card .thai-explain b { color: var(--gold2); }
+
+/* nav */
+#nav { display: flex; gap: 10px; justify-content: center; }
+.btn {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 10px 28px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s, opacity 0.12s, background 0.12s;
+  letter-spacing: 0.5px;
+}
+.btn:hover   { transform: translateY(-2px); }
+.btn:active  { transform: translateY(0); }
+.btn:disabled { opacity: 0.25; cursor: default; transform: none; }
+.btn-next { background: var(--gold); color: #0e1520; }
+.btn-next:not(:disabled):hover { background: var(--gold2); }
+.btn-restart { background: var(--teal); color: #0e1520; }
+.btn-restart:not(:disabled):hover { background: #5ee0c5; }
+
+/* start screen */
+.start-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px 28px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  animation: rise 0.5s cubic-bezier(.22,.68,0,1.1);
+}
+.start-card h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  color: var(--gold2);
+}
+.start-card .start-sub {
+  font-size: 1rem;
+  color: var(--muted);
+  max-width: 440px;
+  line-height: 1.6;
+}
+.start-card .start-sub b { color: var(--teal); }
+.start-card .start-info {
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 12px 20px;
+  display: flex;
+  gap: 20px;
+  font-weight: 700;
+}
+.start-card .start-info span { color: var(--gold2); }
+.start-card .how-to {
+  text-align: left;
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 400px;
+}
+.start-card .how-to b { color: var(--gold2); }
+.start-card .how-to .step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #0e1520;
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+.formula {
+  background: linear-gradient(135deg, #1a2d4a, #111c30);
+  border: 1px solid var(--teal);
+  border-radius: 12px;
+  padding: 12px 22px;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  color: var(--teal);
+  letter-spacing: 0.5px;
+}
+.formula span { color: var(--muted); }
+.formula em   { color: var(--text); font-style: normal; }
+.btn-start {
+  background: var(--gold);
+  color: #0e1520;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  padding: 13px 44px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s, background 0.12s;
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+}
+.btn-start:hover { background: var(--gold2); transform: translateY(-2px); }
+.btn-start:active { transform: translateY(0); }
+
+/* results */
+.results-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 28px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: rise 0.5s cubic-bezier(.22,.68,0,1.1);
+}
+.results-card h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  color: var(--gold2);
+}
+.results-ring { width: 140px; height: 140px; position: relative; }
+.results-ring svg { transform: rotate(-90deg); width: 140px; height: 140px; }
+.results-ring .ring-bg { fill: none; stroke: var(--surface2); stroke-width: 10; }
+.results-ring .ring-fg { fill: none; stroke: var(--teal); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1.2s ease; }
+.results-pct {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem; font-weight: 700; color: var(--gold2);
+}
+.results-stats { display: flex; gap: 24px; font-weight: 700; font-size: 1rem; }
+.results-stats .stat-g { color: var(--green); }
+.results-stats .stat-r { color: var(--red); }
+.results-msg { font-size: 1rem; color: var(--muted); max-width: 340px; }
+
+@media (max-width: 520px) {
+  .card-gif-wrap { min-height: 150px; max-height: 240px; }
+  .header-bar { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .chip { padding: 7px 12px; font-size: 0.82rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="shell">
+  <!-- START SCREEN -->
+  <div id="start-screen" class="start-card">
+    <div class="q-tag">Present Perfect · Sentence Builder</div>
+    <h1>What Has Just Happened?</h1>
+    <p class="start-sub">Watch the GIF and <b>build the sentence</b> by tapping the words in the correct order!</p>
+    <div class="formula">
+      Subject <span>+</span> <em>has / have</em> <span>+</span> <em>just</em> <span>+</span> <em>past participle</em>
+    </div>
+    <div class="how-to">
+      <div><span class="step-num">1</span> Watch the <b>GIF</b></div>
+      <div><span class="step-num">2</span> Tap <b>words</b> to build the sentence</div>
+      <div><span class="step-num">3</span> Tap a word in the sentence to <b>remove</b> it</div>
+      <div><span class="step-num">4</span> Press <b>Check</b> when ready</div>
+    </div>
+    <div class="start-info">
+      <div>Questions: <span>11</span></div>
+      <div>Type: <span>Rebuild</span></div>
+    </div>
+    <button class="btn-start" onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" style="display:none;">
+    <div class="header-bar">
+      <h1>What Has Just Happened?</h1>
+      <div class="score-badge">
+        <span class="s-correct" id="s-correct">0</span>
+        <span class="s-sep">/</span>
+        <span class="s-wrong" id="s-wrong">0</span>
+      </div>
+    </div>
+    <div id="prog-row">
+      <div id="prog-track"><div id="prog-fill" style="width:0%"></div></div>
+      <span id="prog-label">1 / 11</span>
+    </div>
+    <div id="question-area"></div>
+    <div id="nav">
+      <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen" style="display:none;"></div>
+</div>
+
+<script>
+const questions = [
+  {
+    gif: "imgi_1_1651267312_1117664_gif-url.gif",
+    answer: "The baby has just eaten the camera.",
+    thai: "เด็กเพิ่งกินกล้อง",
+    explain: "We use <b>has just + past participle</b> to say something happened <b>a very short time ago</b>. Here: <b>eat → eaten</b> (irregular verb). Remember: eat – ate – <b>eaten</b>."
+  },
+  {
+    gif: "imgi_2_1651267385_1459869_gif-url.gif",
+    answer: "The monkey has just put on sunglasses.",
+    thai: "ลิงเพิ่งใส่แว่นกันแดด",
+    explain: "<b>put → put</b> (irregular — same form!). '<b>Put on</b>' means to wear something."
+  },
+  {
+    gif: "imgi_3_1651267416_243856_gif-url.gif",
+    answer: "The dog has just gone jet skiing.",
+    thai: "สุนัขเพิ่งไปเล่นเจ็ตสกี",
+    explain: "<b>go → gone</b> (irregular). '<b>Has just gone</b> + verb-ing' describes an activity that just happened."
+  },
+  {
+    gif: "imgi_4_1651267444_1892477_gif-url.gif",
+    answer: "The dog has just attacked the cabbages.",
+    thai: "สุนัขเพิ่งกัดกะหล่ำปลี",
+    explain: "<b>attack → attacked</b> (regular verb). We add <b>-ed</b> to regular verbs."
+  },
+  {
+    gif: "imgi_5_1651267504_1468466_gif-url.gif",
+    answer: "The dog has just ridden a merry-go-round.",
+    thai: "สุนัขเพิ่งขี่ม้าหมุน",
+    explain: "<b>ride → ridden</b> (irregular). Remember: ride – rode – <b>ridden</b>."
+  },
+  {
+    gif: "imgi_6_1651267518_493863_gif-url.gif",
+    answer: "The cat has just slid across the floor.",
+    thai: "แมวเพิ่งลื่นไถลบนพื้น",
+    explain: "<b>slide → slid</b> (irregular). Remember: slide – slid – <b>slid</b>."
+  },
+  {
+    gif: "imgi_7_1651267603_1644484_gif-url.gif",
+    answer: "The hamster has just eaten a carrot.",
+    thai: "แฮมสเตอร์เพิ่งกินแครอท",
+    explain: "<b>eat → eaten</b> (irregular). Remember: eat – ate – <b>eaten</b>."
+  },
+  {
+    gif: "imgi_8_1651267656_1406496_gif-url.gif",
+    answer: "The dog has just gone to bed.",
+    thai: "สุนัขเพิ่งไปนอน",
+    explain: "<b>go → gone</b> (irregular). '<b>Has just gone to bed</b>' means went to sleep a moment ago. Remember: go – went – <b>gone</b>."
+  },
+  {
+    gif: "imgi_10_1651267872_1456263_gif-url.gif",
+    answer: "The panda has just caught a ball.",
+    thai: "แพนด้าเพิ่งจับลูกบอลได้",
+    explain: "<b>catch → caught</b> (irregular). Remember: catch – caught – <b>caught</b>."
+  },
+  {
+    gif: "imgi_11_1651267997_1852452_gif-url.gif",
+    answer: "The girl has just fallen into the pool.",
+    thai: "เด็กผู้หญิงเพิ่งตกลงไปในสระน้ำ",
+    explain: "<b>fall → fallen</b> (irregular). Remember: fall – fell – <b>fallen</b>."
+  },
+  {
+    gif: "imgi_12_1651268038_52553_gif-url.gif",
+    answer: "The fox has just sat down to drink.",
+    thai: "สุนัขจิ้งจอกเพิ่งนั่งลงดื่ม",
+    explain: "<b>sit → sat</b> (irregular). Remember: sit – sat – <b>sat</b>."
+  }
+];
+
+let current = 0, score = 0, wrong = 0, answered = false, shuffled = [];
+let built = [];       // words currently in the build zone
+let bankWords = [];   // all words in the bank (shuffled)
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function tokenise(sentence) {
+  // split into words, keeping the period attached to the last word
+  return sentence.split(/\s+/);
+}
+
+function startGame() {
+  current = 0; score = 0; wrong = 0; answered = false;
+  shuffled = shuffle(questions);
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = '';
+  updateScore();
+  renderQuestion();
+}
+
+function updateScore() {
+  document.getElementById('s-correct').textContent = score;
+  document.getElementById('s-wrong').textContent = wrong;
+}
+
+function updateProgress() {
+  const total = shuffled.length;
+  document.getElementById('prog-label').textContent = `${current + 1} / ${total}`;
+  document.getElementById('prog-fill').style.width = `${((current + 1) / total) * 100}%`;
+}
+
+function renderQuestion() {
+  answered = false;
+  built = [];
+  document.getElementById('nextBtn').disabled = true;
+  updateProgress();
+
+  const q = shuffled[current];
+  const words = tokenise(q.answer);
+  bankWords = shuffle(words);
+
+  const area = document.getElementById('question-area');
+  area.innerHTML = '';
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card-gif-wrap">
+      <img class="card-gif" src="${q.gif}" alt="What happened?">
+    </div>
+    <div class="card-body">
+      <div class="q-tag">Question ${current + 1} of ${shuffled.length}</div>
+      <div class="prompt">What has just happened?</div>
+      <div class="instruction">Tap the words in the correct order to build the sentence</div>
+
+      <div class="build-zone" id="build-zone">
+        <span class="placeholder" id="bz-placeholder">Tap words below to build your sentence...</span>
+      </div>
+
+      <div class="word-bank" id="word-bank">
+        ${bankWords.map((w, i) => `<span class="chip" data-idx="${i}" data-word="${w}" onclick="addWord(this)">${w}</span>`).join('')}
+      </div>
+
+      <div class="action-row" id="action-row">
+        <button class="btn-clear" onclick="clearAll()">Clear</button>
+        <button class="btn-check" id="check-btn" onclick="checkAnswer()" disabled>Check &#10003;</button>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+      <div class="answer-reveal" id="answer-reveal">Correct answer: <strong>${q.answer}</strong></div>
+      <div class="thai-card" id="thai-card">
+        <div class="thai-label">คำตอบภาษาไทย</div>
+        <div class="thai-answer">${q.thai}</div>
+        <div class="thai-explain">${q.explain}</div>
+      </div>
+    </div>
+  `;
+  area.appendChild(card);
+}
+
+function addWord(chip) {
+  if (answered) return;
+  const word = chip.dataset.word;
+  const idx = chip.dataset.idx;
+
+  // add to built
+  built.push({ word, idx });
+  chip.classList.add('used');
+
+  renderBuildZone();
+  updateCheckBtn();
+}
+
+function removeWord(buildIdx) {
+  if (answered) return;
+  const removed = built.splice(buildIdx, 1)[0];
+
+  // un-grey the bank chip
+  const bankChip = document.querySelector(`#word-bank .chip[data-idx="${removed.idx}"]`);
+  if (bankChip) bankChip.classList.remove('used');
+
+  renderBuildZone();
+  updateCheckBtn();
+}
+
+function renderBuildZone() {
+  const zone = document.getElementById('build-zone');
+  const ph = document.getElementById('bz-placeholder');
+
+  // remove old built chips
+  zone.querySelectorAll('.chip').forEach(c => c.remove());
+
+  if (built.length === 0) {
+    ph.style.display = '';
+    zone.classList.remove('active');
+  } else {
+    ph.style.display = 'none';
+    zone.classList.add('active');
+    built.forEach((item, bi) => {
+      const c = document.createElement('span');
+      c.className = 'chip in-build';
+      c.textContent = item.word;
+      c.onclick = () => removeWord(bi);
+      zone.appendChild(c);
+    });
+  }
+}
+
+function updateCheckBtn() {
+  const total = bankWords.length;
+  const btn = document.getElementById('check-btn');
+  btn.disabled = built.length < total;
+}
+
+function clearAll() {
+  if (answered) return;
+  built = [];
+  document.querySelectorAll('#word-bank .chip').forEach(c => c.classList.remove('used'));
+  renderBuildZone();
+  updateCheckBtn();
+}
+
+function checkAnswer() {
+  if (answered) return;
+  answered = true;
+
+  const q = shuffled[current];
+  const userSentence = built.map(b => b.word).join(' ');
+  const isCorrect = userSentence === q.answer;
+
+  const zone = document.getElementById('build-zone');
+  const feedback = document.getElementById('feedback');
+  const actionRow = document.getElementById('action-row');
+
+  // disable all interaction
+  document.querySelectorAll('#word-bank .chip').forEach(c => c.classList.add('locked'));
+  actionRow.style.display = 'none';
+
+  if (isCorrect) {
+    score++;
+    zone.classList.remove('active');
+    zone.classList.add('correct-zone');
+    zone.querySelectorAll('.chip').forEach(c => {
+      c.classList.remove('in-build');
+      c.classList.add('correct-chip');
+      c.onclick = null;
+    });
+    feedback.className = 'feedback show correct';
+    feedback.innerHTML = '&#10004; Perfect! You built it correctly!';
+  } else {
+    wrong++;
+    zone.classList.remove('active');
+    zone.classList.add('wrong-zone');
+    zone.querySelectorAll('.chip').forEach(c => {
+      c.classList.remove('in-build');
+      c.classList.add('wrong-chip');
+      c.onclick = null;
+    });
+    feedback.className = 'feedback show wrong';
+    feedback.innerHTML = '&#10008; Not quite right!';
+    document.getElementById('answer-reveal').classList.add('show');
+  }
+
+  updateScore();
+
+  // show Thai explanation
+  document.getElementById('thai-card').classList.add('show');
+
+  if (current < shuffled.length - 1) {
+    document.getElementById('nextBtn').disabled = false;
+  } else {
+    setTimeout(showResults, 1800);
+  }
+}
+
+function nextQuestion() {
+  current++;
+  renderQuestion();
+}
+
+function showResults() {
+  document.getElementById('game-screen').style.display = 'none';
+  const total = shuffled.length;
+  const pct = Math.round((score / total) * 100);
+  const circ = 2 * Math.PI * 56;
+  const offset = circ - (circ * pct / 100);
+
+  let msg = '';
+  if (pct === 100) msg = 'Perfect! You rebuilt every sentence correctly!';
+  else if (pct >= 80) msg = 'Excellent! Your sentence building skills are great!';
+  else if (pct >= 60) msg = 'Good job! Keep practising word order.';
+  else if (pct >= 40) msg = 'Not bad! Remember: Subject + has/have + just + past participle.';
+  else msg = 'Keep practising! Watch the GIFs and try again.';
+
+  const res = document.getElementById('results-screen');
+  res.style.display = '';
+  res.innerHTML = `
+    <div class="results-card">
+      <div class="q-tag">Game Over</div>
+      <h1>Your Results</h1>
+      <div class="results-ring">
+        <svg viewBox="0 0 128 128">
+          <circle class="ring-bg" cx="64" cy="64" r="56"/>
+          <circle class="ring-fg" cx="64" cy="64" r="56"
+            stroke-dasharray="${circ}"
+            stroke-dashoffset="${circ}"
+            id="ring-anim"/>
+        </svg>
+        <div class="results-pct" id="pct-text">0%</div>
+      </div>
+      <div class="results-stats">
+        <div class="stat-g">&#10004; ${score} correct</div>
+        <div class="stat-r">&#10008; ${wrong} wrong</div>
+      </div>
+      <p class="results-msg">${msg}</p>
+      <button class="btn btn-restart" onclick="restart()">Play Again</button>
+    </div>
+  `;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.getElementById('ring-anim').style.strokeDashoffset = offset;
+      let cur = 0;
+      const step = Math.max(1, Math.floor(pct / 30));
+      const iv = setInterval(() => {
+        cur = Math.min(cur + step, pct);
+        document.getElementById('pct-text').textContent = cur + '%';
+        if (cur >= pct) clearInterval(iv);
+      }, 30);
+    });
+  });
+}
+
+function restart() {
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('start-screen').style.display = '';
+}
+</script>
+</body>
+</html>

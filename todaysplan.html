@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today's Lesson Plan</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 36px;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 28px;
+        }
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: transform 0.15s;
+        }
+        .item:hover { transform: translateX(6px); }
+        .time {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #fff;
+            border-radius: 8px;
+            padding: 6px 10px;
+            min-width: 58px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .desc { font-size: 1.05rem; color: #333; }
+
+        .item:nth-child(1) { background: #eef2ff; }
+        .item:nth-child(1) .time { background: #6366f1; }
+
+        .item:nth-child(2) { background: #ecfdf5; }
+        .item:nth-child(2) .time { background: #10b981; }
+
+        .item:nth-child(3) { background: #fef9c3; }
+        .item:nth-child(3) .time { background: #eab308; }
+
+        .item:nth-child(4) { background: #fce7f3; }
+        .item:nth-child(4) .time { background: #ec4899; }
+
+        .item:nth-child(5) { background: #ffedd5; }
+        .item:nth-child(5) .time { background: #f97316; }
+
+        .item:nth-child(6) { background: #e0e7ff; }
+        .item:nth-child(6) .time { background: #7c3aed; }
+
+        .total {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Today's Lesson Plan</h1>
+
+        <div class="item">
+            <span class="time">5 min</span>
+            <span class="desc">Pronunciation recap</span>
+        </div>
+
+        <div class="item">
+            <span class="time">10 min</span>
+            <span class="desc">Reading practice</span>
+        </div>
+
+        <div class="item">
+            <span class="time">15 min</span>
+            <span class="desc">Present Perfect recap</span>
+        </div>
+
+        <div class="item">
+            <span class="time">10 min</span>
+            <span class="desc">Talk about what <strong>we</strong> have done in life &amp; work</span>
+        </div>
+
+        <div class="item">
+            <span class="time">10 min</span>
+            <span class="desc">Talk about what <strong>other people</strong> have done</span>
+        </div>
+
+        <div class="item">
+            <span class="time">HW</span>
+            <span class="desc">Homework: Unit 7 exercises</span>
+        </div>
+
+        <p class="total">Total: 50 minutes + homework</p>
+    </div>
+</body>
+</html>

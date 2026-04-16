@@ -1,227 +1,1102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESL Lesson: Laura's Typical Day</title>
-    <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --accent: #e74c3c;
-            --bg: #f4f7f6;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 6 – Past Continuous</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page-bg: #faf8f4;
+    --paper: #ffffff;
+    --text: #2d2d2d;
+    --text-light: #555;
+    --heading: #1a1a2e;
+    --blue: #1b4f72;
+    --blue-light: #2980b9;
+    --blue-pale: #d6eaf8;
+    --blue-bg: #eaf2f8;
+    --red: #c0392b;
+    --red-pale: #fadbd8;
+    --green: #1e8449;
+    --green-pale: #d5f5e3;
+    --green-bg: #eafaf1;
+    --purple: #6c3483;
+    --purple-pale: #e8daef;
+    --orange: #e67e22;
+    --orange-pale: #fdebd0;
+    --border: #ddd;
+    --border-light: #eee;
+    --thai-color: #7d6b91;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            background-color: var(--bg);
-            color: var(--primary);
-            margin: 0;
-            padding: 20px;
-        }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+  body {
+    background: var(--page-bg);
+    color: var(--text);
+    font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+    font-size: 15.5px;
+    line-height: 1.75;
+    min-height: 100vh;
+    padding: 0 0 60px;
+    -webkit-font-smoothing: antialiased;
+  }
 
-        header {
-            text-align: center;
-            border-bottom: 3px solid var(--secondary);
-            margin-bottom: 30px;
-            padding-bottom: 10px;
-        }
+  /* ── PAGE HEADER (textbook banner) ── */
+  .page-header {
+    background: var(--blue);
+    color: #fff;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--red), var(--orange), var(--blue-light), var(--green));
+  }
+  .header-inner {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 32px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .unit-num {
+    background: #fff;
+    color: var(--blue);
+    font-family: 'Merriweather', serif;
+    font-weight: 900;
+    font-size: 2.2rem;
+    width: 64px; height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .header-text h1 {
+    font-family: 'Merriweather', serif;
+    font-weight: 900;
+    font-size: 1.65rem;
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+  .header-text .subtitle {
+    font-size: 14px;
+    opacity: 0.8;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+  .header-text .subtitle code {
+    font-family: 'Fira Code', monospace;
+    background: rgba(255,255,255,0.15);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+  }
 
-        .lesson-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
+  /* ── CONTENT WRAPPER ── */
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
 
-        @media (max-width: 768px) {
-            .lesson-grid { grid-template-columns: 1fr; }
-        }
+  /* ── SECTION BLOCKS ── */
+  .section {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-top: 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .sec-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .sec-a .sec-header { background: var(--blue-bg); }
+  .sec-b .sec-header { background: var(--orange-pale); }
+  .sec-c .sec-header { background: var(--red-pale); }
+  .sec-d .sec-header { background: var(--purple-pale); }
+  .sec-e .sec-header { background: var(--green-bg); }
 
-        .grammar-box {
-            background: #eef2f7;
-            padding: 20px;
-            border-left: 5px solid var(--secondary);
-            border-radius: 4px;
-        }
+  .sec-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    font-family: 'Merriweather', serif;
+    font-weight: 900;
+    font-size: 1rem;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .sec-a .sec-label { background: var(--blue); }
+  .sec-b .sec-label { background: var(--orange); }
+  .sec-c .sec-label { background: var(--red); }
+  .sec-d .sec-label { background: var(--purple); }
+  .sec-e .sec-label { background: var(--green); }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+  .sec-title {
+    font-family: 'Merriweather', serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--heading);
+    line-height: 1.3;
+  }
+  .sec-title .thai-inline {
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 400;
+    font-size: 0.82rem;
+    color: var(--thai-color);
+    margin-left: 6px;
+  }
 
-        th, td {
-            text-align: left;
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
+  .sec-body { padding: 18px 22px 22px; }
+  .sec-body > p { margin-bottom: 12px; }
 
-        .exercise-section {
-            background: #fff;
-        }
+  /* ── GRAMMAR TABLE ── */
+  .grammar-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 14px;
+  }
+  .grammar-table th, .grammar-table td {
+    padding: 10px 16px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  .grammar-table thead th {
+    background: var(--blue);
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+  }
+  .grammar-table tbody tr:nth-child(even) { background: #f9f9f9; }
+  .verb { color: var(--red); font-weight: 700; }
+  .aux  { color: var(--blue-light); font-weight: 700; }
 
-        .q-row {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
+  /* ── FORMULA BOX ── */
+  .formula-box {
+    background: var(--blue-bg);
+    border: 2px solid var(--blue-light);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin: 14px 0;
+    text-align: center;
+  }
+  .formula-box .formula {
+    font-family: 'Fira Code', monospace;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--blue);
+    letter-spacing: 0.5px;
+  }
+  .formula-box .formula-thai {
+    font-size: 13px;
+    color: var(--thai-color);
+    margin-top: 2px;
+  }
 
-        .q-num {
-            font-weight: bold;
-            margin-right: 10px;
-            color: var(--secondary);
-            min-width: 25px;
-        }
+  /* ── KEY DEFINITION BOX ── */
+  .key-def {
+    background: #fffef5;
+    border-left: 4px solid var(--orange);
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14.5px;
+  }
+  .key-def .eng { margin-bottom: 4px; }
+  .key-def .thai { color: var(--thai-color); font-size: 13px; }
 
-        input[type="text"] {
-            border: none;
-            border-bottom: 2px solid #bdc3c7;
-            padding: 5px;
-            font-size: 16px;
-            width: 100%;
-            transition: border-color 0.3s;
-        }
+  /* ── DIAGRAM IMAGE ── */
+  .diagram-img {
+    width: 100%;
+    max-width: 520px;
+    display: block;
+    margin: 16px auto 4px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .img-caption {
+    text-align: center;
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 10px;
+    font-style: italic;
+  }
 
-        input[type="text"]:focus {
-            outline: none;
-            border-bottom-color: var(--secondary);
-        }
+  /* ── EXAMPLE LIST ── */
+  .ex-list { list-style: none; padding: 0; margin: 10px 0 4px; }
+  .ex-list li {
+    padding: 8px 14px 8px 28px;
+    position: relative;
+    margin-bottom: 4px;
+    font-size: 14.5px;
+    border-radius: 4px;
+    transition: background .15s;
+  }
+  .ex-list li:hover { background: #f5f5f5; }
+  .ex-list li::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 14px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--blue-light);
+  }
+  .ex-list .thai {
+    display: block;
+    font-size: 12.5px;
+    color: var(--thai-color);
+    margin-top: 1px;
+    padding-left: 0;
+    line-height: 1.5;
+  }
 
-        .hint {
-            font-size: 0.85em;
-            color: #7f8c8d;
-            font-style: italic;
-        }
+  /* ── COMPARE TABLE ── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin: 14px 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .compare-col {
+    padding: 14px 16px;
+  }
+  .compare-col + .compare-col { border-left: 1px solid var(--border); }
+  .compare-col h4 {
+    font-family: 'Merriweather', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid transparent;
+  }
+  .compare-col.past-cont { background: #f0f7fb; }
+  .compare-col.past-cont h4 { color: var(--blue); border-bottom-color: var(--blue-light); }
+  .compare-col.past-simp { background: #fdf2f2; }
+  .compare-col.past-simp h4 { color: var(--red); border-bottom-color: var(--red); }
+  .compare-col p { font-size: 13.5px; color: var(--text); margin-bottom: 6px; line-height: 1.6; }
+  .compare-col .note { font-size: 12px; color: #888; font-style: italic; }
+  .compare-col .thai-sm { font-size: 12px; color: var(--thai-color); }
 
-        button {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            background-color: var(--secondary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 18px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
+  /* ── HIGHLIGHTS ── */
+  strong { color: var(--heading); font-weight: 700; }
+  .sec-body em { color: var(--red); font-style: normal; font-weight: 700; }
 
-        button:hover { background-color: #2980b9; }
+  /* ── CROSS-OUT / ERROR ── */
+  .wrong { color: #999; font-size: 12px; }
 
-        .pro-tip {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #fff3cd;
-            border-radius: 6px;
-            font-size: 0.9em;
-        }
-    </style>
+  /* ── NOTE BOX ── */
+  .note-box {
+    background: var(--green-bg);
+    border: 1px solid #a9dfbf;
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    color: var(--green);
+    margin-top: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .note-box .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .note-box strong { color: var(--green); }
+
+  /* ── THAI TRANSLATION ── */
+  .thai {
+    display: block;
+    font-size: 13px;
+    color: var(--thai-color);
+    margin-top: 3px;
+    padding-left: 12px;
+    border-left: 2px solid #e0d6e8;
+    line-height: 1.6;
+  }
+
+  /* ── PAGE FOOTER ── */
+  .page-footer {
+    max-width: 820px;
+    margin: 28px auto 0;
+    padding: 14px 24px;
+    text-align: center;
+    font-size: 12px;
+    color: #bbb;
+    border-top: 1px solid var(--border-light);
+  }
+
+  /* ── PRINT STYLES ── */
+  @media print {
+    body { background: #fff; padding: 0; font-size: 12pt; }
+    .page-header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .section { break-inside: avoid; box-shadow: none; }
+  }
+
+  @media (max-width: 600px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .compare-col + .compare-col { border-left: none; border-top: 1px solid var(--border); }
+    .header-inner { flex-direction: column; align-items: flex-start; gap: 12px; padding: 20px 20px 18px; }
+    .header-text h1 { font-size: 1.3rem; }
+    .sec-body { padding: 14px 16px 18px; }
+  }
+
+  /* ── EXERCISES ── */
+  .exercises-divider {
+    max-width: 820px;
+    margin: 36px auto 0;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .exercises-divider::before,
+  .exercises-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .exercises-divider span {
+    font-family: 'Merriweather', serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+  }
+
+  .ex-num {
+    font-family: 'Merriweather', serif;
+    font-weight: 900;
+    font-size: 1rem;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+  .ex-instruction {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+  .ex-instruction .thai {
+    border-left: none;
+    padding-left: 0;
+    margin-top: 2px;
+  }
+  .word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    background: var(--blue-bg);
+    border: 1px dashed var(--blue-light);
+    border-radius: 6px;
+  }
+  .word-bank span {
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    color: var(--blue);
+    background: #fff;
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .fill-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 14.5px;
+    flex-wrap: wrap;
+    line-height: 2;
+  }
+  .fill-row .qnum {
+    font-weight: 700;
+    color: var(--blue);
+    min-width: 20px;
+  }
+  .fill-row select {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14.5px;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    min-width: 180px;
+  }
+  .fill-row select:focus {
+    outline: none;
+    border-color: var(--blue-light);
+  }
+  .fill-row select.correct {
+    border-color: var(--green);
+    background: #eafaf1;
+  }
+  .fill-row select.incorrect {
+    border-color: var(--red);
+    background: #fdf2f2;
+  }
+  .fill-row .answer-reveal {
+    font-size: 12px;
+    color: var(--green);
+    font-weight: 600;
+    display: none;
+    margin-left: 4px;
+  }
+  .fill-row .answer-reveal.show { display: inline; }
+
+  /* Matching exercise */
+  .match-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .match-col { padding: 0; }
+  .match-col + .match-col { border-left: 1px solid var(--border); }
+  .match-item {
+    padding: 10px 14px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .match-item:last-child { border-bottom: none; }
+  .match-item .qnum { font-weight: 700; color: var(--blue); min-width: 16px; }
+  .match-item .letter { font-weight: 700; color: var(--orange); min-width: 16px; }
+  .match-col:first-child .match-item { background: #fafafa; }
+  .match-col:last-child .match-item { background: #fff; }
+
+  .match-answer-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 14.5px;
+  }
+  .match-answer-row .qnum {
+    font-weight: 700;
+    color: var(--blue);
+    min-width: 20px;
+  }
+  .match-answer-row select {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14px;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .match-answer-row select.correct { border-color: var(--green); background: #eafaf1; }
+  .match-answer-row select.incorrect { border-color: var(--red); background: #fdf2f2; }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-check {
+    background: var(--blue);
+    color: #fff;
+  }
+  .btn-check:hover { background: var(--blue-light); }
+  .btn-reset {
+    background: #eee;
+    color: var(--text-light);
+  }
+  .btn-reset:hover { background: #ddd; }
+  .btn-show {
+    background: var(--orange-pale);
+    color: var(--orange);
+  }
+  .btn-show:hover { background: #fce3c0; }
+
+  .score-display {
+    margin-top: 12px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 15px;
+    display: none;
+  }
+  .score-display.show { display: block; }
+  .score-display.perfect { background: var(--green-bg); color: var(--green); border: 1px solid #a9dfbf; }
+  .score-display.good { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-pale); }
+  .score-display.try-again { background: var(--orange-pale); color: var(--orange); border: 1px solid #f5cba7; }
+
+  @media (max-width: 600px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .compare-col + .compare-col { border-left: none; border-top: 1px solid var(--border); }
+    .header-inner { flex-direction: column; align-items: flex-start; gap: 12px; padding: 20px 20px 18px; }
+    .header-text h1 { font-size: 1.3rem; }
+    .sec-body { padding: 14px 16px 18px; }
+    .match-grid { grid-template-columns: 1fr; }
+    .match-col + .match-col { border-left: none; border-top: 1px solid var(--border); }
+    .fill-row select { min-width: 140px; }
+  }
+</style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>Past Simple: Laura’s Working Day</h1>
-        <p>Convert the typical routine into what happened <strong>yesterday</strong>.</p>
-    </header>
-
-    <div class="lesson-grid">
-        <div class="grammar-box">
-            <h3>Grammar Reference</h3>
-            <table>
-                <tr><th>Present</th><th>Past</th></tr>
-                <tr><td>Get up</td><td><strong>Got up</strong></td></tr>
-                <tr><td>Have</td><td><strong>Had</strong></td></tr>
-                <tr><td>Take (time)</td><td><strong>Took</strong></td></tr>
-                <tr><td>Start</td><td><strong>Started</strong></td></tr>
-                <tr><td>Go</td><td><strong>Went</strong></td></tr>
-                <tr><td>Sleep</td><td><strong>Slept</strong></td></tr>
-            </table>
-            
-            <div class="pro-tip">
-                <strong>Negative Rule:</strong><br>
-                Use <em>didn't</em> + <u>original verb</u>.<br>
-                <em>Example: She <strong>didn't go</strong> out.</em>
-            </div>
-        </div>
-
-        <div class="exercise-section">
-            <h3>Yesterday was a typical day...</h3>
-            
-            <div class="q-row">
-                <span class="q-num">1</span>
-                <div>She <strong>got up</strong> at 7 o’clock.</div>
-            </div>
-
-            <div class="q-row">
-                <span class="q-num">2</span>
-                <input type="text" placeholder="She had a big breakfast.">
-            </div>
-
-            <div class="q-row">
-                <span class="q-num">3</span>
-                <input type="text" placeholder="She went to work.">
-            </div>
-
-            <div class="q-row">
-                <span class="q-num">4</span>
-                <input type="text" placeholder="It took her 30 mins to get to work.">
-            </div>
-
-            <div class="q-row">
-                <span class="q-num">5</span>
-                <input type="text" placeholder="She started work at 8.45.">
-            </div>
-
-            <div class="q-row">
-                <span class="q-num">6</span>
-                <input type="text" placeholder="She didn't have lunch.">
-            </div>
-
-            <div class="q-row">
-                <span class="q-num">7</span>
-                <input type="text" placeholder="She finished work at 5 o'clock.">
-            </div>
-
-            <div class="q-row">
-                <span class="q-num">8</span>
-                <input type="text" placeholder="She was tired when she got home.">
-            </div>
-
-            <div class="q-row">
-                <span class="q-num">9</span>
-                <input type="text" placeholder="She cooked a meal.">
-            </div>
-
-            <div class="q-row">
-                <span class="q-num">10</span>
-                <input type="text" placeholder="She didn't go out.">
-            </div>
-
-            <div class="q-row">
-                <span class="q-num">11</span>
-                <input type="text" placeholder="She went to bed at 11 o'clock.">
-            </div>
-
-            <div class="q-row">
-                <span class="q-num">12</span>
-                <input type="text" placeholder="She slept well last night.">
-            </div>
-
-            <button onclick="alert('Great job! Review your answers with your teacher.')">Check My Answers</button>
-        </div>
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="header-inner">
+    <div class="unit-num">2</div>
+    <div class="header-text">
+      <h1>Past Continuous</h1>
+      <div class="subtitle">English Grammar in Use &middot; <code>was/were + -ing</code></div>
     </div>
+  </div>
 </div>
+
+<div class="page">
+
+  <!-- SECTION A -->
+  <div class="section sec-a">
+    <div class="sec-header">
+      <div class="sec-label">A</div>
+      <div class="sec-title">Example Situation <span class="thai-inline">ตัวอย่างสถานการณ์</span></div>
+    </div>
+    <div class="sec-body">
+      <p>Yesterday Karen and Joe played tennis. They started at <strong>10 o'clock</strong> and finished at <strong>11:30</strong>. So, at 10:30 they <em>were playing</em> tennis.</p>
+      <div class="thai">เมื่อวานนี้ Karen กับ Joe เล่นเทนนิส พวกเขาเริ่มตอน 10 โมง และเลิกตอน 11:30 ดังนั้น ตอน 10:30 พวกเขากำลังเล่นเทนนิสอยู่</div>
+
+      <div class="key-def">
+        <div class="eng"><strong>they were playing</strong> = they were in the middle of playing — they had not finished</div>
+        <div class="thai">พวกเขากำลังเล่นอยู่ — ยังเล่นไม่เสร็จ</div>
+      </div>
+
+      <div class="formula-box">
+        <div class="formula">was / were + -ing &nbsp;=&nbsp; past continuous</div>
+        <div class="formula-thai">อดีตกาลต่อเนื่อง</div>
+      </div>
+
+      <table class="grammar-table">
+        <thead>
+          <tr><th>Subject</th><th>Auxiliary</th><th>Verb + -ing</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>he / she / it</td>
+            <td class="aux">was</td>
+            <td class="verb">playing, doing</td>
+          </tr>
+          <tr>
+            <td>we / you / they</td>
+            <td class="aux">were</td>
+            <td class="verb">working etc.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION B -->
+  <div class="section sec-b">
+    <div class="sec-header">
+      <div class="sec-label">B</div>
+      <div class="sec-title">What does "I was doing" mean? <span class="thai-inline">"I was doing" แปลว่าอะไร?</span></div>
+    </div>
+    <div class="sec-body">
+      <p><strong>I was doing</strong> something = I was <em>in the middle of doing it</em> at a certain time. The action started before this time, but had not finished.</p>
+      <div class="thai">"ฉันกำลังทำ" บางอย่าง = ฉันกำลังทำอยู่ตอนนั้น เหตุการณ์เริ่มก่อนเวลานั้น แต่ยังทำไม่เสร็จ</div>
+
+      <img class="diagram-img" src="page1.png" alt="Time diagram showing I started doing → I was doing → I finished doing on a timeline from past to now" />
+      <p class="img-caption">Fig. 6.1 — Time diagram from English Grammar in Use</p>
+
+      <ul class="ex-list">
+        <li>This time last year I <strong>was living</strong> in Hong Kong.<span class="thai">ช่วงเวลานี้ปีที่แล้ว ฉันกำลังอาศัยอยู่ที่ฮ่องกง</span></li>
+        <li>What <strong>were</strong> you <strong>doing</strong> at 10 o'clock last night?<span class="thai">คุณกำลังทำอะไรอยู่ตอนสี่ทุ่มเมื่อคืน?</span></li>
+        <li>I waved to Helen, but she <strong>wasn't looking</strong>.<span class="thai">ฉันโบกมือให้เฮเลน แต่เธอไม่ได้มองอยู่</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SECTION C -->
+  <div class="section sec-c">
+    <div class="sec-header">
+      <div class="sec-label">C</div>
+      <div class="sec-title">Compare: Past Continuous vs Past Simple <span class="thai-inline">เปรียบเทียบ: อดีตกาลต่อเนื่อง กับ อดีตกาลธรรมดา</span></div>
+    </div>
+    <div class="sec-body">
+      <div class="compare-grid">
+        <div class="compare-col past-cont">
+          <h4>Past Continuous — I was doing</h4>
+          <p>= in the middle of an action<br><span class="thai-sm">= อยู่ระหว่างการกระทำ</span></p>
+          <p>We <strong>were walking</strong> home when I met Dan.<br><span class="thai-sm">เรากำลังเดินกลับบ้านตอนที่ฉันเจอ Dan</span></p>
+          <p>Kate <strong>was watching</strong> TV when we arrived.<br><span class="thai-sm">เคทกำลังดูทีวีอยู่ตอนที่เรามาถึง</span></p>
+        </div>
+        <div class="compare-col past-simp">
+          <h4>Past Simple — I did</h4>
+          <p>= complete action<br><span class="thai-sm">= การกระทำที่เสร็จสมบูรณ์</span></p>
+          <p>We <strong>walked</strong> home after the party last night.<br><span class="thai-sm">เราเดินกลับบ้านหลังจากงานปาร์ตี้เมื่อคืน</span></p>
+          <p>Kate <strong>watched</strong> TV a lot when she was ill last year.<br><span class="thai-sm">เคทดูทีวีเยอะมากตอนที่เธอป่วยเมื่อปีที่แล้ว</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION D -->
+  <div class="section sec-d">
+    <div class="sec-header">
+      <div class="sec-label">D</div>
+      <div class="sec-title">One thing happening in the middle of another <span class="thai-inline">เหตุการณ์หนึ่งเกิดขึ้นระหว่างอีกเหตุการณ์</span></div>
+    </div>
+    <div class="sec-body">
+      <p>Use <strong>past continuous</strong> for the background action, and <strong>past simple</strong> for the interrupting event:</p>
+      <div class="thai">ใช้ past continuous สำหรับเหตุการณ์พื้นหลัง และ past simple สำหรับเหตุการณ์ที่มาขัดจังหวะ</div>
+
+      <ul class="ex-list">
+        <li>Matt phoned <strong>while</strong> we <strong>were having</strong> dinner.<span class="thai">แมตต์โทรมาตอนที่เรากำลังกินข้าวเย็น</span></li>
+        <li>It <strong>was raining</strong> when I got up.<span class="thai">ฝนกำลังตกตอนที่ฉันตื่นนอน</span></li>
+        <li>I saw you in the park. You <strong>were sitting</strong> on the grass and <strong>reading</strong> a book.<span class="thai">ฉันเห็นคุณในสวนสาธารณะ คุณกำลังนั่งบนหญ้าและอ่านหนังสืออยู่</span></li>
+        <li>I hurt my back while I <strong>was working</strong> in the garden.<span class="thai">ฉันปวดหลังตอนที่กำลังทำสวนอยู่</span></li>
+      </ul>
+
+      <p style="margin-top:14px">Use <strong>past simple</strong> when one thing happens <em>after</em> another:</p>
+      <div class="thai">ใช้ past simple เมื่อเหตุการณ์หนึ่งเกิดขึ้นหลังจากอีกเหตุการณ์</div>
+
+      <ul class="ex-list">
+        <li>I <strong>was walking</strong> along the road when I <strong>saw</strong> Dan. So I <strong>stopped</strong>, and we <strong>talked</strong> for a while.<span class="thai">ฉันกำลังเดินไปตามถนนตอนที่เจอ Dan ฉันก็เลยหยุด แล้วเราคุยกันสักพัก</span></li>
+      </ul>
+
+      <div class="compare-grid" style="margin-top:16px">
+        <div class="compare-col past-cont">
+          <h4>Already in progress</h4>
+          <p>When Karen arrived, we <strong>were having</strong> dinner.<br><span class="thai-sm">ตอนที่ Karen มาถึง เรากำลังกินข้าวอยู่</span></p>
+          <p class="note">(dinner had already started before she arrived)<br><span class="thai-sm">(กินข้าวเริ่มไปแล้วก่อนที่เธอจะมา)</span></p>
+        </div>
+        <div class="compare-col past-simp">
+          <h4>Sequence</h4>
+          <p>When Karen arrived, we <strong>had</strong> dinner.<br><span class="thai-sm">ตอนที่ Karen มาถึง เราก็กินข้าว</span></p>
+          <p class="note">(Karen arrived → then we had dinner)<br><span class="thai-sm">(Karen มาถึง → แล้วเราก็กินข้าว)</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION E -->
+  <div class="section sec-e">
+    <div class="sec-header">
+      <div class="sec-label">E</div>
+      <div class="sec-title">Verbs not used in continuous forms <span class="thai-inline">กริยาที่ไม่ใช้ในรูปต่อเนื่อง</span></div>
+    </div>
+    <div class="sec-body">
+      <p>Some verbs (e.g. <strong>know</strong>, <strong>want</strong>) are <em>not normally used</em> in continuous forms (is/was + -ing etc.).</p>
+      <div class="thai">กริยาบางตัว (เช่น know, want) ปกติจะไม่ใช้ในรูปต่อเนื่อง (is/was + -ing)</div>
+
+      <ul class="ex-list">
+        <li>We were good friends. We <strong>knew</strong> each other well. <span class="wrong">(❌ not: we were knowing)</span><span class="thai">เราเป็นเพื่อนสนิทกัน เรารู้จักกันดี</span></li>
+        <li>I was enjoying the party, but Chris <strong>wanted</strong> to go home. <span class="wrong">(❌ not: was wanting)</span><span class="thai">ฉันสนุกกับปาร์ตี้ แต่คริสอยากกลับบ้าน</span></li>
+      </ul>
+
+      <div class="note-box">
+        <span class="icon">📖</span>
+        <span>See <strong>Unit 4A</strong> for a full list of verbs not normally used in continuous forms.</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- ═══════════ EXERCISES ═══════════ -->
+<div class="exercises-divider"><span>Exercises</span></div>
+
+<div class="page">
+
+  <!-- EXERCISE 6.1 -->
+  <div class="section sec-a">
+    <div class="sec-header">
+      <div class="sec-label" style="font-size:0.8rem;">6.1</div>
+      <div class="sec-title">Complete the sentences</div>
+    </div>
+    <div class="sec-body">
+      <div class="ex-instruction">
+        Choose the correct phrase to complete each sentence.
+        <div class="thai">เลือกวลีที่ถูกต้องเพื่อเติมในแต่ละประโยค</div>
+      </div>
+
+      <div class="word-bank">
+        <span>was looking</span>
+        <span>was wearing</span>
+        <span>wasn't listening</span>
+        <span>weren't looking</span>
+        <span>was snowing</span>
+        <span>was working</span>
+        <span>were sitting</span>
+        <span>were you going</span>
+      </div>
+
+      <div id="ex61">
+        <div class="fill-row">
+          <span class="qnum">1</span>
+          Today Helen is wearing a skirt. Yesterday she <strong>was wearing</strong> trousers. <em style="font-size:12px;color:#999;font-style:italic;">(example)</em>
+        </div>
+        <div class="fill-row">
+          <span class="qnum">2</span>
+          'What did he say?' 'I don't know. I <select data-answer="wasn't listening">
+            <option value="">—</option>
+            <option value="was looking">was looking</option>
+            <option value="was wearing">was wearing</option>
+            <option value="wasn't listening">wasn't listening</option>
+            <option value="weren't looking">weren't looking</option>
+            <option value="was snowing">was snowing</option>
+            <option value="was working">was working</option>
+            <option value="were sitting">were sitting</option>
+            <option value="were you going">were you going</option>
+          </select>.'<span class="answer-reveal"></span>
+        </div>
+        <div class="fill-row">
+          <span class="qnum">3</span>
+          We <select data-answer="were sitting">
+            <option value="">—</option>
+            <option value="was looking">was looking</option>
+            <option value="was wearing">was wearing</option>
+            <option value="wasn't listening">wasn't listening</option>
+            <option value="weren't looking">weren't looking</option>
+            <option value="was snowing">was snowing</option>
+            <option value="was working">was working</option>
+            <option value="were sitting">were sitting</option>
+            <option value="were you going">were you going</option>
+          </select> at the back of the theatre. We couldn't hear very well.<span class="answer-reveal"></span>
+        </div>
+        <div class="fill-row">
+          <span class="qnum">4</span>
+          This time last year Steve <select data-answer="was working">
+            <option value="">—</option>
+            <option value="was looking">was looking</option>
+            <option value="was wearing">was wearing</option>
+            <option value="wasn't listening">wasn't listening</option>
+            <option value="weren't looking">weren't looking</option>
+            <option value="was snowing">was snowing</option>
+            <option value="was working">was working</option>
+            <option value="were sitting">were sitting</option>
+            <option value="were you going">were you going</option>
+          </select> on a farm.<span class="answer-reveal"></span>
+        </div>
+        <div class="fill-row">
+          <span class="qnum">5</span>
+          They didn't see me. They <select data-answer="weren't looking">
+            <option value="">—</option>
+            <option value="was looking">was looking</option>
+            <option value="was wearing">was wearing</option>
+            <option value="wasn't listening">wasn't listening</option>
+            <option value="weren't looking">weren't looking</option>
+            <option value="was snowing">was snowing</option>
+            <option value="was working">was working</option>
+            <option value="were sitting">were sitting</option>
+            <option value="were you going">were you going</option>
+          </select> in my direction.<span class="answer-reveal"></span>
+        </div>
+        <div class="fill-row">
+          <span class="qnum">6</span>
+          The weather was bad. It was very cold and it <select data-answer="was snowing">
+            <option value="">—</option>
+            <option value="was looking">was looking</option>
+            <option value="was wearing">was wearing</option>
+            <option value="wasn't listening">wasn't listening</option>
+            <option value="weren't looking">weren't looking</option>
+            <option value="was snowing">was snowing</option>
+            <option value="was working">was working</option>
+            <option value="were sitting">were sitting</option>
+            <option value="were you going">were you going</option>
+          </select>.<span class="answer-reveal"></span>
+        </div>
+        <div class="fill-row">
+          <span class="qnum">7</span>
+          I saw you in your car. Where <select data-answer="were you going">
+            <option value="">—</option>
+            <option value="was looking">was looking</option>
+            <option value="was wearing">was wearing</option>
+            <option value="wasn't listening">wasn't listening</option>
+            <option value="weren't looking">weren't looking</option>
+            <option value="was snowing">was snowing</option>
+            <option value="was working">was working</option>
+            <option value="were sitting">were sitting</option>
+            <option value="were you going">were you going</option>
+          </select>?<span class="answer-reveal"></span>
+        </div>
+        <div class="fill-row">
+          <span class="qnum">8</span>
+          I saw Kate a few minutes ago. She <select data-answer="was looking">
+            <option value="">—</option>
+            <option value="was looking">was looking</option>
+            <option value="was wearing">was wearing</option>
+            <option value="wasn't listening">wasn't listening</option>
+            <option value="weren't looking">weren't looking</option>
+            <option value="was snowing">was snowing</option>
+            <option value="was working">was working</option>
+            <option value="were sitting">were sitting</option>
+            <option value="were you going">were you going</option>
+          </select> for you.<span class="answer-reveal"></span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-check" onclick="checkEx('ex61')">Check Answers</button>
+        <button class="btn btn-show" onclick="showAnswers('ex61')">Show Answers</button>
+        <button class="btn btn-reset" onclick="resetEx('ex61')">Reset</button>
+      </div>
+      <div id="ex61-score" class="score-display"></div>
+    </div>
+  </div>
+
+  <!-- EXERCISE 6.2 -->
+  <div class="section sec-b">
+    <div class="sec-header">
+      <div class="sec-label" style="font-size:0.8rem;">6.2</div>
+      <div class="sec-title">Which goes with which?</div>
+    </div>
+    <div class="sec-body">
+      <div class="ex-instruction">
+        Match each sentence beginning (1–7) with the correct ending (a–g).
+        <div class="thai">จับคู่ต้นประโยค (1–7) กับส่วนท้ายที่ถูกต้อง (a–g)</div>
+      </div>
+
+      <div class="match-grid">
+        <div class="match-col">
+          <div class="match-item"><span class="qnum">1</span> When I got to the cafe</div>
+          <div class="match-item"><span class="qnum">2</span> We fell asleep</div>
+          <div class="match-item"><span class="qnum">3</span> Amy learnt Italian</div>
+          <div class="match-item"><span class="qnum">4</span> Tom didn't come out with us</div>
+          <div class="match-item"><span class="qnum">5</span> The car began to make a strange noise</div>
+          <div class="match-item"><span class="qnum">6</span> The TV was on</div>
+          <div class="match-item"><span class="qnum">7</span> When I first met Jessica</div>
+        </div>
+        <div class="match-col">
+          <div class="match-item"><span class="letter">a</span> when she was living in Rome.</div>
+          <div class="match-item"><span class="letter">b</span> she was working in a clothes shop.</div>
+          <div class="match-item"><span class="letter">c</span> when I was driving home.</div>
+          <div class="match-item"><span class="letter">d</span> but nobody was watching it.</div>
+          <div class="match-item"><span class="letter">e</span> while we were watching a film.</div>
+          <div class="match-item"><span class="letter">f</span> my friends were waiting for me.</div>
+          <div class="match-item"><span class="letter">g</span> because he wasn't feeling well.</div>
+        </div>
+      </div>
+
+      <div id="ex62">
+        <div class="match-answer-row">
+          <span class="qnum">1</span>
+          <select data-answer="f">
+            <option value="">—</option>
+            <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+            <option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option>
+          </select>
+          <span class="answer-reveal"></span>
+        </div>
+        <div class="match-answer-row">
+          <span class="qnum">2</span>
+          <select data-answer="e">
+            <option value="">—</option>
+            <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+            <option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option>
+          </select>
+          <span class="answer-reveal"></span>
+        </div>
+        <div class="match-answer-row">
+          <span class="qnum">3</span>
+          <select data-answer="a">
+            <option value="">—</option>
+            <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+            <option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option>
+          </select>
+          <span class="answer-reveal"></span>
+        </div>
+        <div class="match-answer-row">
+          <span class="qnum">4</span>
+          <select data-answer="g">
+            <option value="">—</option>
+            <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+            <option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option>
+          </select>
+          <span class="answer-reveal"></span>
+        </div>
+        <div class="match-answer-row">
+          <span class="qnum">5</span>
+          <select data-answer="c">
+            <option value="">—</option>
+            <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+            <option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option>
+          </select>
+          <span class="answer-reveal"></span>
+        </div>
+        <div class="match-answer-row">
+          <span class="qnum">6</span>
+          <select data-answer="d">
+            <option value="">—</option>
+            <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+            <option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option>
+          </select>
+          <span class="answer-reveal"></span>
+        </div>
+        <div class="match-answer-row">
+          <span class="qnum">7</span>
+          <select data-answer="b">
+            <option value="">—</option>
+            <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+            <option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option>
+          </select>
+          <span class="answer-reveal"></span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-check" onclick="checkMatch('ex62')">Check Answers</button>
+        <button class="btn btn-show" onclick="showMatch('ex62')">Show Answers</button>
+        <button class="btn btn-reset" onclick="resetMatch('ex62')">Reset</button>
+      </div>
+      <div id="ex62-score" class="score-display"></div>
+    </div>
+  </div>
+
+</div><!-- /page exercises -->
+
+<div class="page-footer">
+  English Grammar in Use &middot; Unit 6 &middot; Past Continuous (was/were + -ing)
+</div>
+
+<script>
+  // ── Exercise 6.1: Fill-in-the-blank ──
+  function checkEx(id) {
+    const container = document.getElementById(id);
+    const selects = container.querySelectorAll('select');
+    let correct = 0, total = selects.length;
+    selects.forEach(sel => {
+      const answer = sel.dataset.answer;
+      sel.classList.remove('correct', 'incorrect');
+      if (sel.value === answer) {
+        sel.classList.add('correct');
+        correct++;
+      } else if (sel.value !== '') {
+        sel.classList.add('incorrect');
+      }
+    });
+    showScore(id + '-score', correct, total);
+  }
+
+  function showAnswers(id) {
+    const container = document.getElementById(id);
+    const selects = container.querySelectorAll('select');
+    selects.forEach(sel => {
+      sel.value = sel.dataset.answer;
+      sel.classList.remove('incorrect');
+      sel.classList.add('correct');
+      const reveal = sel.parentElement.querySelector('.answer-reveal');
+      if (reveal) { reveal.textContent = ''; reveal.classList.remove('show'); }
+    });
+    const score = document.getElementById(id + '-score');
+    score.classList.remove('show');
+  }
+
+  function resetEx(id) {
+    const container = document.getElementById(id);
+    const selects = container.querySelectorAll('select');
+    selects.forEach(sel => {
+      sel.value = '';
+      sel.classList.remove('correct', 'incorrect');
+      const reveal = sel.parentElement.querySelector('.answer-reveal');
+      if (reveal) { reveal.textContent = ''; reveal.classList.remove('show'); }
+    });
+    const score = document.getElementById(id + '-score');
+    score.classList.remove('show');
+  }
+
+  // ── Exercise 6.2: Matching ──
+  function checkMatch(id) {
+    const container = document.getElementById(id);
+    const selects = container.querySelectorAll('select');
+    let correct = 0, total = selects.length;
+    selects.forEach(sel => {
+      const answer = sel.dataset.answer;
+      sel.classList.remove('correct', 'incorrect');
+      if (sel.value === answer) {
+        sel.classList.add('correct');
+        correct++;
+      } else if (sel.value !== '') {
+        sel.classList.add('incorrect');
+      }
+    });
+    showScore(id + '-score', correct, total);
+  }
+
+  function showMatch(id) {
+    const container = document.getElementById(id);
+    const selects = container.querySelectorAll('select');
+    selects.forEach(sel => {
+      sel.value = sel.dataset.answer;
+      sel.classList.remove('incorrect');
+      sel.classList.add('correct');
+    });
+    const score = document.getElementById(id + '-score');
+    score.classList.remove('show');
+  }
+
+  function resetMatch(id) {
+    const container = document.getElementById(id);
+    const selects = container.querySelectorAll('select');
+    selects.forEach(sel => {
+      sel.value = '';
+      sel.classList.remove('correct', 'incorrect');
+    });
+    const score = document.getElementById(id + '-score');
+    score.classList.remove('show');
+  }
+
+  // ── Score display ──
+  function showScore(scoreId, correct, total) {
+    const el = document.getElementById(scoreId);
+    const pct = Math.round((correct / total) * 100);
+    el.textContent = correct + ' / ' + total + ' correct (' + pct + '%)';
+    el.className = 'score-display show';
+    if (pct === 100) el.classList.add('perfect');
+    else if (pct >= 50) el.classList.add('good');
+    else el.classList.add('try-again');
+  }
+</script>
 
 </body>
 </html>

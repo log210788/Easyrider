@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Present Perfect · Teacher Lewis</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e1520;
+  --surface:  #151f30;
+  --surface2: #1c2a42;
+  --border:   rgba(255,255,255,0.07);
+  --gold:     #e8b84b;
+  --gold2:    #f5d278;
+  --teal:     #3ecfb0;
+  --coral:    #f07060;
+  --sky:      #5ab8e8;
+  --lilac:    #9b82f3;
+  --text:     #dde8f8;
+  --muted:    #7a90b8;
+  --thai:     #3ecfb0;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* subtle grid texture */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* ── wrapper ── */
+#shell {
+  width: min(860px, 96vw);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── progress ── */
+#prog-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+#prog-track {
+  flex: 1;
+  height: 3px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+#prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--teal));
+  border-radius: 4px;
+  transition: width 0.35s ease;
+}
+#prog-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+/* ── slide card ── */
+#deck { position: relative; }
+
+.slide {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+  animation: rise 0.38s cubic-bezier(.22,.68,0,1.2);
+}
+.slide.active { display: flex; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── slide meta ── */
+.slide-tag {
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 800;
+  opacity: 0.7;
+  text-align: center;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  text-align: center;
+  color: var(--gold2);
+  line-height: 1.2;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--muted);
+  font-size: clamp(0.85rem, 1.8vw, 0.98rem);
+  margin-top: -6px;
+}
+
+/* ── formula ── */
+.formula {
+  background: linear-gradient(135deg, #1a2d4a, #111c30);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 14px 24px;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(0.95rem, 2.2vw, 1.3rem);
+  color: var(--gold);
+  letter-spacing: 0.5px;
+}
+.formula span { color: var(--muted); }
+.formula em   { color: var(--text); font-style: normal; }
+
+/* ── section card ── */
+.sec {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sec-head {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sec-head .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── flip example cards ── */
+.ex-list { display: flex; flex-direction: column; gap: 8px; }
+
+.flip-card {
+  perspective: 900px;
+  cursor: pointer;
+  user-select: none;
+}
+.flip-inner {
+  position: relative;
+  width: 100%;
+  transition: transform 0.45s cubic-bezier(.4,0,.2,1);
+  transform-style: preserve-3d;
+}
+.flip-card.flipped .flip-inner { transform: rotateX(180deg); }
+
+.flip-front, .flip-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 10px;
+  padding: 11px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 48px;
+}
+
+/* front – English */
+.flip-front {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+}
+.flip-front .icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.flip-front .eng  { font-size: clamp(0.88rem, 1.9vw, 0.98rem); flex: 1; }
+.flip-front .eng b { color: var(--gold2); }
+.flip-front .eng .sub-note {
+  display: block;
+  font-size: 0.78em;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.flip-front .hint {
+  font-size: 0.7rem;
+  color: var(--muted);
+  white-space: nowrap;
+  margin-top: 2px;
+  flex-shrink: 0;
+  align-self: center;
+  letter-spacing: 0.5px;
+}
+
+/* back – Thai */
+.flip-back {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #0f2a2a, #0d2020);
+  border: 1px solid var(--teal);
+  transform: rotateX(180deg);
+  flex-direction: column;
+  gap: 4px;
+}
+.flip-back .thai-line {
+  font-size: clamp(0.9rem, 2vw, 1.05rem);
+  color: var(--teal);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.flip-back .eng-line {
+  font-size: clamp(0.8rem, 1.7vw, 0.88rem);
+  color: var(--muted);
+}
+.flip-back .eng-line b { color: var(--gold2); }
+
+/* hint pulse */
+.flip-card:not(.flipped) .hint {
+  animation: pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 0.45; }
+  50%      { opacity: 1; }
+}
+
+/* ── info callout ── */
+.callout {
+  background: var(--surface2);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 10px 10px 0;
+  padding: 10px 16px;
+  font-size: clamp(0.83rem, 1.8vw, 0.92rem);
+  color: var(--muted);
+}
+.callout b { color: var(--gold2); }
+.callout.teal  { border-left-color: var(--teal);  }
+.callout.coral { border-left-color: var(--coral); }
+.callout.lilac { border-left-color: var(--lilac); }
+
+/* ── vs table ── */
+.vs-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.vs-col { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.vs-col:first-child { background: #162035; border-right: 1px solid var(--border); }
+.vs-col:last-child  { background: #101828; }
+.vs-col-head {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 800;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+
+/* ── badge ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 11px 3px 9px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+}
+.badge.gold   { color: var(--gold);  background: rgba(232,184,75,.12);  }
+.badge.teal   { color: var(--teal);  background: rgba(62,207,176,.12);  }
+.badge.coral  { color: var(--coral); background: rgba(240,112,96,.12);  }
+.badge.lilac  { color: var(--lilac); background: rgba(155,130,243,.12); }
+.badge.sky    { color: var(--sky);   background: rgba(90,184,232,.12);  }
+
+/* ── adverb row ── */
+.adv-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.adv-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.adv-box .adv-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.adv-box .adv-def {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ── summary list ── */
+.sum-list { display: flex; flex-direction: column; gap: 8px; }
+.sum-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+  border: 1px solid var(--border);
+}
+.sum-item .si { font-size: 1.1rem; flex-shrink: 0; }
+
+/* ── nav ── */
+#nav {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+.btn {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 9px 26px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s, opacity 0.12s, background 0.12s;
+  letter-spacing: 0.5px;
+}
+.btn:hover   { transform: translateY(-2px); }
+.btn:active  { transform: translateY(0); }
+.btn:disabled { opacity: 0.25; cursor: default; transform: none; }
+.btn-prev {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.btn-prev:not(:disabled):hover { color: var(--text); border-color: var(--muted); }
+.btn-next {
+  background: var(--gold);
+  color: #0e1520;
+}
+.btn-next:not(:disabled):hover { background: var(--gold2); }
+
+@media (max-width: 580px) {
+  .two-col, .vs-wrap, .adv-row { grid-template-columns: 1fr; }
+  .vs-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+}
+</style>
+</head>
+<body>
+
+<div id="shell">
+  <div id="prog-row">
+    <div id="prog-track"><div id="prog-fill" style="width:0%"></div></div>
+    <span id="prog-label">1 / 7</span>
+  </div>
+
+  <div id="deck">
+
+    <!-- ══ SLIDE 1 – Title & Formula ══ -->
+    <div class="slide active">
+      <div class="slide-tag">Grammar in Use · Unit 14</div>
+      <h1>The Present Perfect</h1>
+      <p class="subtitle">Connecting the past to right now</p>
+      <div class="formula">
+        Subject <span>+</span> <em>have / has</em> <span>+</span> <em>past participle</em>
+      </div>
+      <div class="two-col">
+        <div class="sec">
+          <div class="sec-head" style="color:var(--teal)"><div class="dot" style="background:var(--teal)"></div>Positive</div>
+          <div class="ex-list">
+            <div class="flip-card" onclick="this.classList.toggle('flipped')">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="icon">✅</span><span class="eng">I <b>have cut</b> my finger.<span class="hint">tap for Thai</span></span></div>
+                <div class="flip-back"><span class="thai-line">ฉัน<b>ตัด</b>นิ้วของฉัน</span><span class="eng-line">I <b>have cut</b> my finger.</span></div>
+              </div>
+            </div>
+            <div class="flip-card" onclick="this.classList.toggle('flipped')">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="icon">✅</span><span class="eng">She <b>has gone</b> out.<span class="hint">tap for Thai</span></span></div>
+                <div class="flip-back"><span class="thai-line">เธอ<b>ออก</b>ไปแล้ว</span><span class="eng-line">She <b>has gone</b> out.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-head" style="color:var(--coral)"><div class="dot" style="background:var(--coral)"></div>Negative / Question</div>
+          <div class="ex-list">
+            <div class="flip-card" onclick="this.classList.toggle('flipped')">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="icon">❌</span><span class="eng">I <b>haven't sent</b> it yet.<span class="hint">tap for Thai</span></span></div>
+                <div class="flip-back"><span class="thai-line">ฉัน<b>ยังไม่ได้ส่ง</b>มัน</span><span class="eng-line">I <b>haven't sent</b> it yet.</span></div>
+              </div>
+            </div>
+            <div class="flip-card" onclick="this.classList.toggle('flipped')">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="icon">❓</span><span class="eng"><b>Have</b> you <b>seen</b> my bag?<span class="hint">tap for Thai</span></span></div>
+                <div class="flip-back"><span class="thai-line">คุณ<b>เห็น</b>กระเป๋าของฉัน<b>ไหม</b>?</span><span class="eng-line"><b>Have</b> you <b>seen</b> my bag?</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="callout">Tap any sentence to see the <b>Thai translation</b>. Tap again to flip back.</div>
+    </div>
+
+    <!-- ══ SLIDE 2 – New Information ══ -->
+    <div class="slide">
+      <div class="slide-tag">Section A</div>
+      <h1>New Information</h1>
+      <p class="subtitle">Use present perfect to share something new or surprising</p>
+      <div class="callout teal">When something <b>has happened</b>, it is usually <b>new information</b> for the listener.</div>
+      <div class="ex-list">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front"><span class="icon">🤕</span><span class="eng">Ow! I<b>'ve cut</b> my finger.<span class="hint">tap for Thai</span></span></div>
+            <div class="flip-back"><span class="thai-line">โอ้ย! ฉัน<b>ตัด</b>นิ้วของฉัน</span><span class="eng-line">Ow! I<b>'ve cut</b> my finger.</span></div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front"><span class="icon">🚗</span><span class="eng">The road is closed. <b>There's been</b> an accident.<span class="hint">tap for Thai</span></span></div>
+            <div class="flip-back"><span class="thai-line">ถนนปิด <b>มีอุบัติเหตุ</b>เกิดขึ้น</span><span class="eng-line">The road is closed. <b>There's been</b> an accident.</span></div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front"><span class="icon">🚔</span><span class="eng">Police <b>have arrested</b> two men in connection with the robbery.<span class="hint">tap for Thai</span></span></div>
+            <div class="flip-back"><span class="thai-line">ตำรวจ<b>จับกุม</b>ชาย 2 คนที่เกี่ยวข้องกับการปล้น</span><span class="eng-line">Police <b>have arrested</b> two men in connection with the robbery.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="callout">"There's been" is short for <b>"There has been"</b></div>
+    </div>
+
+    <!-- ══ SLIDE 3 – Connection with NOW ══ -->
+    <div class="slide">
+      <div class="slide-tag">Section B</div>
+      <h1>Connection with Now</h1>
+      <p class="subtitle">A past action with a result we can feel right now</p>
+      <div class="callout teal">Past action &nbsp;→&nbsp; <b>result NOW</b></div>
+      <div class="ex-list">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front"><span class="icon">🔑</span><span class="eng">Tom <b>has lost</b> his key.<span class="sub-note">= He doesn't have it now.</span><span class="hint">tap for Thai</span></span></div>
+            <div class="flip-back"><span class="thai-line">Tom <b>ทำกุญแจหาย</b>แล้ว</span><span class="eng-line">= เขาไม่มีกุญแจ<b>ตอนนี้</b></span></div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front"><span class="icon">😅</span><span class="eng">I<b>'ve forgotten</b> his name.<span class="sub-note">= I can't remember it now.</span><span class="hint">tap for Thai</span></span></div>
+            <div class="flip-back"><span class="thai-line">ฉัน<b>ลืม</b>ชื่อเขาแล้ว</span><span class="eng-line">= ฉันจำไม่ได้<b>ตอนนี้</b></span></div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front"><span class="icon">🏠</span><span class="eng">Sally <b>hasn't gone</b> out.<span class="sub-note">= She is still here now.</span><span class="hint">tap for Thai</span></span></div>
+            <div class="flip-back"><span class="thai-line">Sally <b>ยังไม่ได้ออก</b>ไปข้างนอก</span><span class="eng-line">= เธอยังอยู่ที่นี่<b>ตอนนี้</b></span></div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front"><span class="icon">👜</span><span class="eng">I can't find my bag. <b>Have</b> you <b>seen</b> it?<span class="sub-note">= Do you know where it is now?</span><span class="hint">tap for Thai</span></span></div>
+            <div class="flip-back"><span class="thai-line">ฉันหากระเป๋าไม่เจอ คุณ<b>เห็น</b>มันไหม?</span><span class="eng-line">= คุณรู้ไหมว่ามันอยู่ที่ไหน<b>ตอนนี้</b>?</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SLIDE 4 – Gone vs Been ══ -->
+    <div class="slide">
+      <div class="slide-tag">Section B · Special Focus</div>
+      <h1>Gone to &nbsp;vs&nbsp; Been to</h1>
+      <p class="subtitle">Same verb — very different meaning</p>
+      <div class="vs-wrap">
+        <div class="vs-col">
+          <div class="vs-col-head">🛫 has gone to</div>
+          <p style="font-size:0.85rem;color:var(--muted)">The person is <b style="color:var(--coral)">still there</b> — they have not returned.</p>
+          <div class="ex-list">
+            <div class="flip-card" onclick="this.classList.toggle('flipped')">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="icon">🇮🇹</span><span class="eng">James <b>has gone</b> to Italy.<span class="sub-note">= He is there now.</span><span class="hint">tap for Thai</span></span></div>
+                <div class="flip-back"><span class="thai-line">James <b>ไปอยู่ที่</b>อิตาลีแล้ว</span><span class="eng-line">= เขาอยู่ที่นั่น<b>ตอนนี้</b></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="vs-col">
+          <div class="vs-col-head">🛬 has been to</div>
+          <p style="font-size:0.85rem;color:var(--muted)">The person visited and <b style="color:var(--teal)">came back</b>.</p>
+          <div class="ex-list">
+            <div class="flip-card" onclick="this.classList.toggle('flipped')">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="icon">🏡</span><span class="eng">Amy <b>has been</b> to Italy.<span class="sub-note">= She visited and is home.</span><span class="hint">tap for Thai</span></span></div>
+                <div class="flip-back"><span class="thai-line">Amy <b>เคยไป</b>อิตาลีแล้ว</span><span class="eng-line">= เธอไปมาแล้วและ<b>กลับบ้านแล้ว</b></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="callout lilac">🧪 <b>Quick test:</b> Can they answer the phone right now? &nbsp;<b>Yes → been to &nbsp;|&nbsp; No → gone to</b></div>
+    </div>
+
+    <!-- ══ SLIDE 5 – Just / Already / Yet ══ -->
+    <div class="slide">
+      <div class="slide-tag">Section C</div>
+      <h1>Just · Already · Yet</h1>
+      <p class="subtitle">Three adverbs that are very common with present perfect</p>
+      <div class="adv-row">
+        <div class="adv-box" style="border-color:var(--teal)">
+          <span class="badge teal">● Just</span>
+          <p class="adv-def">A short time ago — something happened recently.</p>
+        </div>
+        <div class="adv-box" style="border-color:var(--gold)">
+          <span class="badge gold">● Already</span>
+          <p class="adv-def">Sooner than expected — you don't need to remind me!</p>
+        </div>
+        <div class="adv-box" style="border-color:var(--coral)">
+          <span class="badge coral">● Yet</span>
+          <p class="adv-def">Until now — used in questions &amp; negatives. We expect it to happen.</p>
+        </div>
+      </div>
+      <div class="ex-list">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front"><span class="icon">🍱</span><span class="eng">"Are you hungry?" &nbsp;"No, I<b>'ve just had</b> lunch."<span class="hint">tap for Thai</span></span></div>
+            <div class="flip-back"><span class="thai-line">"คุณหิวไหม?" &nbsp;"ไม่ ฉัน<b>เพิ่งทาน</b>ข้าวกลางวัน"</span><span class="eng-line">"Are you hungry?" &nbsp;"No, I've <b>just</b> had lunch."</span></div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front"><span class="icon">💸</span><span class="eng">"Don't forget to pay!" &nbsp;"I<b>'ve already paid</b> it."<span class="hint">tap for Thai</span></span></div>
+            <div class="flip-back"><span class="thai-line">"อย่าลืมจ่ายนะ!" &nbsp;"ฉัน<b>จ่ายไปแล้ว</b>"</span><span class="eng-line">"Don't forget to pay!" &nbsp;"I've <b>already</b> paid it."</span></div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front"><span class="icon">🌧️</span><span class="eng">Has it stopped raining <b>yet</b>?<span class="hint">tap for Thai</span></span></div>
+            <div class="flip-back"><span class="thai-line">ฝนหยุดตก<b>แล้วหรือยัง</b>?</span><span class="eng-line">Has it stopped raining <b>yet</b>?</span></div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="flip-front"><span class="icon">📧</span><span class="eng">I<b>'ve written</b> the email, but I <b>haven't sent</b> it <b>yet</b>.<span class="hint">tap for Thai</span></span></div>
+            <div class="flip-back"><span class="thai-line">ฉัน<b>เขียน</b>อีเมลแล้ว แต่ยัง<b>ไม่ได้ส่ง</b><b>เลย</b></span><span class="eng-line">I've <b>written</b> the email, but I <b>haven't sent</b> it <b>yet</b>.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SLIDE 6 – Present Perfect vs Past Simple ══ -->
+    <div class="slide">
+      <div class="slide-tag">Section D</div>
+      <h1>Present Perfect vs Past Simple</h1>
+      <p class="subtitle">Both can be correct — the meaning is very similar in everyday speech</p>
+      <div class="vs-wrap">
+        <div class="vs-col">
+          <div class="vs-col-head">Present Perfect</div>
+          <div class="ex-list">
+            <div class="flip-card" onclick="this.classList.toggle('flipped')">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="icon">🚪</span><span class="eng">He<b>'s gone</b> out.<span class="hint">tap for Thai</span></span></div>
+                <div class="flip-back"><span class="thai-line">เขา<b>ออกไป</b>แล้ว</span><span class="eng-line">He<b>'s gone</b> out.</span></div>
+              </div>
+            </div>
+            <div class="flip-card" onclick="this.classList.toggle('flipped')">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="icon">🍱</span><span class="eng">I<b>'ve just had</b> lunch.<span class="hint">tap for Thai</span></span></div>
+                <div class="flip-back"><span class="thai-line">ฉัน<b>เพิ่งทาน</b>ข้าวกลางวัน</span><span class="eng-line">I<b>'ve just had</b> lunch.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="vs-col">
+          <div class="vs-col-head">Past Simple</div>
+          <div class="ex-list">
+            <div class="flip-card" onclick="this.classList.toggle('flipped')">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="icon">🚪</span><span class="eng">He <b>went</b> out.<span class="hint">tap for Thai</span></span></div>
+                <div class="flip-back"><span class="thai-line">เขา<b>ออกไป</b>ข้างนอก</span><span class="eng-line">He <b>went</b> out.</span></div>
+              </div>
+            </div>
+            <div class="flip-card" onclick="this.classList.toggle('flipped')">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="icon">🍱</span><span class="eng">I <b>just had</b> lunch.<span class="hint">tap for Thai</span></span></div>
+                <div class="flip-back"><span class="thai-line">ฉัน<b>เพิ่งทาน</b>ข้าวกลางวัน</span><span class="eng-line">I <b>just had</b> lunch.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="callout lilac">💡 In <b>British English</b>, present perfect is more common. In <b>American English</b>, past simple is often used instead.</div>
+    </div>
+
+    <!-- ══ SLIDE 7 – Summary ══ -->
+    <div class="slide">
+      <div class="slide-tag">Review</div>
+      <h1>Summary</h1>
+      <p class="subtitle">Everything on one slide</p>
+      <div class="formula">
+        Subject <span>+</span> <em>have / has</em> <span>+</span> <em>past participle</em> <span>=</span> result <em>NOW</em>
+      </div>
+      <div class="sum-list">
+        <div class="sum-item"><span class="si">🆕</span><span><b style="color:var(--teal)">New information</b> — use present perfect to tell someone something they don't know yet.</span></div>
+        <div class="sum-item"><span class="si">🔗</span><span><b style="color:var(--sky)">Connection with NOW</b> — the past action has a result we feel today.</span></div>
+        <div class="sum-item"><span class="si">✈️</span><span><b style="color:var(--coral)">Gone to</b> = still there &nbsp;|&nbsp; <b style="color:var(--teal)">Been to</b> = visited and came back.</span></div>
+        <div class="sum-item"><span class="si">⏱️</span><span><b style="color:var(--teal)">Just</b> = short time ago &nbsp;·&nbsp; <b style="color:var(--gold)">Already</b> = sooner than expected &nbsp;·&nbsp; <b style="color:var(--coral)">Yet</b> = expected, not done yet.</span></div>
+        <div class="sum-item"><span class="si">🔄</span><span><b style="color:var(--lilac)">Present perfect ≈ Past simple</b> in many everyday sentences, especially with <em>just</em>.</span></div>
+      </div>
+    </div>
+
+  </div><!-- /#deck -->
+
+  <div id="nav">
+    <button class="btn btn-prev" id="prevBtn" onclick="navigate(-1)" disabled>← Back</button>
+    <button class="btn btn-next" id="nextBtn" onclick="navigate(1)">Next →</button>
+  </div>
+</div><!-- /#shell -->
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let cur = 0;
+
+  function navigate(dir) {
+    // reset all flip cards on current slide before leaving
+    slides[cur].querySelectorAll('.flip-card').forEach(c => c.classList.remove('flipped'));
+    slides[cur].classList.remove('active');
+    cur = Math.max(0, Math.min(slides.length - 1, cur + dir));
+    slides[cur].classList.add('active');
+    update();
+  }
+
+  function update() {
+    document.getElementById('prevBtn').disabled = cur === 0;
+    document.getElementById('nextBtn').disabled = cur === slides.length - 1;
+    document.getElementById('prog-label').textContent = `${cur + 1} / ${slides.length}`;
+    document.getElementById('prog-fill').style.width = `${((cur + 1) / slides.length) * 100}%`;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   navigate(-1);
+  });
+
+  update();
+</script>
+</body>
+</html>

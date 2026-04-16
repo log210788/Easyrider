@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Professional Audit · Teacher Lewis</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e1520;
+  --surface:  #151f30;
+  --surface2: #1c2a42;
+  --border:   rgba(255,255,255,0.07);
+  --gold:     #e8b84b;
+  --gold2:    #f5d278;
+  --teal:     #3ecfb0;
+  --coral:    #f07060;
+  --sky:      #5ab8e8;
+  --lilac:    #9b82f3;
+  --text:     #dde8f8;
+  --muted:    #7a90b8;
+  --green:    #4ade80;
+  --red:      #f87171;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 0 50px;
+  overflow-y: auto;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.shell {
+  position: relative; z-index: 1;
+  width: min(760px, 94vw);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── header ── */
+.page-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: rise 0.5s ease;
+}
+.page-header .tag {
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 800;
+  opacity: 0.7;
+}
+.page-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  color: var(--gold2);
+}
+.page-header .subtitle {
+  font-size: 1rem;
+  color: var(--teal);
+  font-weight: 700;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── cards ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 28px;
+  animation: rise 0.4s ease;
+}
+
+/* ── task card ── */
+.task-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.task-card .task-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  color: var(--gold2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.task-card .task-title .icon {
+  width: 32px; height: 32px;
+  background: rgba(232,184,75,0.12);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.task-card .task-desc {
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.6;
+}
+.task-card .task-desc b { color: var(--gold2); }
+.task-card .thai {
+  font-size: 0.88rem;
+  color: var(--teal);
+  line-height: 1.6;
+  padding-left: 14px;
+  border-left: 3px solid var(--teal);
+}
+.note-box {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.note-box b { color: var(--gold2); }
+
+/* ── main layout ── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
+  animation: rise 0.5s ease;
+}
+
+/* ── facts input area ── */
+.facts-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.facts-card .label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.facts-card label {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--gold2);
+}
+.facts-card .counter {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.fact-input {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.fact-num {
+  width: 30px; height: 30px;
+  background: linear-gradient(135deg, var(--gold), var(--teal));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.78rem;
+  color: #0e1520;
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+.fact-input textarea {
+  flex: 1;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.92rem;
+  color: var(--text);
+  resize: none;
+  height: 44px;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+}
+.fact-input textarea::placeholder { color: var(--muted); opacity: 0.5; }
+.fact-input textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: rgba(232,184,75,0.04);
+}
+
+/* ── grammar helper sidebar ── */
+.helper-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 20px;
+}
+.helper-card .helper-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: var(--teal);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.helper-card .helper-title .icon {
+  font-size: 1rem;
+}
+
+.helper-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.helper-group .group-label {
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.helper-group .group-label.for-label  { color: var(--sky); }
+.helper-group .group-label.since-label { color: var(--lilac); }
+.helper-group .group-label.pattern-label { color: var(--gold); }
+
+.helper-group .example {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+  padding-left: 10px;
+}
+.helper-group .example code {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+.helper-group .example code.for-code   { color: var(--sky); }
+.helper-group .example code.since-code { color: var(--lilac); }
+.helper-group .example code.pattern-code { color: var(--gold2); }
+
+.helper-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* ── footer ── */
+.footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  opacity: 0.5;
+  letter-spacing: 1px;
+}
+
+/* ── responsive ── */
+@media (max-width: 700px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+  .helper-card { position: static; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <span class="tag">Present Perfect · Writing Activity</span>
+    <h1>The Professional Audit</h1>
+    <span class="subtitle">การตรวจสอบข้อมูลทางวิชาชีพ</span>
+  </div>
+
+  <!-- TASK INSTRUCTIONS -->
+  <div class="card task-card">
+    <div class="task-title">
+      <span class="icon">📋</span>
+      The Task
+    </div>
+    <div class="task-desc">
+      Provide <b>5 facts</b> about your life, career, or skills using the <b>present perfect</b> tense. Use <b>for</b> and <b>since</b> where appropriate.
+    </div>
+    <div class="thai">
+      <b>ภารกิจ:</b> ระบุข้อเท็จจริง 5 ข้อเกี่ยวกับชีวิต หน้าที่การงาน หรือทักษะของคุณ โดยใช้ present perfect พร้อม for และ since
+    </div>
+    <div class="note-box">
+      <b>Note:</b> These facts do not have to be true. You can invent a fictional persona.<br>
+      <b>หมายเหตุ:</b> ข้อมูลเหล่านี้ไม่จำเป็นต้องเป็นเรื่องจริง คุณสามารถสมมติข้อมูลขึ้นมาเองได้
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main-grid">
+
+    <!-- FACTS INPUT -->
+    <div class="card facts-card">
+      <div class="label-row">
+        <label>Your Facts / ข้อเท็จจริงของคุณ</label>
+        <span class="counter" id="counter">0 / 5</span>
+      </div>
+
+      <div class="fact-input">
+        <span class="fact-num">1</span>
+        <textarea placeholder="e.g. I have been an engineer for 10 years." oninput="countFacts()"></textarea>
+      </div>
+      <div class="fact-input">
+        <span class="fact-num">2</span>
+        <textarea placeholder="e.g. I have lived in Bangkok since 2018." oninput="countFacts()"></textarea>
+      </div>
+      <div class="fact-input">
+        <span class="fact-num">3</span>
+        <textarea placeholder="e.g. I have worked at this company for 3 years." oninput="countFacts()"></textarea>
+      </div>
+      <div class="fact-input">
+        <span class="fact-num">4</span>
+        <textarea placeholder="e.g. I have studied English since I was a child." oninput="countFacts()"></textarea>
+      </div>
+      <div class="fact-input">
+        <span class="fact-num">5</span>
+        <textarea placeholder="e.g. I have had a cat for 2 years." oninput="countFacts()"></textarea>
+      </div>
+    </div>
+
+    <!-- GRAMMAR HELPER -->
+    <div class="card helper-card">
+      <div class="helper-title">
+        <span class="icon">💡</span>
+        Grammar Helper
+      </div>
+
+      <div class="helper-group">
+        <span class="group-label for-label">For = Duration (ช่วงเวลา)</span>
+        <div class="example">
+          <code class="for-code">...for 5 years</code><br>
+          <code class="for-code">...for a long time</code><br>
+          <code class="for-code">...for 3 months</code>
+        </div>
+      </div>
+
+      <hr class="helper-divider">
+
+      <div class="helper-group">
+        <span class="group-label since-label">Since = Start Point (จุดเริ่มต้น)</span>
+        <div class="example">
+          <code class="since-code">...since 2015</code><br>
+          <code class="since-code">...since Monday</code><br>
+          <code class="since-code">...since I was a child</code>
+        </div>
+      </div>
+
+      <hr class="helper-divider">
+
+      <div class="helper-group">
+        <span class="group-label pattern-label">Sentence Patterns</span>
+        <div class="example">
+          <code class="pattern-code">I have been...</code><br>
+          <code class="pattern-code">I have lived...</code><br>
+          <code class="pattern-code">I have worked...</code><br>
+          <code class="pattern-code">I have had...</code><br>
+          <code class="pattern-code">I have studied...</code>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">Professional English Practice · Teacher Lewis</div>
+
+</div>
+
+<script>
+function countFacts() {
+  const areas = document.querySelectorAll('.fact-input textarea');
+  let filled = 0;
+  areas.forEach(t => { if (t.value.trim().length > 0) filled++; });
+  document.getElementById('counter').textContent = filled + ' / 5';
+}
+</script>
+</body>
+</html>
