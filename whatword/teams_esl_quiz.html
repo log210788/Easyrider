@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teams ESL Quiz Challenge</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    padding: 20px;
+  }
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 0 3px 15px rgba(0,0,0,0.3);
+    text-align: center;
+    animation: titleGlow 2s ease-in-out infinite alternate;
+  }
+  @keyframes titleGlow {
+    from { text-shadow: 0 3px 15px rgba(0,0,0,0.3); }
+    to { text-shadow: 0 3px 25px rgba(255,255,255,0.5); }
+  }
+  .subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    text-align: center;
+    opacity: 0.9;
+  }
+  .game-container {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 800px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .score-board {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .score-item {
+    background: rgba(255,255,255,0.15);
+    padding: 15px 25px;
+    border-radius: 15px;
+    text-align: center;
+    min-width: 150px;
+    transition: transform 0.3s;
+  }
+  .score-item:hover {
+    transform: translateY(-2px);
+  }
+  .score-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+  }
+  .score-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffd700;
+  }
+  .category-selector {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+  .category-btn {
+    padding: 10px 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 25px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .category-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+  }
+  .category-btn.active {
+    background: rgba(255,215,0,0.3);
+    border-color: #ffd700;
+    box-shadow: 0 0 15px rgba(255,215,0,0.3);
+  }
+  .question-card {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    animation: slideIn 0.5s;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .question-number {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin-bottom: 10px;
+  }
+  .question-text {
+    font-size: 1.4rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .answer-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .answer-input {
+    padding: 12px 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.9);
+    color: #333;
+    font-size: 1.1rem;
+    transition: all 0.3s;
+  }
+  .answer-input:focus {
+    outline: none;
+    border-color: #ffd700;
+    box-shadow: 0 0 15px rgba(255,215,0,0.3);
+  }
+  .button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102,126,234,0.5);
+  }
+  .btn-secondary {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+  }
+  .feedback-message {
+    padding: 15px 25px;
+    border-radius: 15px;
+    margin: 20px 0;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    animation: bounceIn 0.5s;
+  }
+  @keyframes bounceIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .feedback-success {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    color: #fff;
+  }
+  .feedback-error {
+    background: linear-gradient(135deg, #eb3349, #f45c43);
+    color: #fff;
+  }
+  .feedback-info {
+    background: linear-gradient(135deg, #36d1dc, #5b86e5);
+    color: #fff;
+  }
+  .progress-bar {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    height: 8px;
+    margin: 20px 0;
+    overflow: hidden;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, #ffd700, #ffed4e);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+  }
+  .timer {
+    font-size: 1.2rem;
+    text-align: center;
+    margin: 15px 0;
+    color: #ffd700;
+    font-weight: bold;
+  }
+  .difficulty-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin: 10px 0;
+  }
+  .star {
+    color: #ffd700;
+    font-size: 1.2rem;
+  }
+  .hint-box {
+    background: rgba(255,215,0,0.1);
+    border: 2px solid rgba(255,215,0,0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+    display: none;
+  }
+  .hint-box.show {
+    display: block;
+    animation: slideIn 0.3s;
+  }
+  .teams-mode-indicator {
+    background: rgba(0,255,0,0.2);
+    border: 2px solid rgba(0,255,0,0.5);
+    border-radius: 10px;
+    padding: 10px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+<h1>Teams ESL Quiz Challenge</h1>
+<div class="subtitle">Perfect for video calls - share your screen and play together!</div>
+
+<div class="teams-mode-indicator">
+  Teams Mode: Teacher shares screen, students answer verbally or in chat
+</div>
+
+<div class="game-container">
+  <div class="score-board">
+    <div class="score-item">
+      <div class="score-label">Questions</div>
+      <div class="score-value" id="question-count">0</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Correct</div>
+      <div class="score-value" id="correct-count">0</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Streak</div>
+      <div class="score-value" id="streak-count">0</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Accuracy</div>
+      <div class="score-value" id="accuracy">0%</div>
+    </div>
+  </div>
+
+  <div class="category-selector">
+    <button class="category-btn active" data-category="vocabulary">Vocabulary</button>
+    <button class="category-btn" data-category="grammar">Grammar</button>
+    <button class="category-btn" data-category="conversation">Conversation</button>
+    <button class="category-btn" data-category="reading">Reading</button>
+    <button class="category-btn" data-category="mixed">Mixed Challenge</button>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+  </div>
+
+  <div class="question-card">
+    <div class="question-number" id="question-number">Click "Next Question" to start!</div>
+    <div class="difficulty-indicator" id="difficulty"></div>
+    <div class="question-text" id="question-text">Ready to practice your English?</div>
+    
+    <div class="answer-section">
+      <input type="text" id="answer-input" class="answer-input" placeholder="Type your answer here..." style="display: none;">
+      <div class="hint-box" id="hint-box">
+        <strong>Hint:</strong> <span id="hint-text"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="timer" id="timer" style="display: none;"></div>
+
+  <div id="feedback-message"></div>
+
+  <div class="button-group">
+    <button id="next-btn" class="btn btn-primary" onclick="nextQuestion()">Next Question</button>
+    <button id="submit-btn" class="btn btn-primary" onclick="submitAnswer()" style="display: none;">Submit Answer</button>
+    <button id="hint-btn" class="btn btn-secondary" onclick="showHint()" style="display: none;">Get Hint</button>
+    <button id="skip-btn" class="btn btn-secondary" onclick="skipQuestion()" style="display: none;">Skip</button>
+    <button class="btn btn-secondary" onclick="resetGame()">New Game</button>
+  </div>
+</div>
+
+<script>
+const questions = {
+  vocabulary: [
+    { question: "What is the opposite of 'expensive'?", answer: "cheap", hint: "Think about cost", difficulty: 1 },
+    { question: "What do you call a person who studies?", answer: "student", hint: "You are one!", difficulty: 1 },
+    { question: "What is the past tense of 'buy'?", answer: "bought", hint: "Irregular verb", difficulty: 2 },
+    { question: "What is the plural of 'wolf'?", answer: "wolves", hint: "Irregular plural ending", difficulty: 2 },
+    { question: "What is a synonym for 'happy'?", answer: "joyful", hint: "Feeling good", difficulty: 2 },
+    { question: "What is the opposite of 'ancient'?", answer: "modern", hint: "Time-related", difficulty: 2 },
+    { question: "What do you call a baby cat?", answer: "kitten", hint: "Young feline", difficulty: 1 },
+    { question: "What is the past participle of 'write'?", answer: "written", hint: "Perfect tense form", difficulty: 3 },
+    { question: "What is a collective noun for cows?", answer: "herd", hint: "Group of animals", difficulty: 3 },
+    { question: "What is the adjective form of 'danger'?", answer: "dangerous", hint: "Describes something risky", difficulty: 2 }
+  ],
+  grammar: [
+    { question: "Complete: 'She ___ to school yesterday.'", answer: "went", hint: "Past tense of go", difficulty: 1 },
+    { question: "Choose: 'They ___ playing football.' (is/are)", answer: "are", hint: "Plural subject", difficulty: 1 },
+    { question: "What is the correct article: '___ university'?", answer: "a", hint: "Sound-based rule", difficulty: 2 },
+    { question: "Complete: 'If I ___ rich, I would travel.'", answer: "were", hint: "Conditional mood", difficulty: 3 },
+    { question: "What is the comparative form of 'good'?", answer: "better", hint: "Irregular comparison", difficulty: 2 },
+    { question: "Complete: 'I have ___ this movie before.'", answer: "seen", hint: "Present perfect", difficulty: 2 },
+    { question: "Choose: 'Neither ___ nor I am coming.' (he/him)", answer: "he", hint: "Subject pronoun", difficulty: 3 },
+    { question: "What is the superlative of 'bad'?", answer: "worst", hint: "Irregular superlative", difficulty: 2 },
+    { question: "Complete: 'She suggested ___ early.' (go/going)", answer: "going", hint: "Gerund after suggest", difficulty: 3 },
+    { question: "What is the passive form: 'Someone stole the car.'", answer: "The car was stolen", hint: "Object becomes subject", difficulty: 3 }
+  ],
+  conversation: [
+    { question: "How do you respond to 'How are you?' (formal)", answer: "I'm fine, thank you", hint: "Polite response", difficulty: 1 },
+    { question: "What do you say when someone sneezes?", answer: "Bless you", hint: "Polite expression", difficulty: 1 },
+    { question: "How do you ask for directions politely?", answer: "Excuse me, could you tell me...", hint: "Start with polite phrase", difficulty: 2 },
+    { question: "What do you say when you don't understand?", answer: "Could you repeat that?", hint: "Ask for clarification", difficulty: 2 },
+    { question: "How do you introduce yourself formally?", answer: "My name is.../I'm...", hint: "Basic introduction", difficulty: 1 },
+    { question: "What do you say to apologize?", answer: "I'm sorry/I apologize", hint: "Expressing regret", difficulty: 1 },
+    { question: "How do you make a suggestion?", answer: "How about/What about...", hint: "Suggestion phrase", difficulty: 2 },
+    { question: "What do you say to agree strongly?", answer: "I completely agree", hint: "Strong agreement", difficulty: 2 },
+    { question: "How do you interrupt politely?", answer: "Excuse me, but...", hint: "Polite interruption", difficulty: 3 },
+    { question: "What do you say to end a phone call?", answer: "Goodbye/Talk to you later", hint: "Closing expressions", difficulty: 1 }
+  ],
+  reading: [
+    { question: "What does 'ubiquitous' mean?", answer: "everywhere", hint: "Found in all places", difficulty: 3 },
+    { question: "What is the main idea of a text about?", answer: "central theme", hint: "Most important point", difficulty: 2 },
+    { question: "What does 'consequently' indicate?", answer: "result", hint: "Shows cause-effect", difficulty: 2 },
+    { question: "What is the purpose of a topic sentence?", answer: "introduce main idea", hint: "First sentence function", difficulty: 2 },
+    { question: "What does 'ambiguous' mean?", answer: "unclear", hint: "Multiple meanings", difficulty: 3 },
+    { question: "What is 'inference'?", answer: "conclusion from evidence", hint: "Reading between lines", difficulty: 3 },
+    { question: "What does 'nevertheless' show?", answer: "contrast", hint: "Similar to however", difficulty: 2 },
+    { question: "What is 'context'?", answer: "surrounding information", hint: "Helps understand meaning", difficulty: 2 },
+    { question: "What does 'elaborate' mean?", answer: "explain in detail", hint: "Add more information", difficulty: 3 },
+    { question: "What is the 'tone' of a text?", answer: "author's attitude", hint: "Feeling conveyed", difficulty: 2 }
+  ],
+  mixed: [
+    { question: "What is the past tense of 'begin'?", answer: "began", hint: "Irregular verb", difficulty: 2 },
+    { question: "How do you spell 'necessary'?", answer: "necessary", hint: "One C, two S's", difficulty: 2 },
+    { question: "What is the opposite of 'generous'?", answer: "selfish", hint: "Character trait", difficulty: 2 },
+    { question: "Complete: 'I wish I ___ younger.'", answer: "were", hint: "Unreal condition", difficulty: 3 },
+    { question: "What is a 'metaphor'?", answer: "comparison without like/as", hint: "Literary device", difficulty: 3 },
+    { question: "What does 'procrastinate' mean?", answer: "delay things", hint: "Bad habit", difficulty: 2 },
+    { question: "What is the plural of 'phenomenon'?", answer: "phenomena", hint: "Greek origin", difficulty: 3 },
+    { question: "Complete: 'She is used ___ early.'", answer: "to getting", hint: "Be used to + gerund", difficulty: 3 },
+    { question: "What is the meaning of 'versatile'?", answer: "able to do many things", hint: "Adaptable", difficulty: 3 },
+    { question: "What is the correct spelling: 'accommodate' or 'acommodate'?", answer: "accommodate", hint: "Double C, double M", difficulty: 2 }
+  ]
+};
+
+let currentCategory = 'vocabulary';
+let currentQuestion = null;
+let questionCount = 0;
+let correctCount = 0;
+let streakCount = 0;
+let usedQuestions = [];
+let timer = null;
+
+function initGame() {
+  // Set up category buttons
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentCategory = this.dataset.category;
+      usedQuestions = [];
+      updateDisplay();
+    });
+  });
+  
+  updateDisplay();
+}
+
+function nextQuestion() {
+  const categoryQuestions = questions[currentCategory];
+  if (usedQuestions.length >= categoryQuestions.length) {
+    usedQuestions = [];
+  }
+  
+  let availableQuestions = categoryQuestions.filter((q, index) => !usedQuestions.includes(index));
+  if (availableQuestions.length === 0) availableQuestions = categoryQuestions;
+  
+  const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+  const questionIndex = categoryQuestions.indexOf(availableQuestions[randomIndex]);
+  
+  currentQuestion = categoryQuestions[questionIndex];
+  usedQuestions.push(questionIndex);
+  
+  questionCount++;
+  updateDisplay();
+  
+  document.getElementById('question-number').textContent = `Question ${questionCount}`;
+  document.getElementById('question-text').textContent = currentQuestion.question;
+  document.getElementById('answer-input').value = '';
+  document.getElementById('answer-input').style.display = 'block';
+  document.getElementById('answer-input').focus();
+  document.getElementById('hint-box').classList.remove('show');
+  document.getElementById('feedback-message').innerHTML = '';
+  
+  // Show difficulty stars
+  const difficultyHtml = ' '.repeat(currentQuestion.difficulty).split('').map(() => '<span class="star"></span>').join('');
+  document.getElementById('difficulty').innerHTML = difficultyHtml;
+  
+  // Update button visibility
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('submit-btn').style.display = 'inline-block';
+  document.getElementById('hint-btn').style.display = 'inline-block';
+  document.getElementById('skip-btn').style.display = 'inline-block';
+  
+  // Start timer for harder questions
+  if (currentQuestion.difficulty >= 2) {
+    startTimer();
+  }
+}
+
+function submitAnswer() {
+  const userAnswer = document.getElementById('answer-input').value.toLowerCase().trim();
+  const correctAnswer = currentQuestion.answer.toLowerCase();
+  
+  clearInterval(timer);
+  document.getElementById('timer').style.display = 'none';
+  
+  const feedbackDiv = document.getElementById('feedback-message');
+  
+  if (userAnswer === correctAnswer) {
+    correctCount++;
+    streakCount++;
+    feedbackDiv.innerHTML = `<div class="feedback-message feedback-success">Correct! Well done! </div>`;
+  } else {
+    streakCount = 0;
+    feedbackDiv.innerHTML = `<div class="feedback-message feedback-error">Not quite. The answer is: "${currentQuestion.answer}"</div>`;
+  }
+  
+  updateDisplay();
+  
+  // Update button visibility
+  document.getElementById('submit-btn').style.display = 'none';
+  document.getElementById('hint-btn').style.display = 'none';
+  document.getElementById('skip-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'inline-block';
+  document.getElementById('answer-input').style.display = 'none';
+}
+
+function showHint() {
+  document.getElementById('hint-text').textContent = currentQuestion.hint;
+  document.getElementById('hint-box').classList.add('show');
+  streakCount = Math.max(0, streakCount - 1); // Reset streak on hint
+  updateDisplay();
+}
+
+function skipQuestion() {
+  clearInterval(timer);
+  document.getElementById('timer').style.display = 'none';
+  
+  document.getElementById('feedback-message').innerHTML = `<div class="feedback-message feedback-info">Skipped! The answer was: "${currentQuestion.answer}"</div>`;
+  
+  streakCount = 0;
+  updateDisplay();
+  
+  // Update button visibility
+  document.getElementById('submit-btn').style.display = 'none';
+  document.getElementById('hint-btn').style.display = 'none';
+  document.getElementById('skip-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'inline-block';
+  document.getElementById('answer-input').style.display = 'none';
+}
+
+function startTimer() {
+  let timeLeft = 30;
+  document.getElementById('timer').style.display = 'block';
+  
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timer').textContent = `Time: ${timeLeft}s`;
+    
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      document.getElementById('timer').style.display = 'none';
+      skipQuestion();
+    }
+  }, 1000);
+}
+
+function updateDisplay() {
+  document.getElementById('question-count').textContent = questionCount;
+  document.getElementById('correct-count').textContent = correctCount;
+  document.getElementById('streak-count').textContent = streakCount;
+  
+  const accuracy = questionCount > 0 ? Math.round((correctCount / questionCount) * 100) : 0;
+  document.getElementById('accuracy').textContent = accuracy + '%';
+  
+  const progress = (usedQuestions.length / questions[currentCategory].length) * 100;
+  document.getElementById('progress-fill').style.width = progress + '%';
+}
+
+function resetGame() {
+  questionCount = 0;
+  correctCount = 0;
+  streakCount = 0;
+  usedQuestions = [];
+  currentQuestion = null;
+  clearInterval(timer);
+  
+  document.getElementById('question-number').textContent = 'Click "Next Question" to start!';
+  document.getElementById('question-text').textContent = 'Ready to practice your English?';
+  document.getElementById('answer-input').value = '';
+  document.getElementById('answer-input').style.display = 'none';
+  document.getElementById('hint-box').classList.remove('show');
+  document.getElementById('feedback-message').innerHTML = '';
+  document.getElementById('timer').style.display = 'none';
+  document.getElementById('difficulty').innerHTML = '';
+  
+  document.getElementById('next-btn').style.display = 'inline-block';
+  document.getElementById('submit-btn').style.display = 'none';
+  document.getElementById('hint-btn').style.display = 'none';
+  document.getElementById('skip-btn').style.display = 'none';
+  
+  updateDisplay();
+}
+
+// Handle Enter key for answer submission
+document.getElementById('answer-input').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter' && document.getElementById('submit-btn').style.display !== 'none') {
+    submitAnswer();
+  }
+});
+
+// Initialize game on load
+initGame();
+</script>
+</body>
+</html>

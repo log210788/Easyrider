@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Battleship ESL Vocabulary Game</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f3460, #16213e, #1a1a2e);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    padding: 20px;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    text-align: center;
+  }
+  .game-container {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1200px;
+    width: 100%;
+  }
+  .board-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .board-title {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #f1c40f;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(10, 40px);
+    grid-template-rows: repeat(10, 40px);
+    gap: 2px;
+    background: #2c3e50;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  .cell {
+    background: #34495e;
+    border: 1px solid #2c3e50;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .cell:hover:not(.hit):not(.miss) {
+    background: #4a5f7f;
+    transform: scale(1.05);
+  }
+  .cell.hit {
+    background: #e74c3c;
+    color: #fff;
+    animation: hitAnimation 0.5s;
+  }
+  .cell.miss {
+    background: #95a5a6;
+    color: #2c3e50;
+    animation: missAnimation 0.5s;
+  }
+  .cell.ship {
+    background: #27ae60;
+    color: #fff;
+  }
+  .cell.sunk {
+    background: #c0392b;
+    color: #fff;
+  }
+  @keyframes hitAnimation {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); background: #ff6b6b; }
+    100% { transform: scale(1); }
+  }
+  @keyframes missAnimation {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.8); }
+    100% { transform: scale(1); }
+  }
+  .coordinates {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 10px;
+  }
+  .coord-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .coord-label {
+    width: 20px;
+    text-align: center;
+    font-weight: 600;
+    color: #ecf0f1;
+  }
+  .coord-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 40px);
+    gap: 2px;
+  }
+  .coord-cell {
+    width: 40px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #bdc3c7;
+  }
+  .status-panel {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+  }
+  .score-display {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+  }
+  .score-item {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .student-score { background: #3498db; }
+  .teacher-score { background: #e74c3c; }
+  .question-box {
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+    min-height: 80px;
+    display: none;
+    animation: slideIn 0.3s;
+  }
+  .question-box.show {
+    display: block;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .question-text {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+  .answer-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #3498db;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.9);
+    color: #2c3e50;
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  .submit-btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    background: #27ae60;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .submit-btn:hover { background: #219a52; }
+  .message {
+    padding: 8px 16px;
+    border-radius: 6px;
+    margin: 10px 0;
+    font-weight: 600;
+    animation: fadeIn 0.3s;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .message.success { background: #27ae60; }
+  .message.error { background: #e74c3c; }
+  .message.info { background: #3498db; }
+  .controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: #3498db;
+    color: #fff;
+  }
+  .btn-primary:hover { background: #2980b9; }
+  .btn-secondary {
+    background: #95a5a6;
+    color: #fff;
+  }
+  .btn-secondary:hover { background: #7f8c8d; }
+  .turn-indicator {
+    font-size: 1.3rem;
+    margin: 15px 0;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .turn-student { background: #3498db; }
+  .turn-teacher { background: #e74c3c; }
+  .legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 10px 0;
+    font-size: 0.9rem;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+<h1> Battleship ESL Vocabulary Battle</h1>
+
+<div class="status-panel">
+  <div class="score-display">
+    <div class="score-item student-score">Student: <span id="student-hits">0</span></div>
+    <div class="score-item teacher-score">Teacher: <span id="teacher-hits">0</span></div>
+  </div>
+  <div id="turn-indicator" class="turn-indicator turn-student">Student's Turn</div>
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-color" style="background: #27ae60;"></div>
+      <span>Ship</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #e74c3c;"></div>
+      <span>Hit</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #95a5a6;"></div>
+      <span>Miss</span>
+    </div>
+  </div>
+</div>
+
+<div class="game-container">
+  <div class="board-section">
+    <div class="board-title">Your Fleet</div>
+    <div class="coordinates">
+      <div class="coord-row">
+        <div class="coord-label"></div>
+        <div class="coord-grid">
+          <div class="coord-cell">A</div><div class="coord-cell">B</div><div class="coord-cell">C</div><div class="coord-cell">D</div>
+          <div class="coord-cell">E</div><div class="coord-cell">F</div><div class="coord-cell">G</div><div class="coord-cell">H</div>
+          <div class="coord-cell">I</div><div class="coord-cell">J</div>
+        </div>
+      </div>
+    </div>
+    <div class="coordinates">
+      <div class="coord-row">
+        <div class="coord-label">1</div>
+        <div class="coord-grid">
+          <div class="coord-cell">2</div><div class="coord-cell">3</div><div class="coord-cell">4</div><div class="coord-cell">5</div>
+          <div class="coord-cell">6</div><div class="coord-cell">7</div><div class="coord-cell">8</div><div class="coord-cell">9</div>
+          <div class="coord-cell">10</div>
+        </div>
+      </div>
+    </div>
+    <div id="student-grid" class="grid"></div>
+  </div>
+
+  <div class="board-section">
+    <div class="board-title">Teacher's Fleet (Attack Here!)</div>
+    <div class="coordinates">
+      <div class="coord-row">
+        <div class="coord-label"></div>
+        <div class="coord-grid">
+          <div class="coord-cell">A</div><div class="coord-cell">B</div><div class="coord-cell">C</div><div class="coord-cell">D</div>
+          <div class="coord-cell">E</div><div class="coord-cell">F</div><div class="coord-cell">G</div><div class="coord-cell">H</div>
+          <div class="coord-cell">I</div><div class="coord-cell">J</div>
+        </div>
+      </div>
+    </div>
+    <div class="coordinates">
+      <div class="coord-row">
+        <div class="coord-label">1</div>
+        <div class="coord-grid">
+          <div class="coord-cell">2</div><div class="coord-cell">3</div><div class="coord-cell">4</div><div class="coord-cell">5</div>
+          <div class="coord-cell">6</div><div class="coord-cell">7</div><div class="coord-cell">8</div><div class="coord-cell">9</div>
+          <div class="coord-cell">10</div>
+        </div>
+      </div>
+    </div>
+    <div id="teacher-grid" class="grid"></div>
+  </div>
+</div>
+
+<div class="status-panel">
+  <div id="question-box" class="question-box">
+    <div class="question-text" id="question-text"></div>
+    <input type="text" id="answer-input" class="answer-input" placeholder="Type your answer...">
+    <button onclick="submitAnswer()" class="submit-btn">Submit Answer</button>
+    <div id="message"></div>
+  </div>
+  <div class="controls">
+    <button onclick="initGame()" class="btn btn-primary">New Game</button>
+    <button onclick="showHint()" class="btn btn-secondary">Hint</button>
+  </div>
+</div>
+
+<script>
+const vocabularyQuestions = [
+  { question: "What is the opposite of 'hot'?", answer: "cold", hint: "Think about temperature" },
+  { question: "What do you call a baby dog?", answer: "puppy", hint: "It's a young canine" },
+  { question: "What is the past tense of 'go'?", answer: "went", hint: "Irregular verb" },
+  { question: "What color is the sky on a clear day?", answer: "blue", hint: "Look up!" },
+  { question: "What do you use to write on paper?", answer: "pen", hint: "Writing tool" },
+  { question: "What is the plural of 'child'?", answer: "children", hint: "Irregular plural" },
+  { question: "What is the opposite of 'big'?", answer: "small", hint: "Size comparison" },
+  { question: "What animal says 'meow'?", answer: "cat", hint: "Common pet" },
+  { question: "What is 5 + 3?", answer: "eight", hint: "Basic math" },
+  { question: "What is the opposite of 'happy'?", answer: "sad", hint: "Emotion" },
+  { question: "What do you eat for breakfast?", answer: "eggs", hint: "Common breakfast food" },
+  { question: "What is the past tense of 'eat'?", answer: "ate", hint: "Irregular verb" },
+  { question: "What color are bananas?", answer: "yellow", hint: "Fruit color" },
+  { question: "What is the opposite of 'fast'?", answer: "slow", hint: "Speed" },
+  { question: "What do you wear on your feet?", answer: "shoes", hint: "Footwear" },
+  { question: "What is the plural of 'mouse'?", answer: "mice", hint: "Rodent plural" },
+  { question: "What is the opposite of 'up'?", answer: "down", hint: "Direction" },
+  { question: "What animal says 'woof'?", answer: "dog", hint: "Man's best friend" },
+  { question: "What is the past tense of 'see'?", answer: "saw", hint: "Irregular verb" },
+  { question: "What do you use to cut paper?", answer: "scissors", hint: "Cutting tool" },
+  { question: "What is the opposite of 'rich'?", answer: "poor", hint: "Money status" },
+  { question: "What is the plural of 'person'?", answer: "people", hint: "Human plural" },
+  { question: "What color are apples?", answer: "red", hint: "Common fruit color" },
+  { question: "What is the past tense of 'come'?", answer: "came", hint: "Movement verb" },
+  { question: "What do you drink when you're thirsty?", answer: "water", hint: "Essential liquid" }
+];
+
+let studentGrid = [];
+let teacherGrid = [];
+let studentShips = [];
+let teacherShips = [];
+let currentTurn = 'student';
+let currentQuestion = null;
+let studentHits = 0;
+let teacherHits = 0;
+let gameActive = true;
+
+function initGame() {
+  studentGrid = Array(10).fill().map(() => Array(10).fill(null));
+  teacherGrid = Array(10).fill().map(() => Array(10).fill(null));
+  studentShips = [];
+  teacherShips = [];
+  currentTurn = 'student';
+  currentQuestion = null;
+  studentHits = 0;
+  teacherHits = 0;
+  gameActive = true;
+  
+  document.getElementById('student-hits').textContent = '0';
+  document.getElementById('teacher-hits').textContent = '0';
+  document.getElementById('question-box').classList.remove('show');
+  document.getElementById('message').innerHTML = '';
+  updateTurnIndicator();
+  
+  placeShips(studentGrid, studentShips);
+  placeShips(teacherGrid, teacherShips);
+  renderGrids();
+}
+
+function placeShips(grid, ships) {
+  const shipSizes = [5, 4, 3, 3, 2]; // Carrier, Battleship, Cruiser, Submarine, Destroyer
+  const shipNames = ['Carrier', 'Battleship', 'Cruiser', 'Submarine', 'Destroyer'];
+  
+  for (let i = 0; i < shipSizes.length; i++) {
+    let placed = false;
+    while (!placed) {
+      const horizontal = Math.random() < 0.5;
+      const row = Math.floor(Math.random() * 10);
+      const col = Math.floor(Math.random() * 10);
+      
+      if (canPlaceShip(grid, row, col, shipSizes[i], horizontal)) {
+        const ship = {
+          name: shipNames[i],
+          size: shipSizes[i],
+          positions: []
+        };
+        
+        for (let j = 0; j < shipSizes[i]; j++) {
+          const r = horizontal ? row : row + j;
+          const c = horizontal ? col + j : col;
+          grid[r][c] = shipNames[i][0];
+          ship.positions.push({row: r, col: c});
+        }
+        
+        ships.push(ship);
+        placed = true;
+      }
+    }
+  }
+}
+
+function canPlaceShip(grid, row, col, size, horizontal) {
+  if (horizontal) {
+    if (col + size > 10) return false;
+    for (let i = 0; i < size; i++) {
+      if (grid[row][col + i] !== null) return false;
+    }
+  } else {
+    if (row + size > 10) return false;
+    for (let i = 0; i < size; i++) {
+      if (grid[row + i][col] !== null) return false;
+    }
+  }
+  return true;
+}
+
+function renderGrids() {
+  renderGrid('student-grid', studentGrid, false);
+  renderGrid('teacher-grid', teacherGrid, true);
+}
+
+function renderGrid(gridId, grid, isTeacher) {
+  const gridElement = document.getElementById(gridId);
+  gridElement.innerHTML = '';
+  
+  for (let row = 0; row < 10; row++) {
+    for (let col = 0; col < 10; col++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.row = row;
+      cell.dataset.col = col;
+      
+      if (grid[row][col] === 'hit') {
+        cell.classList.add('hit');
+        cell.textContent = '';
+      } else if (grid[row][col] === 'miss') {
+        cell.classList.add('miss');
+        cell.textContent = '';
+      } else if (grid[row][col] === 'sunk') {
+        cell.classList.add('sunk');
+        cell.textContent = '';
+      } else if (!isTeacher && grid[row][col] !== null) {
+        cell.classList.add('ship');
+        cell.textContent = grid[row][col];
+      }
+      
+      if (isTeacher && currentTurn === 'student' && gameActive) {
+        if (grid[row][col] === null || grid[row][col] === 'miss' || grid[row][col] === 'hit' || grid[row][col] === 'sunk') {
+          cell.addEventListener('click', () => handleCellClick(row, col));
+          cell.style.cursor = 'pointer';
+        }
+      }
+      
+      gridElement.appendChild(cell);
+    }
+  }
+}
+
+function handleCellClick(row, col) {
+  if (currentTurn !== 'student' || !gameActive) return;
+  if (teacherGrid[row][col] === 'hit' || teacherGrid[row][col] === 'miss') return;
+  
+  currentQuestion = vocabularyQuestions[Math.floor(Math.random() * vocabularyQuestions.length)];
+  document.getElementById('question-text').textContent = currentQuestion.question;
+  document.getElementById('answer-input').value = '';
+  document.getElementById('message').innerHTML = '';
+  document.getElementById('question-box').classList.add('show');
+  
+  document.getElementById('answer-input').focus();
+  
+  window.currentAttack = { row, col };
+}
+
+function submitAnswer() {
+  if (!currentQuestion || !window.currentAttack) return;
+  
+  const userAnswer = document.getElementById('answer-input').value.toLowerCase().trim();
+  const correctAnswer = currentQuestion.answer.toLowerCase();
+  
+  const messageDiv = document.getElementById('message');
+  
+  if (userAnswer === correctAnswer) {
+    messageDiv.innerHTML = '<div class="message success">Correct! You hit a ship!</div>';
+    processAttack(window.currentAttack.row, window.currentAttack.col, true);
+  } else {
+    messageDiv.innerHTML = `<div class="message error">Wrong! The answer was "${currentQuestion.answer}". You missed!</div>`;
+    processAttack(window.currentAttack.row, window.currentAttack.col, false);
+  }
+  
+  setTimeout(() => {
+    document.getElementById('question-box').classList.remove('show');
+    if (gameActive) {
+      teacherTurn();
+    }
+  }, 2000);
+}
+
+function processAttack(row, col, isHit) {
+  if (isHit) {
+    teacherGrid[row][col] = 'hit';
+    studentHits++;
+    document.getElementById('student-hits').textContent = studentHits;
+    
+    // Check if ship is sunk
+    const hitShip = teacherShips.find(ship => 
+      ship.positions.some(pos => pos.row === row && pos.col === col)
+    );
+    
+    if (hitShip) {
+      const allHit = hitShip.positions.every(pos => 
+        teacherGrid[pos.row][pos.col] === 'hit'
+      );
+      
+      if (allHit) {
+        hitShip.positions.forEach(pos => {
+          teacherGrid[pos.row][pos.col] = 'sunk';
+        });
+        document.getElementById('message').innerHTML += 
+          `<div class="message info">You sank the ${hitShip.name}!</div>`;
+      }
+    }
+  } else {
+    teacherGrid[row][col] = 'miss';
+  }
+  
+  renderGrids();
+  checkWinCondition();
+}
+
+function teacherTurn() {
+  if (!gameActive) return;
+  
+  currentTurn = 'teacher';
+  updateTurnIndicator();
+  
+  setTimeout(() => {
+    let row, col;
+    do {
+      row = Math.floor(Math.random() * 10);
+      col = Math.floor(Math.random() * 10);
+    } while (studentGrid[row][col] === 'hit' || studentGrid[row][col] === 'miss');
+    
+    if (studentGrid[row][col] !== null) {
+      studentGrid[row][col] = 'hit';
+      teacherHits++;
+      document.getElementById('teacher-hits').textContent = teacherHits;
+      
+      const hitShip = studentShips.find(ship => 
+        ship.positions.some(pos => pos.row === row && pos.col === col)
+      );
+      
+      if (hitShip) {
+        const allHit = hitShip.positions.every(pos => 
+          studentGrid[pos.row][pos.col] === 'hit'
+        );
+        
+        if (allHit) {
+          hitShip.positions.forEach(pos => {
+            studentGrid[pos.row][pos.col] = 'sunk';
+          });
+        }
+      }
+    } else {
+      studentGrid[row][col] = 'miss';
+    }
+    
+    renderGrids();
+    checkWinCondition();
+    
+    if (gameActive) {
+      currentTurn = 'student';
+      updateTurnIndicator();
+    }
+  }, 1500);
+}
+
+function updateTurnIndicator() {
+  const indicator = document.getElementById('turn-indicator');
+  if (currentTurn === 'student') {
+    indicator.textContent = "Student's Turn - Attack!";
+    indicator.className = 'turn-indicator turn-student';
+  } else {
+    indicator.textContent = "Teacher's Turn - Defend!";
+    indicator.className = 'turn-indicator turn-teacher';
+  }
+}
+
+function checkWinCondition() {
+  const studentShipsRemaining = studentShips.some(ship => 
+    !ship.positions.every(pos => studentGrid[pos.row][pos.col] === 'hit')
+  );
+  
+  const teacherShipsRemaining = teacherShips.some(ship => 
+    !ship.positions.every(pos => teacherGrid[pos.row][pos.col] === 'hit')
+  );
+  
+  if (!studentShipsRemaining || !teacherShipsRemaining) {
+    gameActive = false;
+    const winner = !studentShipsRemaining ? 'Teacher' : 'Student';
+    setTimeout(() => {
+      alert(`${winner} wins the battle! Great vocabulary practice!`);
+    }, 500);
+  }
+}
+
+function showHint() {
+  if (currentQuestion && document.getElementById('question-box').classList.contains('show')) {
+    const messageDiv = document.getElementById('message');
+    messageDiv.innerHTML += `<div class="message info">Hint: ${currentQuestion.hint}</div>`;
+  }
+}
+
+// Initialize game on load
+initGame();
+</script>
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional English - Present Perfect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface2: #334155;
+            --accent: #3b82f6;
+            --accent-light: #60a5fa;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.1);
+            border-color: var(--accent);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .card-description {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .example-box {
+            background: var(--bg);
+            border-left: 4px solid var(--accent);
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .example-title {
+            font-weight: 600;
+            color: var(--accent-light);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .example-text {
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+
+        .practice-section {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+        }
+
+        .practice-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .practice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .practice-item {
+            background: var(--bg);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .practice-question {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .practice-hint {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .tips-section {
+            background: linear-gradient(135deg, var(--surface), var(--surface2));
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+        }
+
+        .tip-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .tip-icon {
+            color: var(--success);
+            margin-right: 16px;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .tip-content {
+            flex: 1;
+        }
+
+        .tip-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .tip-description {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--accent-light);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface);
+            border-color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Professional English</h1>
+            <p class="subtitle">Master the Present Perfect Tense for Business and Career Success</p>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <span class="card-icon"> briefcase</span>
+                <h2 class="card-title">Business Communication</h2>
+                <p class="card-description">Use present perfect to discuss professional achievements, project updates, and career experiences in business contexts.</p>
+                
+                <div class="example-box">
+                    <div class="example-title">Business Examples</div>
+                    <div class="example-text">"I <span class="highlight">have managed</span> teams of up to 15 people."</div>
+                    <div class="example-text">"We <span class="highlight">have completed</span> the quarterly report."</div>
+                    <div class="example-text">"She <span class="highlight">has worked</span> in international markets for 10 years."</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="card-icon"> chart_line</span>
+                <h2 class="card-title">Project Updates</h2>
+                <p class="card-description">Report progress and achievements without specifying exact times, perfect for status meetings and reports.</p>
+                
+                <div class="example-box">
+                    <div class="example-title">Project Examples</div>
+                    <div class="example-text">"The team <span class="highlight">has achieved</span> all Q3 targets."</div>
+                    <div class="example-text">"I <span class="highlight">have reviewed</span> your proposal."</div>
+                    <div class="example-text">"We <span class="highlight">have implemented</span> the new system."</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="card-icon"> handshake</span>
+                <h2 class="card-title">Interview Skills</h2>
+                <p class="card-description">Present your experience and qualifications effectively using present perfect tense in job interviews.</p>
+                
+                <div class="example-box">
+                    <div class="example-title">Interview Examples</div>
+                    <div class="example-text">"I <span class="highlight">have led</span> multiple successful projects."</div>
+                    <div class="example-text">"I <span class="highlight">have developed</span> expertise in digital marketing."</div>
+                    <div class="example-text">"We <span class="highlight">have increased</span> revenue by 25%."</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="card-icon"> email</span>
+                <h2 class="card-title">Professional Email</h2>
+                <p class="card-description">Write polished business emails using present perfect to communicate recent actions and accomplishments.</p>
+                
+                <div class="example-box">
+                    <div class="example-title">Email Examples</div>
+                    <div class="example-text">"I <span class="highlight">have attached</span> the documents you requested."</div>
+                    <div class="example-text">"We <span class="highlight">have received</span> your application."</div>
+                    <div class="example-text">"I <span class="highlight">have reviewed</span> the contract terms."</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="practice-section">
+            <h2 class="practice-title">Professional Practice Exercises</h2>
+            <div class="practice-grid">
+                <div class="practice-item">
+                    <div class="practice-question">1. Describe your career achievements using present perfect.</div>
+                    <div class="practice-hint">Think about what you have accomplished in your professional life.</div>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-question">2. Report on a project you have completed recently.</div>
+                    <div class="practice-hint">Focus on results and outcomes without mentioning specific dates.</div>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-question">3. Explain skills you have developed in your current role.</div>
+                    <div class="practice-hint">Use present perfect to describe acquired expertise.</div>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-question">4. Write a professional email update.</div>
+                    <div class="practice-hint">Use present perfect to report recent actions and progress.</div>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-question">5. Prepare interview answers about your experience.</div>
+                    <div class="practice-hint">Use present perfect to highlight your qualifications.</div>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-question">6. Describe challenges you have overcome.</div>
+                    <div class="practice-hint">Focus on solutions and learning experiences.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tips-section">
+            <h2 class="practice-title">Professional Tips</h2>
+            
+            <div class="tip-item">
+                <span class="tip-icon"> check_circle</span>
+                <div class="tip-content">
+                    <div class="tip-title">Be Specific</div>
+                    <div class="tip-description">Combine present perfect with specific details: "I have managed teams of up to 15 people across three departments."</div>
+                </div>
+            </div>
+
+            <div class="tip-item">
+                <span class="tip-icon"> check_circle</span>
+                <div class="tip-content">
+                    <div class="tip-title">Quantify Results</div>
+                    <div class="tip-description">Add numbers and metrics: "We have increased sales by 25% this year."</div>
+                </div>
+            </div>
+
+            <div class="tip-item">
+                <span class="tip-icon"> check_circle</span>
+                <div class="tip-content">
+                    <div class="tip-title">Use Action Verbs</div>
+                    <div class="tip-description">Choose strong professional verbs: "led," "developed," "implemented," "achieved."</div>
+                </div>
+            </div>
+
+            <div class="tip-item">
+                <span class="tip-icon"> check_circle</span>
+                <div class="tip-content">
+                    <div class="tip-title">Connect to Present</div>
+                    <div class="tip-description">Show relevance: "I have completed the training, so I'm ready to start the project."</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="homework.html" class="btn btn-secondary">
+                <span> arrow_back</span> Back to Homework
+            </a>
+            <a href="present_perfect_poem.html" class="btn">
+                View Poem <span> arrow_forward</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            const practiceItems = document.querySelectorAll('.practice-item');
+            
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            practiceItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.style.borderColor = 'var(--accent)';
+                    this.style.background = 'var(--surface2)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

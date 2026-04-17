@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Present Perfect Homework</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e1520;
+  --surface:  #151f30;
+  --surface2: #1c2a42;
+  --border:   rgba(255,255,255,0.07);
+  --gold:     #e8b84b;
+  --gold2:    #f5d278;
+  --teal:     #3ecfb0;
+  --coral:    #f07060;
+  --sky:      #5ab8e8;
+  --lilac:    #9b82f3;
+  --text:     #dde8f8;
+  --muted:    #7a90b8;
+  --green:    #4ade80;
+  --red:      #f87171;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { height: 100%; }
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0 60px;
+  overflow-y: auto;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#shell {
+  position: relative;
+  z-index: 1;
+  width: min(760px, 94vw);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── header ── */
+.page-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+.page-header .tag {
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 800;
+  opacity: 0.7;
+}
+.page-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  color: var(--gold2);
+  line-height: 1.2;
+}
+.page-header .sub {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+/* ── score bar ── */
+.score-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 8px 24px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  align-self: center;
+}
+.score-bar .sg { color: var(--green); }
+.score-bar .sr { color: var(--red); }
+.score-bar .st { color: var(--gold2); }
+
+/* ── section card ── */
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  animation: rise 0.4s cubic-bezier(.22,.68,0,1.1);
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.section-head {
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.section-head .sec-tag {
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 800;
+}
+.section-head h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  color: var(--gold2);
+  line-height: 1.3;
+}
+.section-head .sec-info {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.verb-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.verb-chip {
+  background: rgba(232,184,75,0.1);
+  border: 1px solid rgba(232,184,75,0.3);
+  color: var(--gold2);
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.section-body {
+  padding: 16px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── exercise row ── */
+.ex-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.3s;
+}
+.ex-row.correct { border-color: var(--green); }
+.ex-row.wrong   { border-color: var(--red); }
+.ex-row.given   { border-color: rgba(62,207,176,0.3); opacity: 0.7; }
+
+.ex-num {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+.ex-situation {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.ex-sentence {
+  font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+  line-height: 1.7;
+  color: var(--text);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.ex-input {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: rgba(0,0,0,0.3);
+  border: 2px dashed var(--gold);
+  border-radius: 6px;
+  padding: 4px 10px;
+  color: var(--gold2);
+  outline: none;
+  min-width: 160px;
+  transition: all 0.3s;
+}
+.ex-input:focus {
+  border-color: var(--sky);
+  background: rgba(90,184,232,0.08);
+}
+.ex-input.correct {
+  border-color: var(--green);
+  border-style: solid;
+  color: var(--green);
+  background: rgba(74,222,128,0.08);
+}
+.ex-input.wrong {
+  border-color: var(--red);
+  border-style: solid;
+  color: var(--red);
+  background: rgba(248,113,113,0.08);
+}
+.ex-input:disabled {
+  opacity: 0.9;
+}
+
+.given-answer {
+  color: var(--teal);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.correction {
+  font-size: 0.82rem;
+  color: var(--green);
+  font-weight: 700;
+  display: none;
+  margin-top: 2px;
+}
+.correction.show { display: block; }
+
+/* ── buttons ── */
+.btn-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 12px 32px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+
+.btn-check {
+  background: var(--gold);
+  color: #0e1520;
+}
+.btn-check:hover { background: var(--gold2); }
+
+.btn-show {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.btn-show:hover { color: var(--text); border-color: var(--muted); }
+
+.btn-reset {
+  background: var(--teal);
+  color: #0e1520;
+}
+.btn-reset:hover { background: #5ee0c5; }
+
+/* ── results ── */
+.results-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 28px;
+  text-align: center;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: rise 0.5s cubic-bezier(.22,.68,0,1.1);
+}
+.results-card.show { display: flex; }
+.results-card h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  color: var(--gold2);
+}
+.results-ring {
+  width: 130px; height: 130px;
+  position: relative;
+}
+.results-ring svg {
+  transform: rotate(-90deg);
+  width: 130px; height: 130px;
+}
+.results-ring .ring-bg {
+  fill: none;
+  stroke: var(--surface2);
+  stroke-width: 10;
+}
+.results-ring .ring-fg {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.2s ease;
+}
+.results-pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--gold2);
+}
+.results-msg {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 380px;
+}
+
+@media (max-width: 520px) {
+  .ex-input { min-width: 120px; }
+  .verb-bank { padding: 10px 16px; }
+  .section-body { padding: 12px 16px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div id="shell">
+  <div class="page-header">
+    <div class="tag">Grammar in Use · Homework</div>
+    <h1>Present Perfect Homework</h1>
+    <p class="sub">This is the homework for the next lesson. Please fill in and then send me a copy in the Preply messages.</p>
+  </div>
+
+  <div class="score-bar">
+    <span class="sg" id="sc-correct">&#10004; 0</span>
+    <span class="sr" id="sc-wrong">&#10008; 0</span>
+    <span class="st" id="sc-total">Total: 0 / 27</span>
+  </div>
+
+  <!-- ══════════ EXERCISE 7.1 ══════════ -->
+  <div class="section" id="sec-71">
+    <div class="section-head">
+      <div class="sec-tag">Exercise 7.1</div>
+      <h2>Complete the Sentences</h2>
+      <p class="sec-info">Read the situations and complete the sentences using the present perfect. Choose from these verbs:</p>
+    </div>
+    <div class="verb-bank">
+      <span class="verb-chip">break</span>
+      <span class="verb-chip">disappear</span>
+      <span class="verb-chip">go up</span>
+      <span class="verb-chip">grow</span>
+      <span class="verb-chip">improve</span>
+      <span class="verb-chip">lose</span>
+      <span class="verb-chip">shrink</span>
+      <span class="verb-chip">stop</span>
+    </div>
+    <div class="section-body">
+      <!-- 1 - given -->
+      <div class="ex-row given">
+        <div class="ex-num">#1</div>
+        <div class="ex-situation">Tom is looking for his key. He can't find it.</div>
+        <div class="ex-sentence">Tom <span class="given-answer">has lost</span> his key.</div>
+      </div>
+      <!-- 2 -->
+      <div class="ex-row" data-section="71" data-index="0">
+        <div class="ex-num">#2</div>
+        <div class="ex-situation">Maria's English wasn't very good. Now it is better.</div>
+        <div class="ex-sentence">Her English <input class="ex-input" type="text" placeholder="has ..." data-answers="has improved"> .</div>
+        <div class="correction"></div>
+      </div>
+      <!-- 3 -->
+      <div class="ex-row" data-section="71" data-index="1">
+        <div class="ex-num">#3</div>
+        <div class="ex-situation">My bag was here, but it isn't here any more.</div>
+        <div class="ex-sentence">My bag <input class="ex-input" type="text" placeholder="has ..." data-answers="has disappeared"> .</div>
+        <div class="correction"></div>
+      </div>
+      <!-- 4 -->
+      <div class="ex-row" data-section="71" data-index="2">
+        <div class="ex-num">#4</div>
+        <div class="ex-situation">Lisa can't walk and her leg is in plaster.</div>
+        <div class="ex-sentence">Lisa <input class="ex-input" type="text" placeholder="has ..." data-answers="has broken her leg|has broken a leg"> .</div>
+        <div class="correction"></div>
+      </div>
+      <!-- 5 -->
+      <div class="ex-row" data-section="71" data-index="3">
+        <div class="ex-num">#5</div>
+        <div class="ex-situation">Last week the bus fare was £1.80. Now it is £2.</div>
+        <div class="ex-sentence">The bus fare <input class="ex-input" type="text" placeholder="has ..." data-answers="has gone up"> .</div>
+        <div class="correction"></div>
+      </div>
+      <!-- 6 -->
+      <div class="ex-row" data-section="71" data-index="4">
+        <div class="ex-num">#6</div>
+        <div class="ex-situation">Dan didn't have a beard before. Now he has a beard.</div>
+        <div class="ex-sentence">Dan <input class="ex-input" type="text" placeholder="has ..." data-answers="has grown a beard"> .</div>
+        <div class="correction"></div>
+      </div>
+      <!-- 7 -->
+      <div class="ex-row" data-section="71" data-index="5">
+        <div class="ex-num">#7</div>
+        <div class="ex-situation">It was raining ten minutes ago. It isn't raining now.</div>
+        <div class="ex-sentence">It <input class="ex-input" type="text" placeholder="has ..." data-answers="has stopped raining|has stopped"> .</div>
+        <div class="correction"></div>
+      </div>
+      <!-- 8 -->
+      <div class="ex-row" data-section="71" data-index="6">
+        <div class="ex-num">#8</div>
+        <div class="ex-situation">I washed my sweater, and now it's too small for me.</div>
+        <div class="ex-sentence">My sweater <input class="ex-input" type="text" placeholder="has ..." data-answers="has shrunk"> .</div>
+        <div class="correction"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ EXERCISE 7.2 ══════════ -->
+  <div class="section" id="sec-72">
+    <div class="section-head">
+      <div class="sec-tag">Exercise 7.2</div>
+      <h2>Been or Gone?</h2>
+      <p class="sec-info">Put in <strong>been</strong> or <strong>gone</strong>.</p>
+    </div>
+    <div class="section-body">
+      <!-- 1 - given -->
+      <div class="ex-row given">
+        <div class="ex-num">#1</div>
+        <div class="ex-sentence">My parents are on holiday. They've <span class="given-answer">gone</span> to Italy.</div>
+      </div>
+      <!-- 2 -->
+      <div class="ex-row" data-section="72" data-index="0">
+        <div class="ex-num">#2</div>
+        <div class="ex-sentence">Hello! I've just <input class="ex-input" type="text" placeholder="been / gone" style="min-width:100px" data-answers="been"> to the shops. I've bought lots of things.</div>
+        <div class="correction"></div>
+      </div>
+      <!-- 3 -->
+      <div class="ex-row" data-section="72" data-index="1">
+        <div class="ex-num">#3</div>
+        <div class="ex-sentence">Tom has just <input class="ex-input" type="text" placeholder="been / gone" style="min-width:100px" data-answers="gone"> out. He'll be back in about an hour.</div>
+        <div class="correction"></div>
+      </div>
+      <!-- 4 -->
+      <div class="ex-row" data-section="72" data-index="2">
+        <div class="ex-num">#4</div>
+        <div class="ex-sentence">Alice isn't here at the moment. I don't know where she's <input class="ex-input" type="text" placeholder="been / gone" style="min-width:100px" data-answers="gone"> .</div>
+        <div class="correction"></div>
+      </div>
+      <!-- 5 -->
+      <div class="ex-row" data-section="72" data-index="3">
+        <div class="ex-num">#5</div>
+        <div class="ex-sentence">You're very late. Where have you <input class="ex-input" type="text" placeholder="been / gone" style="min-width:100px" data-answers="been"> ?</div>
+        <div class="correction"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ EXERCISE 7.3 ══════════ -->
+  <div class="section" id="sec-73">
+    <div class="section-head">
+      <div class="sec-tag">Exercise 7.3</div>
+      <h2>Complete Using the Present Perfect</h2>
+      <p class="sec-info">Complete the sentences using the words in brackets.</p>
+    </div>
+    <div class="section-body">
+      <!-- 1 - given -->
+      <div class="ex-row given">
+        <div class="ex-num">#1</div>
+        <div class="ex-sentence">Sally is still here. She <span class="given-answer">hasn't gone</span> out. &nbsp;<span style="color:var(--muted);font-size:0.82rem">(she / not / go)</span></div>
+      </div>
+      <!-- 2 -->
+      <div class="ex-row" data-section="73" data-index="0">
+        <div class="ex-num">#2</div>
+        <div class="ex-sentence">I can't find my bag. <input class="ex-input" type="text" placeholder="(you / see / it)..." data-answers="have you seen it"> anywhere? &nbsp;<span style="color:var(--muted);font-size:0.82rem">(you / see / it)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 3 -->
+      <div class="ex-row" data-section="73" data-index="1">
+        <div class="ex-num">#3</div>
+        <div class="ex-sentence">I can't log on to the website. <input class="ex-input" type="text" placeholder="(I / forget)..." data-answers="i've forgotten|i have forgotten|i've forgot|i have forgot"> my password. &nbsp;<span style="color:var(--muted);font-size:0.82rem">(I / forget)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 4 -->
+      <div class="ex-row" data-section="73" data-index="2">
+        <div class="ex-num">#4</div>
+        <div class="ex-sentence">I sent Joe an email this morning, but <input class="ex-input" type="text" placeholder="(he / not / reply)..." data-answers="he hasn't replied|he has not replied|he hasn't replied yet|he has not replied yet"> . &nbsp;<span style="color:var(--muted);font-size:0.82rem">(he / not / reply)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 5 -->
+      <div class="ex-row" data-section="73" data-index="3">
+        <div class="ex-num">#5</div>
+        <div class="ex-sentence">Is the meeting still going on, or <input class="ex-input" type="text" placeholder="(it / finish)..." data-answers="has it finished"> ? &nbsp;<span style="color:var(--muted);font-size:0.82rem">(it / finish)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 6 -->
+      <div class="ex-row" data-section="73" data-index="4">
+        <div class="ex-num">#6</div>
+        <div class="ex-sentence"><input class="ex-input" type="text" placeholder="(the weather / change)..." data-answers="the weather has changed"> . It's colder now. &nbsp;<span style="color:var(--muted);font-size:0.82rem">(the weather / change)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 7 -->
+      <div class="ex-row" data-section="73" data-index="5">
+        <div class="ex-num">#7</div>
+        <div class="ex-sentence"><input class="ex-input" type="text" placeholder="(you / not / sign)..." data-answers="you haven't signed|you have not signed"> the form. Could you sign it now, please? &nbsp;<span style="color:var(--muted);font-size:0.82rem">(you / not / sign)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 8 -->
+      <div class="ex-row" data-section="73" data-index="6">
+        <div class="ex-num">#8</div>
+        <div class="ex-sentence">Are your friends still here, or <input class="ex-input" type="text" placeholder="(they / go)..." data-answers="have they gone"> home? &nbsp;<span style="color:var(--muted);font-size:0.82rem">(they / go)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 9 -->
+      <div class="ex-row" data-section="73" data-index="7">
+        <div class="ex-num">#9</div>
+        <div class="ex-sentence">Paul doesn't know what he's going to do. <input class="ex-input" type="text" placeholder="(he / not / decide / yet)..." data-answers="he hasn't decided yet|he has not decided yet|he hasn't decided|he has not decided"> . &nbsp;<span style="color:var(--muted);font-size:0.82rem">(he / not / decide / yet)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 10 -->
+      <div class="ex-row" data-section="73" data-index="8">
+        <div class="ex-num">#10</div>
+        <div class="ex-sentence">'Do you know where Julia is?' 'Yes, <input class="ex-input" type="text" placeholder="(I / just / see / her)..." data-answers="i've just seen her|i have just seen her"> .' &nbsp;<span style="color:var(--muted);font-size:0.82rem">(I / just / see / her)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 11 -->
+      <div class="ex-row" data-section="73" data-index="9">
+        <div class="ex-num">#11</div>
+        <div class="ex-sentence">'When is David going away?' '<input class="ex-input" type="text" placeholder="(he / already / go)..." data-answers="he's already gone|he has already gone|he already went"> .' &nbsp;<span style="color:var(--muted);font-size:0.82rem">(he / already / go)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 12 -->
+      <div class="ex-row" data-section="73" data-index="10">
+        <div class="ex-num">#12</div>
+        <div class="ex-sentence">a: <input class="ex-input" type="text" placeholder="(your course / start / yet)..." data-answers="has your course started yet"> ?<br>b: Not yet. It starts next week. &nbsp;<span style="color:var(--muted);font-size:0.82rem">(your course / start / yet)</span></div>
+        <div class="correction"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ EXERCISE 7.4 ══════════ -->
+  <div class="section" id="sec-74">
+    <div class="section-head">
+      <div class="sec-tag">Exercise 7.4</div>
+      <h2>Just, Already or Yet</h2>
+      <p class="sec-info">Read the situations and write sentences with <strong>just</strong>, <strong>already</strong> or <strong>yet</strong>.</p>
+    </div>
+    <div class="section-body">
+      <!-- 1 - given -->
+      <div class="ex-row given">
+        <div class="ex-num">#1</div>
+        <div class="ex-situation">After lunch you go to see a friend at her house. She says, 'Would you like something to eat?'</div>
+        <div class="ex-sentence">You say: No thank you. <span class="given-answer">I've just had lunch</span>. &nbsp;<span style="color:var(--muted);font-size:0.82rem">(have lunch)</span></div>
+      </div>
+      <!-- 2 -->
+      <div class="ex-row" data-section="74" data-index="0">
+        <div class="ex-num">#2</div>
+        <div class="ex-situation">Joe goes out. Five minutes later, the phone rings and the caller says, 'Can I speak to Joe?'</div>
+        <div class="ex-sentence">You say: I'm afraid <input class="ex-input" type="text" placeholder="(go out)..." data-answers="he's just gone out|he has just gone out|he just went out"> . &nbsp;<span style="color:var(--muted);font-size:0.82rem">(go out)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 3 -->
+      <div class="ex-row" data-section="74" data-index="1">
+        <div class="ex-num">#3</div>
+        <div class="ex-situation">You are eating in a restaurant. The waiter thinks you have finished and starts to take your plate away.</div>
+        <div class="ex-sentence">You say: Wait a minute! <input class="ex-input" type="text" placeholder="(not / finish)..." data-answers="i haven't finished yet|i have not finished yet|i haven't finished|i have not finished"> . &nbsp;<span style="color:var(--muted);font-size:0.82rem">(not / finish)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 4 -->
+      <div class="ex-row" data-section="74" data-index="2">
+        <div class="ex-num">#4</div>
+        <div class="ex-situation">You plan to eat at a restaurant tonight. You phone to reserve a table. Later your friend says, 'Shall I phone to reserve a table?'</div>
+        <div class="ex-sentence">You say: No, <input class="ex-input" type="text" placeholder="(do it)..." data-answers="i've already done it|i have already done it|i already did it|i've already done that"> . &nbsp;<span style="color:var(--muted);font-size:0.82rem">(do it)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 5 -->
+      <div class="ex-row" data-section="74" data-index="3">
+        <div class="ex-num">#5</div>
+        <div class="ex-situation">You know that Lisa is looking for a place to live. Perhaps she has been successful.</div>
+        <div class="ex-sentence">You ask her: <input class="ex-input" type="text" placeholder="(find)..." data-answers="have you found a place to live yet|have you found a place yet|have you found somewhere to live yet|have you found anywhere to live yet|have you found a place to live"> ? &nbsp;<span style="color:var(--muted);font-size:0.82rem">(find)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 6 -->
+      <div class="ex-row" data-section="74" data-index="4">
+        <div class="ex-num">#6</div>
+        <div class="ex-situation">You are still thinking about where to go for your holiday. A friend asks, 'Where are you going for your holiday?'</div>
+        <div class="ex-sentence">You say: <input class="ex-input" type="text" placeholder="(not / decide)..." data-answers="i haven't decided yet|i have not decided yet|i haven't decided|i have not decided|we haven't decided yet|we have not decided yet"> . &nbsp;<span style="color:var(--muted);font-size:0.82rem">(not / decide)</span></div>
+        <div class="correction"></div>
+      </div>
+      <!-- 7 -->
+      <div class="ex-row" data-section="74" data-index="5">
+        <div class="ex-num">#7</div>
+        <div class="ex-situation">Laura went out, but a few minutes ago she returned. Somebody asks, 'Is Laura still out?'</div>
+        <div class="ex-sentence">You say: No, <input class="ex-input" type="text" placeholder="(come back)..." data-answers="she's just come back|she has just come back|she just came back|she's just got back|she has just got back"> . &nbsp;<span style="color:var(--muted);font-size:0.82rem">(come back)</span></div>
+        <div class="correction"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Buttons ── -->
+  <div class="btn-row">
+    <button class="btn btn-check" onclick="checkAll()">Check Answers &#10004;</button>
+    <button class="btn btn-show" onclick="showAll()">Show Answers</button>
+    <button class="btn btn-reset" onclick="resetAll()">Try Again</button>
+  </div>
+
+  <!-- ── Results ── -->
+  <div class="results-card" id="results">
+    <div style="font-size:0.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;">Results</div>
+    <h2 id="res-title">Well Done!</h2>
+    <div class="results-ring">
+      <svg viewBox="0 0 128 128">
+        <circle class="ring-bg" cx="64" cy="64" r="56"/>
+        <circle class="ring-fg" cx="64" cy="64" r="56" id="ring-fg"
+          stroke-dasharray="351.86" stroke-dashoffset="351.86"/>
+      </svg>
+      <div class="results-pct" id="res-pct">0%</div>
+    </div>
+    <p class="results-msg" id="res-msg"></p>
+  </div>
+</div>
+
+<script>
+const inputs = document.querySelectorAll('.ex-input');
+const totalQ = inputs.length; // 27
+let correctCount = 0;
+let wrongCount = 0;
+
+function normalize(str) {
+  return str.trim().toLowerCase()
+    .replace(/['']/g, "'")
+    .replace(/\s+/g, ' ')
+    .replace(/\.$/, '')
+    .replace(/\?$/, '')
+    .replace(/\!$/, '')
+    .trim();
+}
+
+function checkAnswer(input) {
+  const raw = input.dataset.answers;
+  const accepted = raw.split('|').map(a => normalize(a));
+  const userVal = normalize(input.value);
+  const row = input.closest('.ex-row');
+  const correction = row.querySelector('.correction');
+
+  if (!userVal) {
+    input.classList.remove('correct', 'wrong');
+    row.classList.remove('correct', 'wrong');
+    if (correction) { correction.classList.remove('show'); correction.textContent = ''; }
+    return null;
+  }
+
+  const isCorrect = accepted.includes(userVal);
+
+  input.classList.remove('correct', 'wrong');
+  row.classList.remove('correct', 'wrong');
+
+  if (isCorrect) {
+    input.classList.add('correct');
+    row.classList.add('correct');
+    if (correction) { correction.classList.remove('show'); correction.textContent = ''; }
+  } else {
+    input.classList.add('wrong');
+    row.classList.add('wrong');
+    if (correction) {
+      correction.textContent = '✓ Correct answer: ' + accepted[0];
+      correction.classList.add('show');
+    }
+  }
+
+  input.disabled = true;
+  return isCorrect;
+}
+
+function checkAll() {
+  correctCount = 0;
+  wrongCount = 0;
+
+  inputs.forEach(input => {
+    if (input.disabled && (input.classList.contains('correct') || input.classList.contains('wrong'))) {
+      if (input.classList.contains('correct')) correctCount++;
+      else wrongCount++;
+      return;
+    }
+    const result = checkAnswer(input);
+    if (result === true) correctCount++;
+    else if (result === false) wrongCount++;
+    else wrongCount++; // empty = wrong
+  });
+
+  updateScore();
+  showResults();
+}
+
+function updateScore() {
+  document.getElementById('sc-correct').innerHTML = '&#10004; ' + correctCount;
+  document.getElementById('sc-wrong').innerHTML = '&#10008; ' + wrongCount;
+  document.getElementById('sc-total').textContent = 'Total: ' + correctCount + ' / ' + totalQ;
+}
+
+function showResults() {
+  const pct = Math.round((correctCount / totalQ) * 100);
+  const circ = 2 * Math.PI * 56;
+  const offset = circ - (circ * pct / 100);
+
+  let title, msg;
+  if (pct === 100) { title = 'Perfect!'; msg = 'Amazing! You got every answer correct. You really know the present perfect!'; }
+  else if (pct >= 80) { title = 'Excellent!'; msg = 'Great work! Just a few to review. Keep it up!'; }
+  else if (pct >= 60) { title = 'Good Job!'; msg = 'You\'re getting there! Review the corrections and try again.'; }
+  else if (pct >= 40) { title = 'Keep Trying!'; msg = 'Review the present perfect rules and have another go.'; }
+  else { title = 'Keep Studying!'; msg = 'Don\'t give up! Go back to the explanation and try again.'; }
+
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-msg').textContent = msg;
+
+  const res = document.getElementById('results');
+  res.classList.add('show');
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.getElementById('ring-fg').style.strokeDashoffset = offset;
+      let cur = 0;
+      const step = Math.max(1, Math.floor(pct / 30));
+      const iv = setInterval(() => {
+        cur = Math.min(cur + step, pct);
+        document.getElementById('res-pct').textContent = cur + '%';
+        if (cur >= pct) clearInterval(iv);
+      }, 30);
+    });
+  });
+
+  res.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showAll() {
+  correctCount = 0;
+  wrongCount = 0;
+
+  inputs.forEach(input => {
+    const accepted = input.dataset.answers.split('|');
+    const row = input.closest('.ex-row');
+    const correction = row.querySelector('.correction');
+
+    input.value = accepted[0];
+    input.classList.remove('wrong');
+    input.classList.add('correct');
+    row.classList.remove('wrong');
+    row.classList.add('correct');
+    input.disabled = true;
+    if (correction) { correction.classList.remove('show'); correction.textContent = ''; }
+  });
+
+  correctCount = totalQ;
+  updateScore();
+
+  document.getElementById('results').classList.remove('show');
+}
+
+function resetAll() {
+  correctCount = 0;
+  wrongCount = 0;
+
+  inputs.forEach(input => {
+    input.value = '';
+    input.disabled = false;
+    input.classList.remove('correct', 'wrong');
+    const row = input.closest('.ex-row');
+    row.classList.remove('correct', 'wrong');
+    const correction = row.querySelector('.correction');
+    if (correction) { correction.classList.remove('show'); correction.textContent = ''; }
+  });
+
+  updateScore();
+
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('ring-fg').style.strokeDashoffset = 351.86;
+  document.getElementById('res-pct').textContent = '0%';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Allow Enter key to move to next input
+inputs.forEach((input, i) => {
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (i < inputs.length - 1) {
+        inputs[i + 1].focus();
+      } else {
+        checkAll();
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>
